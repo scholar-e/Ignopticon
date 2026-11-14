@@ -1622,7 +1622,12 @@
                 fire.bbox = [[c[0] - r / Math.cos(c[1] * Math.PI / 180), c[1] - r],
                              [c[0] + r / Math.cos(c[1] * Math.PI / 180), c[1] + r]];
             });
-            heatFrame.index = 0;
+            // Open on the first overpass after the runs were issued, where the model's prediction first shows.
+            var first = data.fires[0];
+            var issue = first && first.issue ? new Date(first.issue.replace(/Z?$/, "Z")).getTime() : -Infinity;
+            var after = 0;
+            while (first && after < first.times.length - 1 && new Date(first.times[after]).getTime() < issue) after++;
+            heatFrame.index = after;
             heatFrame.run = 0;
             return data;
         }).otherwise(function() {

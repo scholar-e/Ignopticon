@@ -13,7 +13,8 @@ var µ = function() {
     var H = 0.0000360;  // 0.0000360°φ ~= 4m
     // The page opens on the busiest fire day of 2026 so far (most new FEDS fire pixels in the lower 48), not today.
     // "Now" in the menu still goes to the current data.
-    var DEFAULT_CONFIG = "2026/08/02/1800Z/wind/surface/level/orthographic";
+    // Opens on the Aug 2 demonstration: Widemouth 2 with its ELMFIRE forecast (issued 12Z) in the Heat frames layer.
+    var DEFAULT_CONFIG = "2026/08/02/1800Z/wind/surface/level/hotspots=off/frames=on/orthographic=-111.81,38.71,70000";
     var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
 
     /**
