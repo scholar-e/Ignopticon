@@ -101,7 +101,7 @@ Built by `scripts/gridmet_grid.py GRIDMET_DIR YEAR OUT` from gridMET (University
 | `fm100` | 100-hour dead fuel moisture, % |
 | `pr` | precipitation, mm/day |
 
-Cells outside gridMET (ocean, Canada, Mexico) are NaN.
+Cells outside gridMET (ocean, Canada, Mexico, the Great Lakes) are NaN, the same cells on every day. Values are rounded before the float16 cast (wind, u, v and vpd to 0.01; erc, fm100 and pr to 0.1). All 27 years 2000–2026 are gridded (2026 runs to Nov 12, 316 days), about 200 MB a year, 5.7 GB in total.
 
 ### 2d. Harmonized record: `data/harmonize/out/harmonized_YEAR.npz` (in progress)
 Built by `scripts/harmonize.py fit|apply`.
