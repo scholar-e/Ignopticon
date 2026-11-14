@@ -179,8 +179,13 @@ def fit(grid_dir, out_dir, first, last):
     test = np.isin(yr, test_years)
     log.info("train years %s, test years %s: %d / %d cell-days", [y_ for y_ in years if y_ not in test_years],
              test_years, (~test).sum(), test.sum())
-    gb = HistGradientBoostingClassifier(max_iter=400, learning_rate=0.08, max_leaf_nodes=63, l2_regularization=1.0,
-                                        categorical_features=[FEATURES.index("month")], random_state=0)
+    # Fire is in ~0.1% of cell-days, so boosting starts near p = 0.001, where the second derivative of the loss is
+    # tiny and the first trees overshoot. With rate 0.08, 63 leaves and early stopping the fit diverged (stopped
+    # after 10 trees, held-out AUC 0.5); with rate 0.03 and L2 = 1 it ran but left p = 0.99 where VIIRS saw fire
+    # 75% of the time, in the training years too. A strong L2 penalty on the leaf values bounds those steps.
+    # L2 = 50 and 600 trees were chosen on 2017-2018, with 2012, 2014, 2015, 2020 and 2021 as training.
+    gb = HistGradientBoostingClassifier(max_iter=600, learning_rate=0.03, max_leaf_nodes=31, min_samples_leaf=200,
+                                        l2_regularization=50.0, early_stopping=False, random_state=0)
     gb.fit(X[~test], y[~test], sample_weight=w[~test])
     i_fire, i_month = FEATURES.index("fire"), FEATURES.index("month")
     # Baseline 2: per-month logistic on log(1 + MODIS fire pixels) and MODIS clear flag.
