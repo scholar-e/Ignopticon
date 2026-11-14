@@ -89,6 +89,7 @@ button{cursor:pointer}
 .legend{display:flex;align-items:flex-start;gap:4px;max-width:100%;padding:4px;background:rgba(14,17,22,0.92);border:1px solid var(--line);border-radius:8px}
 .legend ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px}
 .legend.open ul{display:block;width:330px}
+.legend:not(.open) ul{display:none}
 .legend:not(.open) .l,.legend.open .s{display:none}
 .lg-toggle{flex:none;min-height:44px;padding:0 12px;background:var(--raise);border:1px solid #6B7686;border-radius:6px;white-space:nowrap}
 .legend li button{display:flex;gap:8px;align-items:center;width:100%;min-height:44px;padding:4px 8px;text-align:left;background:none;border:0;border-radius:6px;font-size:0.95rem}
@@ -148,6 +149,10 @@ body.selected{grid-template-rows:auto minmax(0,1fr) minmax(0,1fr)}
 #locate{position:absolute;bottom:32px;right:12px}.gpsdot{width:19px;height:19px;border-radius:50%;background:#ff3636;border:3px solid white;box-shadow:0 0 0 5px #ca23234d}
 .fieldnotes,.sidebar .status,.mapnav{display:none}.selected .fieldnotes,.selected .sidebar .status{display:block}
 .selected .mapnav{display:flex}.selected .controls,.selected .fires,.selected .brand h1,.selected #back{display:none}
+.sidebar .bottom{position:static;display:block;max-width:none;margin:0 16px 8px;pointer-events:auto}
+.sidebar .legend{display:inline-flex}
+.selected .sidebar .bottom{margin-bottom:4px}
+.selected .sidebar .lg-toggle{min-height:34px;padding:0 10px;font-size:.85rem}
 .fieldnotes,.settings,.sidebar .status,.timeline{margin:10px 16px}.fieldnotes{padding:12px 16px;border-left:3px solid #e1b55e;background:#252e25}.fieldnotes h3,.fieldnotes p{margin:4px 0}.fieldnotes a{color:#d0e7cf}.sidebar .status,.settings .mapctl{position:static}
 .settings summary{padding:12px 0;cursor:pointer}.settings .mapctl,.seg,.tl-bar{flex-wrap:wrap}.tl-hint{display:none}
 .fire{background:transparent;border-bottom:1px solid var(--line);border-radius:0;margin:0;padding:12px}.ac{font-size:1.15rem}.r2,.r3{font-size:.9rem}.r3{margin-top:3px}.maplibregl-ctrl-top-right{top:0}.bottom{right:auto;max-width:calc(100% - 100px)}.legend.open{max-height:32dvh;overflow:auto}

@@ -520,7 +520,7 @@ async function select(id, {fitMap = true} = {}) {
   const f = byId.get(id);
   if (!f) return;
   if (playing) play();
-  document.body.classList.add("selected"); $(".sidebar").scrollTop = 0; map?.resize();
+  document.body.classList.add("selected"); placeLegend(true); $(".sidebar").scrollTop = 0; map?.resize();
   state.fire = id; pickMode(false); accessPoint = null;
   try {
     const point = JSON.parse(localStorage.getItem(routeKey()+".point"));
@@ -546,7 +546,7 @@ async function select(id, {fitMap = true} = {}) {
 }
 function overview() {
   if (playing) play();
-  document.body.classList.remove("selected"); map?.resize();
+  document.body.classList.remove("selected"); placeLegend(false); setLegend(false); map?.resize();
   state.fire = null; cur = null; accessRoute = null; accessPoint = null; accessMarker?.remove(); pickMode(false);
   $("#detail").hidden = true; $("#timeline").hidden = true;
   writeUrl(); renderList(); renderStatus(); legendForecast(null);
@@ -640,12 +640,18 @@ document.querySelector(".legend").addEventListener("click", (e) => {
 function setLegend(open) {
   $("#legend").classList.toggle("open", open);
   $("#legend-toggle").setAttribute("aria-expanded", open);
-  $("#legend-toggle").textContent = open ? "Legend ▾" : "Legend ▸";
+  $("#legend-toggle").textContent = open ? "Key ▾" : "Key";
   try { localStorage.setItem("ops.legend", open ? "open" : ""); } catch {}
 }
-let legendOpen = false;
-try { legendOpen = localStorage.getItem("ops.legend") === "open"; } catch {}
-setLegend(legendOpen);
+// On phones, the selected-fire sheet is the useful place for layer controls:
+// the map remains clear, while the key stays adjacent to that fire's forecast.
+function placeLegend(selected) {
+  const bottom = $(".bottom"), sidebar = $(".sidebar"), detail = $("#detail");
+  if (selected && window.matchMedia("(max-width: 1099px)").matches) sidebar.insertBefore(bottom, detail);
+  else $(".mapwrap").append(bottom);
+}
+setLegend(false);
+window.addEventListener("resize", () => placeLegend(document.body.classList.contains("selected")));
 $("#legend-toggle").addEventListener("click", () => setLegend(!$("#legend").classList.contains("open")));
 $("#basemaps").addEventListener("click", (e) => { const b = e.target.closest("[data-base]"); if (b) setBase(b.dataset.base); });
 $("#view3d").addEventListener("click", () => setView(state.view === "3d" ? "2d" : "3d"));
