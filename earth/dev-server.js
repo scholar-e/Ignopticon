@@ -281,13 +281,48 @@ function i4Identify(req, res) {
     catch (err) {
         return res.json({value: null});
     }
-    var z = info.max_zoom, n = Math.pow(2, z);
-    var fx = (lon + 180) / 360 * n, fy = (1 - Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)) / Math.PI) / 2 * n;
-    var x = Math.floor(fx), y = Math.floor(fy), file = path.join(dir, String(z), String(x), y + ".png");
-    if (!fs.existsSync(file)) return res.json({value: null});
+    // The closest zoom present: a copy of the repo may hold only the coarser zooms (see i4Tile).
+    for (var z = info.max_zoom; z >= 0; z--) {
+        var n = Math.pow(2, z);
+        var fx = (lon + 180) / 360 * n, fy = (1 - Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)) / Math.PI) / 2 * n;
+        var x = Math.floor(fx), y = Math.floor(fy), file = path.join(dir, String(z), String(x), y + ".png");
+        if (fs.existsSync(file)) break;
+        if (z === 0) return res.json({value: null});
+    }
     var image = paletteIndices(fs.readFileSync(file));
     var index = image ? image.pixels[Math.floor((fy - y) * image.height) * image.width + Math.floor((fx - x) * image.width)] : 0;
     res.json({value: index ? +(info.kelvin_min + (index - 0.5) * info.kelvin_step).toFixed(1) : null});
+}
+
+/**
+ * Serves a fire-band tile that isn't on disk from the closest coarser tile that is, its quarter (eighth, ...)
+ * enlarged with nearest-neighbour pixels. The repo keeps only the coarser zooms (the full set is ~600 MB a day),
+ * so a fresh copy shows the fire band at lower resolution instead of nothing. Tiles on disk go to express.static.
+ */
+var I4_TILE = /^\/data\/thermal\/i4\/(\d{4}-\d{2}-\d{2})\/([A-Za-z0-9-]+)\/(\d+)\/(\d+)\/(\d+)\.png$/;
+
+function i4Tile(req, res, next) {
+    var m = I4_TILE.exec(req.path);
+    if (!m) return next();
+    var dir = path.join(I4_TILES, m[1], m[2]), z = +m[3], x = +m[4], y = +m[5];
+    if (!isTile(z, x, y) || fs.existsSync(path.join(dir, String(z), String(x), y + ".png"))) return next();
+    for (var d = 1; d <= z && d <= 8; d++) {
+        var file = path.join(dir, String(z - d), String(x >> d), (y >> d) + ".png");
+        if (!fs.existsSync(file)) continue;
+        var png = fs.readFileSync(file), source = paletteIndices(png);
+        if (!source) return next();
+        var w = source.width, h = source.height, k = 1 << d, pixels = Buffer.alloc(w * h);
+        var ox = (x & (k - 1)) * w / k, oy = (y & (k - 1)) * h / k;
+        for (var r = 0; r < h; r++) {
+            var from = (Math.floor(oy + r / k)) * w;
+            for (var c = 0; c < w; c++) pixels[r * w + c] = source.pixels[from + Math.floor(ox + c / k)];
+        }
+        var palette = pngChunks(png).filter(function(chunk) { return chunk.type === "PLTE" || chunk.type === "tRNS"; });
+        return sendTile(res, palettePng({width: w, height: h, pixels: pixels}, palette.map(function(chunk) {
+            return pngChunk(chunk.type, chunk.data);
+        })));
+    }
+    next();
 }
 
 /**
@@ -352,6 +387,13 @@ var thermalPalette = (function() {
  * @returns {Buffer} a palette PNG of the image's pixels, colored by THERMAL_SCALE.
  */
 function thermalPng(image) {
+    return palettePng(image, [pngChunk("PLTE", thermalPalette[0]), pngChunk("tRNS", thermalPalette[1])]);
+}
+
+/**
+ * @returns {Buffer} an 8-bit palette PNG of the image's pixels, with the given PLTE (and tRNS) chunks.
+ */
+function palettePng(image, paletteChunks) {
     var ihdr = Buffer.alloc(13), stride = image.width + 1, raw = Buffer.alloc(stride * image.height);
     ihdr.writeUInt32BE(image.width, 0);
     ihdr.writeUInt32BE(image.height, 4);
@@ -362,12 +404,11 @@ function thermalPng(image) {
     }
     return Buffer.concat([
         Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-        pngChunk("IHDR", ihdr),
-        pngChunk("PLTE", thermalPalette[0]),
-        pngChunk("tRNS", thermalPalette[1]),
+        pngChunk("IHDR", ihdr)
+    ].concat(paletteChunks, [
         pngChunk("IDAT", zlib.deflateSync(raw)),
         pngChunk("IEND", Buffer.alloc(0))
-    ]);
+    ]));
 }
 
 /**
@@ -437,6 +478,7 @@ app.get("/identify/fuel", fuelIdentify);
 app.get("/tiles/thermal/:pass/:date/:z/:x/:y", thermalTileProxy);
 app.get("/identify/thermal", thermalIdentify);
 app.get("/identify/i4", i4Identify);
+app.use(i4Tile);
 app.use(express.static("public"));
 
 app.listen(port);

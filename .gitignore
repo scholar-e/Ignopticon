@@ -1,3 +1,5 @@
 earth/node_modules/
 earth/tile-cache/
-earth/public/data/thermal/i4/
+# Fire band tiles: only zooms 3-7 are kept (~14 MB a pass); dev-server.js enlarges them for closer zooms.
+earth/public/data/thermal/i4/*/*/8/
+earth/public/data/thermal/i4/*/*/9/
