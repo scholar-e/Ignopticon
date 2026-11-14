@@ -2,7 +2,7 @@
 // Caches: ops-shell-VERSION (app shell, cache-first), ops-api (network-first), ops-tiles (cache-first, trimmed),
 // ops-area-{id} (tiles and data of areas saved by offline.js, never trimmed), ops-data (/data/, stale-while-revalidate).
 // Bump VERSION whenever a shell file changes: the new worker precaches, then waits until the page asks it to take over.
-const VERSION = "v1";
+const VERSION = "v3";
 const SHELL = "ops-shell-" + VERSION;
 const SHELL_FILES = [
   "/ops/", "/ops/index.html", "/ops/ops.css", "/ops/ops.js", "/ops/offline.js", "/ops/storage.html",
@@ -39,7 +39,7 @@ self.addEventListener("fetch", (event) => {
   const req = event.request, url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== location.origin) return count("other", "passthrough");
   const p = url.pathname;
-  if (p.startsWith("/api/")) event.respondWith(networkFirst(event));
+  if (p.startsWith("/api/") || p === "/identify/fuel") event.respondWith(networkFirst(event));
   else if (p.startsWith("/tiles/")) event.respondWith(tile(event));
   else if (p.startsWith("/data/")) event.respondWith(staleWhileRevalidate(event));
   else if (p.startsWith("/ops/")) event.respondWith(shell(req));
