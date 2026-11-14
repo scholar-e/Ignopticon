@@ -20,6 +20,8 @@ fire state (fire_observations.py), so their smoldering still shows. For each obs
      over the fire. A cell is predicted to be detected if that is DETECT_K above the background (91-100% of VIIRS
      detections are at least that much hotter than ground 3 km away, PLAN.md).
 
+Cells the fire mask shows the satellite could not see on that pass (frame "obscured": cloud, glint, not processed)
+are left out of the score, so a predicted fire under cloud is not a false alarm.
 Scores per overpass compare predicted detections with observed hot cells (detections, or fire band only), allowing
 one cell (375 m) of offset for geolocation; and at each later FEDS snapshot, the run's burned area against the
 perimeter (IoU). All constants are uncalibrated first guesses: fitting them is part of PLAN.md M4.
@@ -178,8 +180,15 @@ def main(observed_json, state_tif, issue_text, out_json, *run_dirs):
             for lo, la, heat, src in f["cells"]:
                 r, c = grid.cell(lo, la)
                 observed[r, c] = True
-            s = score(detected, observed)
+            # Cells the satellite couldn't see on this pass (cloud, glint, not processed; fire_observations.py's
+            # "obscured", from the fire mask) can't verify a prediction either way: left out of the score.
+            unseen = np.zeros((n, n), bool)
+            for r, c in f.get("obscured", []):
+                unseen[r, c] = True
+            unseen &= ~observed
+            s = score(detected & ~unseen, observed)
             s.update(time=f["time"], predicted=int(detected.sum()), observed=int(observed.sum()),
+                     obscured=int(unseen.sum()), predicted_obscured=int((detected & unseen).sum()),
                      frp_observed_mw=f["frp_mw"], frp_model_mw=round(float(frp.sum()), 1))
             scores.append(s)
             r, c = np.nonzero(frp >= 0.5)  # MW: below this a cell is not worth drawing

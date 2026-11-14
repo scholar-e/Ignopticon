@@ -112,3 +112,69 @@ Growth happens almost entirely in the afternoon burning periods. Overnight it's 
     - suppression, which isn't modelled.
 - **Area versus hot cells:** IoU at +24 h is 0.80–0.91 on Aug 3–5, but no growth already reaches 0.77–0.89 there. The gain shows mostly in CSI, i.e. where the fire is burning, not in total area.
 - **Runtime:** with each run allowed on any core (`mpirun --bind-to none`), 32 forecasts took 8.7 min on 16 cores (~2.6 CPU-min each).
+
+## 2026-11-15 (event day 2)
+
+### 6. Leak-free initial state, and what it exposed
+- **The leak:** the fire-state raster gives cells that were never seen hot an arrival halfway between FEDS snapshots, and that uses the snapshot after the cell entered the perimeter. A forecast issued between snapshots therefore knew part of the next perimeter. It barely matters at 12Z issues (the 12Z snapshot is known then), but it would hand model B's mid-afternoon restarts the coming 00Z perimeter.
+- **Change:** with OBSERVED given, the area burned at issue is rebuilt from what was known then only: every cell seen hot by issue, plus the latest FEDS perimeter at or before issue.
+- **First version, and why it failed:**
+  - It made everything in that perimeter non-burnable except the hot cells. CSI collapsed: within-horizon pooled CSI 0.06–0.09, against 0.3–0.45 with the old start.
+  - Cause: FEDS perimeters are drawn around detection footprints, so they include the actively burning zone. Cells inside the 12Z perimeter but still burning that afternoon could no longer burn. Aug 4: 39–43 predicted detections per afternoon pass against 92–131 observed (the old start predicted ~110).
+  - The old start avoided this only through the leak: its state gave those cells a post-issue arrival from their later detections, so they stayed fuel.
+  - The scoring was checked and is not the cause: the same run scores identically against the Aug 5 and Aug 6 observation files.
+- **Fix:** burned cells within ACTIVE_BUFFER = 2 state cells (750 m) of a cell hot in the 6 h before issue keep their fuel. Only burned cells farther from recent heat become non-burnable. At Aug 4 12Z: 367 hot cells, and 2,360 burned cells made non-burnable.
+
+### 7. Can weather corrections replace the spread multiplier? (diagnosis, first leak-free version)
+- **Sweep:** at spread ×1.0, wind ×0.5, ×0.7 or ×1.0, against dead fuel moisture +0, +3 or +6 percentage points. Four 12Z issues, pooled CSI within each 24 h horizon. These used the flawed start of entry 6, so absolute scores are low and only the ranking means anything.
+- **Result:**
+  - Wind ×0.5 with moisture +6 ties spread ×0.1 (pooled CSI 0.090 each), ahead of ×0.05 (0.077) and the uncorrected run (0.057).
+  - Wetter beats drier at every wind tried, and lower wind beats higher wind at every moisture.
+  - So about half the wind with dead fuels ~6 points wetter (1-h ≈ 8–10% instead of 2.5–4.5%) does what the arbitrary ×0.1 does.
+- **Interpretation:** the slowdown may be physical rather than arbitrary:
+  - HRRR's 20-ft wind may be too strong over this terrain.
+  - The Simard EMC estimate is the equilibrium moisture of the air at 2 m, while real 1-h fuels lag, are shaded, and recover overnight.
+  - These are hypotheses, not yet tested against a weather station.
+
+### 8. Model B (updated at a satellite pass) against model A, first result
+- **Setup:** four 24 h forecast windows from 12Z on Aug 2–5, all with the entry 6 fix (leak-free start, 750 m buffer).
+- **Model A:** plain ELMFIRE from 12Z. Its spread multiplier is chosen by leaving one window out: best pooled CSI over the other three windows' full horizons.
+- **Update time:** the first overpass after issue + 1 h of data latency, rounded up to the hour. That is 21Z on every day (first passes 19:18–19:54Z).
+- **Model B:** a new ELMFIRE run at the update time, from the burning edges and burned area known then: hot cells of passes in the previous 6 h, plus the 12Z FEDS perimeter. Same HRRR 12Z run, from forecast hour 9.
+- **Scored on:** only the overpasses after the update and within A's horizon, 3–4 per window and 14 in all. Mostly night passes (Aug 3–6, 08–10Z) plus late afternoon passes. Pooled CSI = Σhits / Σ(hits + misses + false alarms).
+- **A's spread multiplier:** members 0.01, 0.02, 0.03, 0.05, 0.1, 0.2 and 0.35 (LH 90%). The optimum is now inside the range: pooled CSI over full horizons is 0.263 at ×0.02, 0.257 at ×0.03, 0.195 at ×0.01 and 0.172 at ×0.35. Leaving one window out chooses ×0.02 for every window.
+- **Buffer width:** at ×0.1, 1 cell gives 0.243, 2 cells 0.222 and 3 cells 0.219. Not re-tuned.
+
+Results on the 14 passes after the update:
+
+| Run | Aug 2 | Aug 3 | Aug 4 | Aug 5 | Pooled CSI | Hits / misses / false alarms |
+|---|---|---|---|---|---|---|
+| A (×0.02, issued 12Z) | 0.255 | 0.096 | 0.341 | 0.325 | 0.255 | 1197 / 2031 / 1475 |
+| **B: restart at 21Z, A's setting** | 0.249 | 0.209 | 0.430 | 0.413 | **0.305** | 1187 / 2041 / 666 |
+| B: restart and re-pick the setting from passes in (issue, update] | 0.249 | 0.104 | 0.272 | 0.413 | 0.261 | |
+| No growth from the 21Z state | 0.122 | 0.000 | 0.118 | 0.000 | 0.079 | 259 / 2969 / 58 |
+
+- **The gain is from the state update, not the parameters:**
+  - Restarting from the latest burning edges cuts false alarms by 55% (1,475 → 666) at the same hits.
+  - Re-picking the multiplier from one afternoon pass is noisy: it chose ×0.01 on Aug 3 and 4 and lost most of the gain.
+- **Honesty notes:**
+  - The restart-only variant was chosen after seeing both. Both are reported.
+  - n = 14 passes, one fire, so this is a case study.
+  - The earlier B run with members ×0.03–0.35 only (before ×0.01–0.02 were added) gave B 0.343 against A 0.265. Its multipliers were all the slowest available, which motivated adding the slower ones.
+- **Remaining biases:**
+  - Both A and B miss ~2,000 observed hot cells, mostly on night passes where the observed heat is smouldering in the interior, which a front-only spread model doesn't produce.
+  - The no-growth baseline uses the state raster's guessed arrivals (a slight look-ahead), which makes it stronger, not weaker.
+  - Cloud and smoke aren't yet accounted for: predicted fire under cloud counts as a false alarm (entry 9).
+
+### 9. Cloud-masked scoring from the VIIRS fire mask
+- **Change:** scores now leave out cells the satellite couldn't see on that pass. A predicted fire under cloud is neither a hit nor a false alarm.
+- **Where the mask comes from:**
+  - The VIIRS active fire product's per-pixel fire mask (0 not processed, 1 bow-tie deleted, 2 glint, 3 water, 4 cloud, 5 land, 6 unclassified, 7–9 fire), placed with the matching 03IMG geolocation granule. The fire product geolocates only its fire pixels.
+  - A 375 m cell is obscured on a pass if it held pixels and none was clear (no 3, 5 or 7–9). A cell held only by bow-tie-deleted pixels doesn't count.
+  - Scripts: `scripts/obscured_cells.py`, then `heat_frames.py`.
+- **A shortcut that failed:** geolocating the mask by fitting line/sample → lat/lon to the fire pixels, either across the granule (2–35 km error) or locally (0.1–5 km), is not accurate enough for 375 m cells. The real geolocation granules are needed: 33 for this fire, 5.3 GB.
+- **Over Widemouth 2:** Aug 3–5 were nearly clear. Aug 2 afternoon passes had 4–9% of observed cells obscured, Aug 6 afternoon up to 20%. Each pass uses only the granule that held the fire, so cells in a neighbouring granule stay in the score (conservative).
+- **Effect:** small. On the 14 passes after B's update, 14 of A's and 16 of B's predicted hot cells fell under cloud.
+  - Pooled CSI: A 0.255 (unchanged), B 0.306 (0.305 unmasked).
+  - A's full-horizon pooled CSI by multiplier rises slightly, and ×0.02 stays best (0.268).
+  - The A < B result is not a cloud artifact on this fire. Smoke isn't flagged as cloud by the mask, so smoke-obscured fire is still not accounted for.

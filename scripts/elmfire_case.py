@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["numpy", "pyproj", "rasterio"]
+# dependencies = ["numpy", "pyproj", "rasterio", "scipy", "shapely>=2.1"]
 # ///
 """Writes an ELMFIRE case directory without the GDAL command-line tools.
 
@@ -34,7 +34,11 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            start burned). KEY=VALUE are namelist overrides, GROUP:KEY=VALUE or KEY (looked up in the groups
            written), e.g. LH_MOISTURE_CONTENT=60 ADJ=1.2 (ADJ scales the spread rate everywhere).
            OBSERVED=OBS.json (fire_observations.py) starts the fire from its hotspots instead: cells seen hot in the
-           ACTIVE_HOURS (default 6) before ISSUE burn, the rest of the area burned by ISSUE is non-burnable.
+           ACTIVE_HOURS (default 6) before ISSUE burn, the rest of the area burned by ISSUE is non-burnable; the
+           burned area is then rebuilt from what was known at ISSUE (hot cells, latest FEDS perimeter).
+           WSMULT=x scales wind speed, MOIST=p adds p percentage points to dead fuel moisture, WXSTART=k starts at
+           the weather's band k (for an ISSUE k hours after the weather run). ACTIVE_BUFFER=n (default 2): burned
+           cells within n state cells of a hot cell keep their fuel; only the rest become non-burnable.
        elmfire_case.py outputs CASE [NAME]
            after ELMFIRE has run in CASE: its .bil outputs to GeoTIFF (with the case's CRS, which ELMFIRE leaves out)
            and CASE/outputs/run.json naming the run, for heat_frames.py CASE/outputs.
@@ -187,10 +191,23 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     refine = int(round(st.a / transform.a))
     burned_fine = np.kron(burned, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
     adj_value, observed, active_hours, extra = 1.0, None, 6.0, {"SIMULATOR": {"NUM_IGNITIONS": 0}}
+    ws_mult, moist_add, wx_start, active_buffer = 1.0, 0.0, 0, 2
     for item in overrides:
         key, value = item.split("=", 1)
         if key.upper() == "ADJ":
             adj_value = float(value)
+            continue
+        if key.upper() == "WSMULT":
+            ws_mult = float(value)
+            continue
+        if key.upper() == "MOIST":
+            moist_add = float(value)
+            continue
+        if key.upper() == "ACTIVE_BUFFER":
+            active_buffer = int(value)
+            continue
+        if key.upper() == "WXSTART":
+            wx_start = int(value)
             continue
         if key.upper() == "OBSERVED":
             observed = value
@@ -206,26 +223,55 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         # the area burned by issue becomes non-burnable (fuel model 99), so edges that had gone quiet don't spread.
         from pyproj import Transformer
         import json
+        from rasterio.features import rasterize
+        from shapely.geometry import mapping, shape
+        import shapely
         to_grid = Transformer.from_crs("EPSG:4326", crs, always_xy=True)
-        frames = json.load(open(observed))["frames"]
-        offset = (datetime.datetime.fromisoformat(json.load(open(observed))["reference"].replace("Z", "")) -
-                  reference).total_seconds()
-        for f in frames:
+        obs = json.load(open(observed))
+        offset = (datetime.datetime.fromisoformat(obs["reference"].replace("Z", "")) - reference).total_seconds()
+        # The area burned by issue from what was known then only: every cell seen hot by issue, plus the latest
+        # FEDS perimeter at or before issue. (The state raster's guessed arrivals use later snapshots.)
+        burned = np.zeros_like(burned)
+        for f in obs["frames"]:
             t = f["seconds"] + offset
-            if issue_s - active_hours * 3600 <= t <= issue_s:
-                for lon, lat, heat, source in f["cells"]:
-                    x, y = to_grid.transform(lon, lat)
-                    col, row = int((x - st.c) / st.a), int((y - st.f) / st.e)
-                    if 0 <= row < hot.shape[0] and 0 <= col < hot.shape[1]:
+            if t > issue_s:
+                continue
+            for lon, lat, heat, source in f["cells"]:
+                x, y = to_grid.transform(lon, lat)
+                col, row = int((x - st.c) / st.a), int((y - st.f) / st.e)
+                if 0 <= row < hot.shape[0] and 0 <= col < hot.shape[1]:
+                    burned[row, col] = True
+                    if t >= issue_s - active_hours * 3600:
                         hot[row, col] = True
+        known = [p for p in obs["perimeters"]
+                 if (datetime.datetime.fromisoformat(p["time"].replace("Z", "")) - reference).total_seconds() <= issue_s]
+        if known:
+            geom = shapely.transform(shape(known[-1]["geometry"]),
+                                     lambda xy: np.column_stack(to_grid.transform(xy[:, 0], xy[:, 1])))
+            burned |= rasterize([(mapping(geom), 1)], out_shape=burned.shape, transform=st, dtype="uint8").astype(bool)
+            log.info("latest FEDS perimeter known at issue: %s", known[-1]["time"])
+        burned_fine = np.kron(burned, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
         hot_fine = np.kron(hot, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
         phi = np.where(hot_fine, -1.0, 1.0)
-        landscape["fbfm40"] = np.where(burned_fine & ~hot_fine, 99, landscape["fbfm40"]).astype("int16")
-        log.info("%d cells hot in the %g h before issue start burning; %d other burned cells made non-burnable",
-                 hot.sum(), active_hours, (burned & ~hot).sum())
+        # Burned cells far from recent heat are burned out (non-burnable). Cells within ACTIVE_BUFFER state cells of
+        # a hot cell keep their fuel: FEDS perimeters are drawn around the detection footprints, so the zone the
+        # fire is consuming lies inside them.
+        from scipy.ndimage import binary_dilation
+        near_hot = binary_dilation(hot, iterations=active_buffer) if active_buffer > 0 else hot
+        out = burned & ~near_hot
+        out_fine = np.kron(out, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
+        landscape["fbfm40"] = np.where(out_fine, 99, landscape["fbfm40"]).astype("int16")
+        log.info("%d cells hot in the %g h before issue start burning; %d burned cells more than %d cells from them "
+                 "made non-burnable", hot.sum(), active_hours, out.sum(), active_buffer)
     else:
         phi = np.where(burned_fine, -1.0, 1.0)
     adj = np.full(phi.shape, adj_value)
+    # Weather adjustments: start at band WXSTART (hours after the weather's first band), scale the wind speed,
+    # add MOIST (percentage points) to the dead fuel moisture.
+    weather = {k: v[wx_start:] for k, v in weather.items()}
+    weather["ws"] = weather["ws"] * ws_mult
+    for k in ("m1", "m10", "m100"):
+        weather[k] = weather[k] + moist_add
     # Keys given without a group go to the group write_case already uses them in, else SIMULATOR.
     loose = extra.pop("?", {})
     hours = float(hours)
