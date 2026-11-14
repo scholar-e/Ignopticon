@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ignopticon Ops: fires and spread forecasts</title>
+<link rel="preload" href="vendor/maplibre-gl.js" as="script">
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<link rel="stylesheet" href="ops.css">
+<script type="module" src="ops.js"></script>
+<script src="vendor/maplibre-gl.js" defer></script>
+</head>
+<body>
+<div class="sidebar">
+  <header class="brand">
+    <h1>Ignopticon <span>Ops</span></h1>
+    <p class="replay" id="replay"></p>
+  </header>
+  <section id="detail" class="detail" aria-labelledby="detail-name" hidden></section>
+  <nav class="fires" aria-label="Fires">
+    <div class="controls">
+      <label for="filter" class="sr-only">Filter fires</label>
+      <input id="filter" type="search" placeholder="Filter fires  ( / )" autocomplete="off" spellcheck="false">
+      <label for="sort">Sort</label>
+      <select id="sort">
+        <option value="growth">12 h growth</option>
+        <option value="size">Size</option>
+        <option value="name">Name</option>
+      </select>
+    </div>
+    <p id="count" class="count">Loading fires…</p>
+    <ul id="list" class="list"></ul>
+  </nav>
+</div>
+<main class="mapwrap" aria-label="Map">
+  <div id="map" class="map"></div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+  <div class="mapctl" role="group" aria-label="Map view">
+    <div role="group" aria-label="Basemap" class="seg" id="basemaps">
+      <button type="button" data-base="satellite">Satellite</button>
+      <button type="button" data-base="imagerytopo">Satellite + topo</button>
+      <button type="button" data-base="topo">Topo map</button>
+    </div>
+    <button type="button" id="view3d" aria-pressed="false" title="3D terrain (key 3)">3D</button>
+    <button type="button" id="labels" aria-pressed="false">Labels</button>
+  </div>
+  <div class="bottom">
+  <section class="legend" id="legend" aria-labelledby="legend-h">
+    <h2 id="legend-h" class="sr-only">Map layers</h2>
+    <ul id="legend-list">
+      <li><button type="button" aria-pressed="true" data-layer="current"><span class="sw sw-cur"></span><span class="s">Perimeter</span><span class="l">Current perimeter (FEDS)</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="previous"><span class="sw sw-prev"></span><span class="s">Past</span><span class="l">Past perimeters (oldest dimmest)</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="forecast"><span class="sw-fc"><span class="sw sw-b0"></span><span class="sw sw-b1"></span><span class="sw sw-b2"></span></span><span class="s">Forecast</span><span class="l" id="fc-legend">Predicted front growth +6 / +12 / +24 h (hatched)</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="arrows"><span class="sw sw-arrow" aria-hidden="true">➜</span><span class="s">Advances</span><span class="l">Largest predicted advances</span></button></li>
+      <li><button type="button" aria-pressed="false" data-layer="interior"><span class="sw sw-faint"></span><span class="s">Burnout</span><span class="l">Burnout inside perimeter (predicted)</span></button></li>
+      <li><button type="button" aria-pressed="false" data-layer="detached"><span class="sw sw-faint"></span><span class="s">Detached</span><span class="l">Growth on hotspots &gt; 1 km from fire (predicted)</span></button></li>
+      <li><button type="button" aria-pressed="false" data-layer="hotspots"><span class="sw sw-hot"></span><span class="s">Hotspots</span><span class="l">VIIRS hotspots, last 12 h</span></button></li>
+    </ul>
+    <button type="button" id="legend-toggle" class="lg-toggle" aria-expanded="false" aria-controls="legend-list">Legend ▸</button>
+  </section>
+  <section id="timeline" class="timeline" aria-label="Fire timeline" hidden>
+    <div class="tl-bar">
+      <div role="group" aria-label="Timeline mode" class="seg">
+        <button type="button" data-mode="progression" aria-pressed="true">Progression</button>
+        <button type="button" data-mode="step" aria-pressed="false">Step</button>
+      </div>
+      <button type="button" id="play">Play</button>
+      <button type="button" id="compare" aria-pressed="false" hidden>Compare with what happened <small>(later data)</small></button>
+      <p class="tl-hint">Step: ← → keys</p>
+    </div>
+    <ol id="stops" class="stops"></ol>
+  </section>
+  </div>
+  <p id="announce" class="sr-only" aria-live="polite"></p>
+</main>
+</body>
+</html>

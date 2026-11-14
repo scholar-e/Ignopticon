@@ -1,0 +1,11 @@
+{
+ "forecasts": [
+  {
+   "fire_id": 66510,
+   "name": "Widemouth 2",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "Wind ellipse baseline (head spread 0.02 m/s, GFS 10 m wind) — not ELMFIRE",
+   "path": "66510/2026-08-02T1200.json"
+  }
+ ]
+}

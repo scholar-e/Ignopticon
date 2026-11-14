@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0E1116">
+<title>Ignopticon Ops: offline storage</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+  /* Same tokens as ops.css. */
+  :root { --bg: #0E1116; --panel: #151A21; --raise: #1E252E; --line: #3B4553; --text: #F2F4F7; --muted: #B4BEC9; --focus: #5AB0FF; --red: #FF453A; --amber: #FF9F0A; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 1rem/1.45 system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  main { max-width: 960px; margin: 0 auto; padding: 16px; }
+  h1 { margin: 0 0 4px; font-size: 1.4rem; }
+  h1 span { color: var(--amber); }
+  a { color: var(--focus); }
+  button { font: inherit; color: inherit; min-height: 44px; padding: 0 14px; background: var(--raise); border: 1px solid #6B7686; border-radius: 6px; cursor: pointer; }
+  button.danger { border-color: #FF8A80; color: #FFB4AB; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .muted { color: var(--muted); }
+  .panel { margin: 16px 0; padding: 12px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+  .offline { border-color: #FFB340; }
+  .offline strong { color: #FFD27A; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .warn { color: #FFD27A; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (max-width: 640px) { th:nth-child(4), td:nth-child(4) { display: none; } }
+</style>
+<script type="module">
+import {registerOffline, applyUpdate, listAreas, deleteArea, clearAll, storageInfo} from "./offline.js";
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[c]);
+const mb = (b) => (b / 1048576).toLocaleString("en-US", {maximumFractionDigits: b < 1048576 * 10 ? 1 : 0}) + " MB";
+const ago = (iso) => { const h = (Date.now() - new Date(iso)) / 3600e3; return h < 1 ? `${Math.round(h * 60)} min ago` : h < 48 ? `${Math.round(h)} h ago` : `${Math.round(h / 24)} days ago`; };
+const zooms = (sources) => Object.entries(sources).map(([s, [a, b]]) => `${s} z${a}–${b}`).join(", ");
+
+async function render() {
+  const [areas, info] = await Promise.all([listAreas(), storageInfo()]);
+  $("#usage").textContent = `Using ${mb(info.usage)} of ${mb(info.quota)} available to this site. ` +
+    (info.persisted ? "Storage is persistent." : "Storage is not persistent: the browser may delete it when the device runs low on space.");
+  $("#areas").innerHTML = areas.length ? areas.map((a) => `<tr>
+      <th scope="row">${esc(a.label || a.id)}</th>
+      <td class="num">${mb(a.bytes)}</td>
+      <td><time datetime="${esc(a.savedAt)}">${new Date(a.savedAt).toLocaleString()}</time><br><span class="muted">${ago(a.savedAt)}</span></td>
+      <td>${esc(zooms(a.sources))}${a.complete ? "" : `<br><span class="warn">Incomplete (${a.failed ? a.failed + " tiles failed" : "cancelled"}). Save again to resume.</span>`}</td>
+      <td><button type="button" data-id="${esc(a.id)}" aria-label="Delete ${esc(a.label || a.id)}">Delete</button></td>
+    </tr>`).join("") : `<tr><td colspan="5" class="muted">No saved areas. Open a fire on the map and choose “Save for offline”.</td></tr>`;
+}
+
+$("#areas").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-id]");
+  if (!b) return;
+  const name = b.getAttribute("aria-label").replace(/^Delete /, "");
+  await deleteArea(b.dataset.id);
+  $("#msg").textContent = `Deleted ${name}.`;
+  await render();
+  $("#clear").focus();  // the clicked button is gone
+});
+$("#clear").addEventListener("click", async () => {
+  if (!confirm("Delete all saved areas and cached fire data from this device? The map will need a connection again.")) return;
+  await clearAll();
+  $("#msg").textContent = "All offline data cleared.";
+  await render();
+});
+
+registerOffline({onStatus: (s) => {
+  $("#net").className = "panel" + (s.online ? "" : " offline");
+  $("#net").innerHTML = s.online ? "Online." : "<strong>Offline.</strong> Saved areas below still work.";
+  if (s.updateAvailable) {
+    $("#net").insertAdjacentHTML("beforeend", ' Update available. <button type="button" id="update">Reload</button>');
+    $("#update").addEventListener("click", applyUpdate);
+  }
+}}).catch((e) => { $("#net").textContent = "Offline mode unavailable: " + e.message; });
+render();
+</script>
+</head>
+<body>
+<main>
+  <p><a href="./">← Back to the map</a></p>
+  <h1>Ignopticon <span>Ops</span>: offline storage</h1>
+  <p id="net" class="panel" role="status" aria-live="polite">Checking connection…</p>
+  <section class="panel" aria-labelledby="areas-h">
+    <h2 id="areas-h">Saved areas</h2>
+    <p id="usage" class="muted"></p>
+    <table>
+      <thead><tr><th scope="col">Area</th><th scope="col">Size</th><th scope="col">Saved</th><th scope="col">Zooms</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody id="areas"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+    </table>
+  </section>
+  <p><button type="button" id="clear" class="danger">Clear all offline data…</button></p>
+  <p id="msg" role="status" aria-live="polite"></p>
+</main>
+</body>
+</html>

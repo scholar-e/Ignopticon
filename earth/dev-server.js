@@ -9,6 +9,15 @@ console.log(new Date().toISOString() + " - Starting");
 
 var util = require("util");
 
+// Express 3 (send, connect, fresh) reads the private res._headers, which newer Node no longer has.
+// Restore it as a read-only view of the public getHeaders(), same lowercase-keyed shape.
+var http = require("http");
+if (!("_headers" in http.OutgoingMessage.prototype)) {
+    Object.defineProperty(http.OutgoingMessage.prototype, "_headers", {
+        get: function() { return this.getHeaders(); }
+    });
+}
+
 /**
  * Returns true if the response should be compressed.
  */
@@ -57,6 +66,9 @@ var TILE_SOURCES = {
     relief: USGS + "USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}",
     hydro: USGS + "USGSHydroCached/MapServer/tile/{z}/{y}/{x}",  // transparent, drawn over relief
     satellite: USGS + "USGSImageryOnly/MapServer/tile/{z}/{y}/{x}",
+    imagerytopo: USGS + "USGSImageryTopo/MapServer/tile/{z}/{y}/{x}",  // imagery with contours, names, roads
+    topo: USGS + "USGSTopo/MapServer/tile/{z}/{y}/{x}",
+    terrain: "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",  // AWS Terrain Tiles, to z15
     fuel: LANDFIRE_FBFM40 + "/exportImage?bbox={bbox}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&f=image"
 };
 var TILE_CACHE = path.join(__dirname, "tile-cache");  // tiles are kept here, so viewed areas also work offline
@@ -466,10 +478,252 @@ function fuelIdentify(req, res) {
     });
 }
 
+/*
+ * Ops API for public/ops/: fires at a moment from the FEDS snapshots, with their forecasts and hotspots.
+ */
+var DATA = path.join(__dirname, "public/data");
+var FORECASTS = process.env.OPS_FORECASTS || path.join(DATA, "forecasts");  // env var only to test with a fixture
+var DEFAULT_TIME = "2026-08-02T12:00:00Z";  // the demo moment
+var FORECAST_VALID_HOURS = 24;  // shortcut: assumes every forecast runs 24 h; read its "hours" once horizons differ
+var ACRES_PER_KM2 = 247.105;
+var jsonFiles = {};
+// shortcut: one IANA time zone per state (Idaho's panhandle is Pacific); use the fire's longitude once it matters.
+var STATE_ZONES = {};
+("America/New_York:CT DE FL GA KY ME MD MA NH NJ NY NC OH PA RI SC VT VA WV DC|America/Chicago:AL AR IL IA KS LA MN MS MO NE ND OK SD TN TX WI|" +
+ "America/Denver:CO MT NM UT WY|America/Boise:ID|America/Phoenix:AZ|America/Los_Angeles:CA NV OR WA|America/Detroit:MI|" +
+ "America/Indiana/Indianapolis:IN").split("|").forEach(function(group) {
+    var parts = group.split(":");
+    parts[1].split(" ").forEach(function(state) { STATE_ZONES[state] = parts[0]; });
+});
+
+/** @returns {Object} the parsed JSON file, memoised by path and mtime, or null if there is no such file. */
+function readJson(file) {
+    var stat;
+    try { stat = fs.statSync(file); } catch (e) { return null; }
+    var hit = jsonFiles[file];
+    if (!hit || hit.mtime !== stat.mtimeMs) {
+        hit = jsonFiles[file] = {mtime: stat.mtimeMs, value: JSON.parse(fs.readFileSync(file, "utf8"))};
+    }
+    return hit.value;
+}
+
+function apiError(res, status, message) {
+    res.json(status, {error: message});
+}
+
+function parseTime(query) {
+    var time = new Date(query === undefined ? DEFAULT_TIME : query);
+    return isNaN(time) ? null : time;
+}
+
+/** Snapshot times in the index are UTC without the Z. */
+function utc(iso) {
+    return new Date(/Z$/.test(iso) ? iso : iso + "Z");
+}
+
+function fedsIndex() {
+    var index = readJson(path.join(DATA, "fires/feds/index.json"));
+    if (!index) throw new Error("FEDS index missing");
+    if (!index.sets) {  // memoised with the parsed file
+        index.sets = index.snapshots.map(function(s) { return new Set(index.fires[s]); });
+    }
+    return index;
+}
+
+function snapshotFile(snapshot) {
+    var t = utc(snapshot).toISOString();  // 2026-08-02T12:00:00.000Z -> feds/2026/08/02-1200.json
+    return path.join(DATA, "fires/feds", t.slice(0, 4), t.slice(5, 7), t.slice(8, 10) + "-" + t.slice(11, 13) + t.slice(14, 16) + ".json");
+}
+
+function snapshotFeature(snapshot, id) {
+    var collection = readJson(snapshotFile(snapshot));
+    if (!collection) return null;
+    if (!collection.byId) {
+        collection.byId = {};
+        collection.features.forEach(function(f) { collection.byId[f.properties.id] = f; });
+    }
+    return collection.byId[id] || null;
+}
+
+/** @returns {Object} {time, feature} of the fire's last listed perimeter at or before snapshot i, or null. */
+function lastListed(index, id, i) {
+    for (; i >= 0; i--) {
+        if (index.sets[i].has(id)) {
+            var feature = snapshotFeature(index.snapshots[i], id);
+            if (feature) return {i: i, time: utc(index.snapshots[i]).toISOString(), feature: feature};
+        }
+    }
+    return null;
+}
+
+function outerRings(geometry) {
+    return geometry.type === "Polygon" ? [geometry.coordinates[0]] : geometry.coordinates.map(function(p) { return p[0]; });
+}
+
+/** Area-weighted centroid of the outer rings (planar in lon/lat, fine at a fire's scale) and the bbox. */
+function centroidBbox(geometry) {
+    var a = 0, cx = 0, cy = 0, bbox = [Infinity, Infinity, -Infinity, -Infinity];
+    outerRings(geometry).forEach(function(ring) {
+        for (var k = 0; k < ring.length; k++) {
+            var p = ring[k], q = ring[(k + 1) % ring.length], cross = p[0] * q[1] - q[0] * p[1];
+            a += cross; cx += (p[0] + q[0]) * cross; cy += (p[1] + q[1]) * cross;
+            bbox = [Math.min(bbox[0], p[0]), Math.min(bbox[1], p[1]), Math.max(bbox[2], p[0]), Math.max(bbox[3], p[1])];
+        }
+    });
+    var round = function(v) { return Math.round(v * 1e4) / 1e4; };
+    var centroid = a ? [cx / (3 * a), cy / (3 * a)] : [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2];
+    return {centroid: centroid.map(round), bbox: bbox};
+}
+
+function acres(feature) {
+    return Math.round(feature.properties.area_km2 * ACRES_PER_KM2);
+}
+
+/** @returns {Object} the latest forecast index entry for the fire issued at or before time and still running. */
+function forecastFor(id, time) {
+    var index = readJson(path.join(FORECASTS, "index.json"));
+    var best = null;
+    ((index && index.forecasts) || []).forEach(function(f) {
+        var issued = new Date(f.issued), age = (time - issued) / 3600e3;
+        if (f.fire_id === id && age >= 0 && age < FORECAST_VALID_HOURS && (!best || issued > new Date(best.issued))) best = f;
+    });
+    if (!best) return null;
+    var file = readJson(path.join(FORECASTS, best.path)), bbox = [Infinity, Infinity, -Infinity, -Infinity];
+    (function extend(c) {
+        if (typeof c[0] === "number") bbox = [Math.min(bbox[0], c[0]), Math.min(bbox[1], c[1]), Math.max(bbox[2], c[0]), Math.max(bbox[3], c[1])];
+        else c.forEach(extend);
+    })(file ? file.features.filter(function(f) {
+        return f.geometry && f.properties.kind !== "start" && (f.properties.where || "front") === "front";
+    }).map(function(f) { return f.geometry.coordinates; }) : []);
+    // bbox: the front forecast's extent, so the map can fit fire and forecast in one move
+    return {issued: best.issued, model: best.model, path: best.path, bbox: isFinite(bbox[0]) ? bbox : null};
+}
+
+/**
+ * @returns {Object} the fires at time: those in the latest snapshot at or before it plus those in the snapshot before
+ *          (FEDS leaves out fires without detections, ~half at 12Z), each with its last listed perimeter.
+ */
+function firesAt(time) {
+    var index = fedsIndex(), i = -1;
+    index.snapshots.forEach(function(s, k) { if (utc(s) <= time) i = k; });
+    if (i < 0) return null;
+    var ids = new Set(index.fires[index.snapshots[i]].concat(i > 0 ? index.fires[index.snapshots[i - 1]] : []));
+    var fires = [];
+    ids.forEach(function(id) {
+        var current = lastListed(index, id, i), previous = lastListed(index, id, i - 1);
+        if (!current) return;
+        var p = current.feature.properties, shape = centroidBbox(current.feature.geometry);
+        var state = ((p.place || "").match(/, ([A-Z]{2})$/) || [])[1] || p.state || null;
+        fires.push({
+            id: id, name: p.name || null, place: p.place || null,
+            // The county's state from place; WFIGS's state is where the incident is registered, which can differ.
+            state: state, tz: STATE_ZONES[state] || null, incident_state: p.state || null,
+            acres: acres(current.feature), incident_acres: p.acres == null ? null : p.acres,
+            contained: p.contained == null ? null : p.contained,
+            // WFIGS fields carry no record date; they were fetched when the snapshot file was written.
+            incident_as_of: p.name ? new Date(jsonFiles[snapshotFile(current.time)].mtime).toISOString() : null,
+            growth_acres: previous ? acres(current.feature) - acres(previous.feature) : null,
+            days: p.days, perimeter_time: current.time,
+            centroid: shape.centroid, bbox: shape.bbox,
+            forecast: forecastFor(id, time), geometry: current.feature.geometry,
+            _previous: previous && previous.i !== current.i ? {time: previous.time, geometry: previous.feature.geometry} : null
+        });
+    });
+    return {
+        _i: i, time: time.toISOString(), snapshot: utc(index.snapshots[i]).toISOString(),
+        previous_snapshot: i > 0 ? utc(index.snapshots[i - 1]).toISOString() : null, fires: fires
+    };
+}
+
+function withoutPrivate(fire) {
+    var copy = Object.assign({}, fire);
+    delete copy._previous;
+    return copy;
+}
+
+/** VIIRS detections, [lon, lat, frp (MW), time, sensor], within ~2 km of the fire's bbox in the 12 h up to time, or null without hotspot files. */
+function hotspotsFor(fire, time) {
+    var from = time.getTime() / 1000 - 12 * 3600, to = time.getTime() / 1000, pad = 0.02, b = fire.bbox;
+    var days = [new Date(from * 1000), time].map(function(d) { return d.toISOString().slice(0, 10); });
+    var points = null;
+    days.filter(function(d, k) { return days.indexOf(d) === k; }).forEach(function(day) {
+        var file = readJson(path.join(DATA, "fires/viirs", day.slice(0, 4), day.slice(5, 7), day.slice(8, 10) + ".json"));
+        if (!file) return;
+        points = points || [];
+        Object.keys(file.sensors).forEach(function(sensor) {
+            file.sensors[sensor].forEach(function(r) {  // [lon, lat, frp, time, confidence, scan, track]
+                if (r[3] > from && r[3] <= to && r[0] >= b[0] - pad && r[0] <= b[2] + pad && r[1] >= b[1] - pad && r[1] <= b[3] + pad) {
+                    points.push([r[0], r[1], r[2], new Date(r[3] * 1000).toISOString().slice(0, 16) + "Z", sensor]);
+                }
+            });
+        });
+    });
+    return points;
+}
+
+function apiHandler(handler) {
+    return function(req, res) {
+        res.setHeader("Cache-Control", "no-cache");
+        var time = parseTime(req.query.time);
+        if (!time) return apiError(res, 400, "Bad time '" + req.query.time + "': use ISO 8601, e.g. " + DEFAULT_TIME);
+        try {
+            var at = firesAt(time);
+            if (!at) return apiError(res, 404, "No FEDS snapshot at or before " + time.toISOString());
+            handler(req, res, at, time);
+        } catch (err) {
+            console.log(new Date().toISOString() + " - api error: " + req.url + " " + err.stack);
+            apiError(res, 500, "Server error: " + err.message);
+        }
+    };
+}
+
+var apiFires = apiHandler(function(req, res, at) {
+    res.json({time: at.time, snapshot: at.snapshot, previous_snapshot: at.previous_snapshot, fires: at.fires.map(withoutPrivate)});
+});
+
+/** Every listed perimeter of the fire in snapshots first..last, oldest first, skipping unchanged repeats. */
+function historyOf(index, id, first, last) {
+    var history = [], before = null;
+    for (var k = first; k <= last; k++) {
+        if (!index.sets[k].has(id)) continue;
+        var feature = snapshotFeature(index.snapshots[k], id), json = feature && JSON.stringify(feature.geometry);
+        if (!feature || json === before) continue;
+        before = json;
+        history.push({time: utc(index.snapshots[k]).toISOString(), acres: acres(feature), geometry: feature.geometry});
+    }
+    return history;
+}
+
+/**
+ * For "compare with what happened": the fire's observed perimeter at each forecast hour, from snapshots after the
+ * page's time (data a forecaster would not have had then). Only hours that fall on a snapshot.
+ */
+function observedAfter(index, id, forecast, i) {
+    return (forecast.hours || []).map(function(h) {
+        var at = new Date(new Date(forecast.issued).getTime() + h * 3600e3).getTime();
+        var k = index.snapshots.findIndex(function(s) { return utc(s).getTime() === at; });
+        var found = k > i ? lastListed(index, id, k) : null;
+        return found && found.i > i ? {hours: h, time: found.time, acres: acres(found.feature), geometry: found.feature.geometry} : null;
+    }).filter(Boolean);
+}
+
+var apiFire = apiHandler(function(req, res, at, time) {
+    var id = +req.params.id, fire = at.fires.filter(function(f) { return f.id === id; })[0];
+    if (!fire) return apiError(res, 404, "No fire " + req.params.id + " in the FEDS snapshot of " + at.snapshot);
+    var index = fedsIndex(), forecast = fire.forecast ? readJson(path.join(FORECASTS, fire.forecast.path)) : null;
+    res.json({
+        time: at.time, snapshot: at.snapshot, fire: withoutPrivate(fire), previous: fire._previous,
+        history: historyOf(index, id, 0, at._i),
+        forecast: forecast, observed_after: forecast ? observedAfter(index, id, forecast, at._i) : [],
+        hotspots: hotspotsFor(fire, time)
+    });
+});
+
 var port = process.argv[2];
 var express = require("express");
 var app = express();
 
+app.set("json spaces", 0);
 app.use(cacheControl());
 app.use(express.compress({filter: compressionFilter}));
 app.use(logger());
@@ -478,6 +732,9 @@ app.get("/identify/fuel", fuelIdentify);
 app.get("/tiles/thermal/:pass/:date/:z/:x/:y", thermalTileProxy);
 app.get("/identify/thermal", thermalIdentify);
 app.get("/identify/i4", i4Identify);
+app.get("/api/fires", apiFires);
+app.get("/api/fires/:id", apiFire);
+app.all("/api/*", function(req, res) { apiError(res, 404, "No API endpoint " + req.path); });
 app.use(i4Tile);
 app.use(express.static("public"));
 
