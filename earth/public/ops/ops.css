@@ -133,3 +133,23 @@ button{cursor:pointer}
   body{grid-template-columns:1fr;grid-template-rows:45vh 1fr}
   .status{right:12px;top:64px}
 }
+
+/* The map stays above a separately scrollable incident sheet on every screen. */
+body{height:100dvh;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,56fr) minmax(0,44fr);background:#162c25;--panel:#15231f;--raise:#21332c;--line:#45564d}
+body.selected{grid-template-rows:auto minmax(0,1fr) minmax(0,1fr)}
+.fresh{grid-row:1;background:#162c25;padding:6px max(16px,env(safe-area-inset-right));display:flex;justify-content:space-between;color:#e2efe5;font:600 12px/1.4 system-ui}
+.fresh span:first-child{letter-spacing:.13em}
+.mapwrap{grid-row:2;grid-column:1}.sidebar{grid-row:3;grid-column:1;display:block;border:0;border-top:3px solid #98ab94;padding:8px max(8px,calc((100% - 960px)/2)) max(14px,env(safe-area-inset-bottom))}
+.brand h1{font-size:1.65rem}.replay:empty{display:none}.brand p{min-height:0}
+.controls,.mapnav{position:absolute;left:12px;top:12px;right:70px;max-width:640px;background:none;border:0;padding:0;z-index:2}
+.controls label,.controls select{position:absolute;left:-9999px}.controls select:focus{position:static}
+.controls input,.mapnav button,#locate{background:#15231ff2;color:white;border:1px solid #93a397;border-radius:12px;box-shadow:0 2px 12px #0005;min-height:46px}
+.controls input{padding:0 16px}.mapnav{display:none;gap:6px}.mapnav button,#locate{padding:0 14px}
+#locate{position:absolute;bottom:32px;right:12px}.gpsdot{width:19px;height:19px;border-radius:50%;background:#ff3636;border:3px solid white;box-shadow:0 0 0 5px #ca23234d}
+.fieldnotes,.sidebar .status,.mapnav{display:none}.selected .fieldnotes,.selected .sidebar .status{display:block}
+.selected .mapnav{display:flex}.selected .controls,.selected .fires,.selected .brand h1,.selected #back{display:none}
+.fieldnotes,.settings,.sidebar .status,.timeline{margin:10px 16px}.fieldnotes{padding:12px 16px;border-left:3px solid #e1b55e;background:#252e25}.fieldnotes h3,.fieldnotes p{margin:4px 0}.fieldnotes a{color:#d0e7cf}.sidebar .status,.settings .mapctl{position:static}
+.settings summary{padding:12px 0;cursor:pointer}.settings .mapctl,.seg,.tl-bar{flex-wrap:wrap}.tl-hint{display:none}
+.fire{background:transparent;border-bottom:1px solid var(--line);border-radius:0;margin:0;padding:12px}.ac{font-size:1.15rem}.r2,.r3{font-size:.9rem}.r3{margin-top:3px}.maplibregl-ctrl-top-right{top:0}.bottom{right:auto;max-width:calc(100% - 100px)}.legend.open{max-height:32dvh;overflow:auto}
+
+.order{float:right;margin:0 16px 4px 8px}.order select{margin-left:6px;background:var(--raise);border:1px solid var(--line);border-radius:6px;padding:8px}.count{min-height:40px}.list{clear:both}

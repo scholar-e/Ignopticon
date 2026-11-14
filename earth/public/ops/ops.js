@@ -1,3 +1,4 @@
+import {registerOffline, saveArea, listAreas} from "./offline.js";
 // Ignopticon Ops: fire list, map, forecast and timeline from /api/fires (dev-server.js).
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -9,10 +10,73 @@ const BASEMAPS = ["satellite", "imagerytopo", "topo"];
 const state = {
   t: params.get("t"), fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
   base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") === "on",
-  sort: "growth", filter: "", mode: "progression", step: 0, compare: false,
+  sort: "distance", filter: "", mode: "progression", step: 0, compare: false,
   layers: {current: true, previous: true, forecast: true, arrows: true, hotspots: false, interior: false, detached: false},
 };
 let fires = [], byId = new Map(), at = null, map = null, cur = null, playing = null;
+
+
+let gps = null, gpsMarker = null, gpsWatch = null, gpsMessage = "Waiting for GPS";
+let connected = navigator.onLine;
+function freshness() {
+  const stamp = Date.parse(at?.snapshot);
+  const age = Math.max(0, Math.floor((Date.now() - stamp) / 1000));
+  $("#fresh").textContent = (Number.isFinite(age) ? "Updated " + age.toLocaleString() + " seconds ago" : "Snapshot unavailable") + (connected ? "" : " · OFFLINE");
+}
+registerOffline({onStatus: status => { connected = status.online; freshness(); }}).catch(() => {});
+setInterval(freshness, 1000);
+function matchesFire(f) {
+  const q = state.filter.trim().toLowerCase();
+  return [label(f), f.place, f.state].join(" ").toLowerCase().includes(q);
+}
+function distance(f) {
+  if (!gps) return Infinity;
+  const radians = Math.PI / 180;
+  const [lon, lat] = f.centroid;
+  const term = Math.sin((lat-gps[1])*radians/2)**2 +
+    Math.cos(gps[1]*radians)*Math.cos(lat*radians)*Math.sin((lon-gps[0])*radians/2)**2;
+  return 12742000 * Math.asin(Math.sqrt(Math.min(1,term)));
+}
+function showPosition() {
+  if (!map || !gps) return;
+  if (!gpsMarker) {
+    const dot = document.createElement("div");
+    dot.className = "gpsdot"; dot.title = "Your GPS position";
+    gpsMarker = new maplibregl.Marker({element: dot});
+  }
+  gpsMarker.setLngLat(gps).addTo(map);
+}
+function requestGps() {
+  if (gpsWatch !== null) navigator.geolocation.clearWatch(gpsWatch);
+  if (!navigator.geolocation) { gpsMessage = "GPS unavailable"; if (at) renderList(); return; }
+  gpsWatch = navigator.geolocation.watchPosition(({coords}) => {
+    gps = [coords.longitude, coords.latitude]; showPosition(); if (at) renderList();
+  }, () => { gps = null; gpsMarker?.remove(); gpsMessage = "GPS unavailable"; if (at) renderList(); },
+  {enableHighAccuracy: true, maximumAge: 10000, timeout: 15000});
+}
+const saves = new Map();
+async function cacheFire(f) {
+  const key = [f.id, at.snapshot, state.base, state.t || "default"].join("-");
+  const report = msg => { if (state.fire === f.id) $("#saved").textContent = msg; };
+  if (!saves.has(key)) {
+    const task = (async () => {
+      if (!window.caches || !navigator.serviceWorker) throw new Error("Offline storage requires HTTPS");
+      const cached = (await listAreas()).some(area => area.id === key && area.complete);
+      if (!cached) {
+      if (!navigator.onLine) throw new Error("Reconnect to finish saving");
+      const result = await saveArea({id:key, label:label(f), bbox:fireBounds(f), bufferKm:3,
+        sources:{[state.base]:[7,13]}, urls:["/api/fires"+query(), "/api/fires/"+f.id+query()],
+        onProgress: p => report("Saving incident map · " + p.done + "/" + p.total)});
+      if (!result.complete) throw new Error("Some tiles are missing. Reopen while online to retry");
+      }
+      if (!navigator.serviceWorker.controller) await Promise.race([navigator.serviceWorker.ready, new Promise((_, reject) => setTimeout(() => reject(new Error("Offline app shell is not ready")), 15000))]);
+    })();
+    saves.set(key,task);
+  }
+  report("Preparing offline incident map…");
+  try { await saves.get(key); report("Incident data and area map saved offline"); }
+  catch (e) { saves.delete(key); report("Offline map incomplete · " + e.message); }
+}
 
 const fmts = {};
 function parts(iso, zone) {
@@ -64,21 +128,22 @@ function writeUrl() {
 }
 
 const SORTS = {
+  distance: (a,b) => distance(a) - distance(b) || label(a).localeCompare(label(b)),
   growth: (a, b) => (b.growth_acres ?? -1e12) - (a.growth_acres ?? -1e12) || b.acres - a.acres,
   size: (a, b) => b.acres - a.acres,
   name: (a, b) => label(a).localeCompare(label(b)),
 };
 function renderList() {
-  const q = state.filter.trim().toLowerCase();
-  const rows = fires.filter((f) => !q || `${label(f)} ${f.place || ""} ${f.state || ""}`.toLowerCase().includes(q)).sort(SORTS[state.sort]);
+  if (!at) return;
+  const rows = fires.filter(matchesFire).sort(SORTS[state.sort]);
   $("#list").innerHTML = rows.map((f) => {
     const g = growthText(f);
     return `<li><button type="button" class="fire" data-id="${f.id}"${f.id === state.fire ? ' aria-current="true"' : ""}>
-<span class="r1"><span class="nm">${esc(label(f))}</span><span class="st">${esc(f.state || "")}</span></span>
+<span class="r1"><span class="nm">${esc(label(f))}</span><span class="st">${gps ? miles(distance(f)) + " mi · " : ""}${esc(f.state || "")}</span></span>
 <span class="r2"><span class="ac">${num(f.acres)}<small> ac</small></span><span class="gr ${g.cls}">${g.text}</span></span>
 <span class="r3">${f.forecast ? '<span class="badge">Forecast</span>' : ""}${f.contained != null && f.incident_as_of && f.incident_as_of <= at.time ? `<span>${f.contained}% contained (WFIGS)</span>` : ""}</span></button></li>`;
   }).join("");
-  $("#count").textContent = `${rows.length} of ${fires.length} fires · FEDS ${when(at.snapshot)}`;
+  $("#count").textContent = `${rows.length} of ${fires.length} fires · ${gps ? "Distance to fire center" : gpsMessage + " · Alphabetical"} · FEDS ${when(at.snapshot)}`;
 }
 
 function renderStatus() {
@@ -205,9 +270,8 @@ function addImages() {
 
 // Fit inside what the status bar, map controls and the bottom legend/timeline stack leave visible.
 function fitPadding() {
-  const m = $("#map").getBoundingClientRect(), stack = $(".bottom").getBoundingClientRect();
-  const top = Math.max($("#status").getBoundingClientRect().bottom, $(".mapctl").getBoundingClientRect().bottom) - m.top + 16;
-  return {top, bottom: Math.min(m.bottom - stack.top + 16, m.height - top - 100), left: 24, right: 72};
+  const height = $("#map").clientHeight;
+  return {top: Math.min(68,height/4), bottom: Math.min(52,height/5), left: 20, right: 52};
 }
 function fit(b) {
   if (!map) return;
@@ -217,12 +281,12 @@ function fit(b) {
 }
 const union = (a, b) => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])];
 const fireBounds = (f) => union(f.bbox, f.forecast && f.forecast.bbox || f.bbox);
-const allBounds = () => fires.map((f) => f.bbox).reduce(union);
+const allBounds = () => fires.length ? fires.map((f) => f.bbox).reduce(union) : [-125,24,-66,50];
 
 function setFires() {
   const feature = (f, geometry, props) => ({type: "Feature", geometry, properties: {id: f.id, ...props}});
-  map.getSource("fires").setData({type: "FeatureCollection", features: fires.map((f) => feature(f, f.geometry, {}))});
-  map.getSource("points").setData({type: "FeatureCollection", features: fires.map((f) => feature(f, {type: "Point", coordinates: f.centroid},
+  map.getSource("fires").setData({type: "FeatureCollection", features: fires.filter(matchesFire).map((f) => feature(f, f.geometry, {}))});
+  map.getSource("points").setData({type: "FeatureCollection", features: fires.filter(matchesFire).map((f) => feature(f, {type: "Point", coordinates: f.centroid},
     {label: f.name || f.place || "", zh: Math.log2(4320 / (512 * Math.max(f.bbox[2] - f.bbox[0], 1e-4)))}))});
 }
 
@@ -348,7 +412,8 @@ async function select(id, {fitMap = true} = {}) {
   const f = byId.get(id);
   if (!f) return;
   if (playing) play();
-  state.fire = id; state.mode = "progression"; cur = {fire: f};
+  document.body.classList.add("selected"); $(".sidebar").scrollTop = 0; map?.resize();
+  state.fire = id; cacheFire(f); state.mode = "progression"; cur = {fire: f};
   writeUrl(); renderList(); renderStatus(); renderDetail(f, null); renderTimeline();
   if (fitMap) fit(fireBounds(f));
   if (map && map.getSource("fires")) { clearDetail(); applyView(); }
@@ -361,11 +426,13 @@ async function select(id, {fitMap = true} = {}) {
     if (map && map.getSource("fires")) setDetail(d);
     say(`Selected ${label(f)}, ${num(f.acres)} acres. ${d.forecast ? "Spread forecast available." : "No spread forecast."}`);
   } catch (e) {
+    if (state.fire !== id) return;
     $("#detail").insertAdjacentHTML("beforeend", `<p class="error" role="alert">Could not load fire details: ${esc(e.message)}</p>`);
   }
 }
 function overview() {
   if (playing) play();
+  document.body.classList.remove("selected"); map?.resize();
   state.fire = null; cur = null;
   $("#detail").hidden = true; $("#timeline").hidden = true;
   writeUrl(); renderList(); renderStatus(); legendForecast(null);
@@ -407,7 +474,7 @@ function initMap() {
   if (!window.maplibregl) { $("#count").textContent += " · Map library failed to load"; return; }
   map = new maplibregl.Map({container: "map", style: style(), bounds: [[-125, 24], [-66, 50]], fitBoundsOptions: {padding: 40},
     attributionControl: {compact: false}, maxPitch: 70, fadeDuration: reduced ? 0 : 300});
-  window.opsMap = map;
+  window.opsMap = map; showPosition();
   if (at) fit(state.fire && byId.has(state.fire) ? fireBounds(byId.get(state.fire)) : allBounds());
   map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), "top-right");
   map.addControl(new maplibregl.ScaleControl({unit: "imperial"}), "bottom-right");
@@ -427,7 +494,8 @@ function initMap() {
   map.on("click", pick);
 }
 
-$("#filter").addEventListener("input", (e) => { state.filter = e.target.value; renderList(); });
+$("#filter").addEventListener("input", (e) => { state.filter = e.target.value; renderList(); if (map?.getSource("fires")) setFires();
+  const matches = fires.filter(matchesFire); if (matches.length) fit(matches.map(f => f.bbox).reduce(union)); });
 $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderList(); });
 $("#list").addEventListener("click", (e) => { const b = e.target.closest("button.fire"); if (b) select(+b.dataset.id); });
 const prefetch = (e) => { const b = e.target.closest("button.fire"); if (b) detail(+b.dataset.id).catch(() => {}); };
@@ -482,6 +550,10 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+$("#home").onclick = () => { state.filter = ""; $("#filter").value = ""; if (map?.getSource("fires")) setFires(); overview(); };
+$("#return").onclick = () => { overview(); const matches = fires.filter(matchesFire); if (matches.length) fit(matches.map(f=>f.bbox).reduce(union)); };
+$("#locate").onclick = () => { if (gps && map) map.easeTo({center:gps, zoom:12}); else requestGps(); };
+requestGps();
 // The list renders from the API without waiting for the map.
 for (const x of document.querySelectorAll("[data-base]")) x.setAttribute("aria-pressed", x.dataset.base === state.base);
 $("#labels").setAttribute("aria-pressed", state.labels);

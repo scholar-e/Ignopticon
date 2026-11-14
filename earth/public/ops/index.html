@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>Ignopticon Ops: fires and spread forecasts</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-192.png"><meta name="theme-color" content="#162c25">
 <link rel="preload" href="vendor/maplibre-gl.js" as="script">
 <link rel="stylesheet" href="vendor/maplibre-gl.css">
 <link rel="stylesheet" href="ops.css">
@@ -12,31 +13,38 @@
 <script src="vendor/maplibre-gl.js" defer></script>
 </head>
 <body>
+<div class="fresh"><span>IGNOPTICON / OPS</span><span id="fresh">Loading snapshot…</span></div>
 <div class="sidebar">
   <header class="brand">
-    <h1>Ignopticon <span>Ops</span></h1>
+    <h1>Wildfires</h1>
     <p class="replay" id="replay"></p>
   </header>
   <section id="detail" class="detail" aria-labelledby="detail-name" hidden></section>
   <nav class="fires" aria-label="Fires">
-    <div class="controls">
-      <label for="filter" class="sr-only">Filter fires</label>
-      <input id="filter" type="search" placeholder="Filter fires  ( / )" autocomplete="off" spellcheck="false">
+    
+    <div class="order">
       <label for="sort">Sort</label>
       <select id="sort">
+        <option value="distance">Nearest</option>
         <option value="growth">12 h growth</option>
         <option value="size">Size</option>
         <option value="name">Name</option>
-      </select>
-    </div>
-    <p id="count" class="count">Loading fires…</p>
+      </select></div><p id="count" class="count">Loading fires…</p>
     <ul id="list" class="list"></ul>
   </nav>
-</div>
-<main class="mapwrap" aria-label="Map">
-  <div id="map" class="map"></div>
-  <div id="status" class="status" role="status" aria-live="polite"></div>
-  <div class="mapctl" role="group" aria-label="Map view">
+<section class="fieldnotes"><h3>Field navigation</h3><p>No verified approach route. Slope and radio coverage along approaches are unknown.</p><p id="saved" role="status"></p><a href="storage.html">Offline maps</a></section><div id="status" class="status" role="status" aria-live="polite"></div><section id="timeline" class="timeline" aria-label="Fire timeline" hidden>
+    <div class="tl-bar">
+      <div role="group" aria-label="Timeline mode" class="seg">
+        <button type="button" data-mode="progression" aria-pressed="true">Progression</button>
+        <button type="button" data-mode="step" aria-pressed="false">Step</button>
+      </div>
+      <button type="button" id="play">Play</button>
+      <button type="button" id="compare" aria-pressed="false" hidden>Compare with what happened <small>(later data)</small></button>
+      <p class="tl-hint">Step: ← → keys</p>
+    </div>
+    <ol id="stops" class="stops"></ol>
+  </section>
+<details class="settings"><summary>Map settings</summary><div class="mapctl" role="group" aria-label="Map view">
     <div role="group" aria-label="Basemap" class="seg" id="basemaps">
       <button type="button" data-base="satellite">Satellite</button>
       <button type="button" data-base="imagerytopo">Satellite + topo</button>
@@ -44,7 +52,15 @@
     </div>
     <button type="button" id="view3d" aria-pressed="false" title="3D terrain (key 3)">3D</button>
     <button type="button" id="labels" aria-pressed="false">Labels</button>
-  </div>
+  </div></details>
+</div>
+<main class="mapwrap" aria-label="Map">
+  <div id="map" class="map"></div><div class="controls">
+      <label for="filter" class="sr-only">Filter fires</label>
+      <input id="filter" type="search" placeholder="Search fire name or location" autocomplete="off" spellcheck="false">
+    </div><div class="mapnav"><button id="home">⌂ Home</button><button id="return">← Back</button></div><button id="locate" aria-label="Show my GPS position">◎ GPS</button>
+  
+  
   <div class="bottom">
   <section class="legend" id="legend" aria-labelledby="legend-h">
     <h2 id="legend-h" class="sr-only">Map layers</h2>
@@ -59,18 +75,7 @@
     </ul>
     <button type="button" id="legend-toggle" class="lg-toggle" aria-expanded="false" aria-controls="legend-list">Legend ▸</button>
   </section>
-  <section id="timeline" class="timeline" aria-label="Fire timeline" hidden>
-    <div class="tl-bar">
-      <div role="group" aria-label="Timeline mode" class="seg">
-        <button type="button" data-mode="progression" aria-pressed="true">Progression</button>
-        <button type="button" data-mode="step" aria-pressed="false">Step</button>
-      </div>
-      <button type="button" id="play">Play</button>
-      <button type="button" id="compare" aria-pressed="false" hidden>Compare with what happened <small>(later data)</small></button>
-      <p class="tl-hint">Step: ← → keys</p>
-    </div>
-    <ol id="stops" class="stops"></ol>
-  </section>
+  
   </div>
   <p id="announce" class="sr-only" aria-live="polite"></p>
 </main>
