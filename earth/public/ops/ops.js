@@ -196,8 +196,8 @@ ${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li>Map: USGS The
   $("#back").onclick = overview;
 }
 
-const RED = "#FF453A", CASE = "#0B0D10", BANDS = ["#FF9F0A", "#FFD60A", "#FFF2A8"], BAND_OPACITY = [0.5, 0.4, 0.3];
-const PAST = ["#4F7CAC", "#D6F3FF"], OBSERVED = "#F0A8FF", HOT = "#FF2D95", FONT = ["Noto Sans Bold"];
+const RED = "#FF453A", CASE = "#0B0D10", BANDS = ["#FF45C6", "#C75AF5", "#9464FF"], BAND_OPACITY = [0.5, 0.4, 0.3];
+const PAST = ["#995B30", "#FFD649"], OBSERVED = "#F0A8FF", HOT = "#FFFFFF", FONT = ["Noto Sans Bold"];
 const EMPTY = {type: "FeatureCollection", features: []};
 const origin = location.origin;
 const byRank = (v) => ["match", ["get", "rank"], 0, v[0], 1, v[1], v[2]];
@@ -220,7 +220,7 @@ function style() {
     version: 8, glyphs: new URL("vendor/fonts/", import.meta.url).href + "{fontstack}/{range}.pbf",
     sky: {"sky-color": "#6E9CC8", "horizon-color": "#D9E4EE", "fog-color": "#D9E4EE"},
     sources: {base: baseSource(state.base), hydro: {type: "raster", tiles: [`${origin}/tiles/hydro/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16},
-      fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo()},
+      fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo(), access: geo()},
     layers: [
       L("base", "raster", "base", {}),
       L("hydro", "raster", "hydro", {}, {visibility: state.labels ? "visible" : "none"}),
@@ -233,6 +233,7 @@ function style() {
       ...cased("fires", "fires", 2, 4, {"line-color": RED}),
       ...cased("sel", "fires", 3.5, 7, {"line-color": RED}),
       ...cased("obs", "obs", 2.5, 5, {"line-color": OBSERVED, "line-dasharray": [0.5, 1.5]}, {"line-cap": "round"}),
+      ...cased("access", "access", 4, 7, {"line-color": "#59DAD0"}),
       L("hot", "circle", "hot", {"circle-color": HOT, "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 1.5, 15, 5], "circle-stroke-color": CASE, "circle-stroke-width": 1}),
       ...cased("arrow", "fc", 3.5, 8, {"line-color": "#FFFFFF"}, {"line-cap": "round"}),
       L("arrow-head", "symbol", "heads", {}, {"icon-image": "head", "icon-rotate": ["get", "bearing"], "icon-rotation-alignment": "map",
@@ -291,6 +292,7 @@ function setFires() {
 }
 
 function setDetail(d) {
+  drawRoute();
   const zone = zoneOf(d.fire), fc = d.forecast, n = d.history.length;
   const collection = (features) => ({type: "FeatureCollection", features});
   const ft = (geometry, properties) => ({type: "Feature", geometry, properties});
@@ -319,7 +321,7 @@ function setDetail(d) {
   applyView();
 }
 function clearDetail() {
-  for (const s of ["hist", "fc", "heads", "hot", "obs"]) map.getSource(s).setData(EMPTY);
+  for (const s of ["hist", "fc", "heads", "hot", "obs", "access"]) map.getSource(s).setData(EMPTY);
 }
 
 // Which stop and layers show. Switching stops only changes filters and visibility.
@@ -374,7 +376,9 @@ function renderTimeline() {
   $("#stops").innerHTML = cur.stops.map((s, i) => {
     const pressed = state.mode === "step" && i === state.step;
     const head = s.kind === "now" ? "Now" : s.kind === "fc" ? `+${s.hours} h` : "Observed";
-    const stop = `<li class="stop ${s.kind}"><button type="button" data-step="${i}" aria-pressed="${pressed}"><span class="k">${head}</span>` +
+    const progress = i / Math.max(1, cur.detail.history.length - 2);
+    const color = s.kind === "past" ? `color-mix(in srgb, ${PAST[0]}, ${PAST[1]} ${Math.round(100 * progress)}%)` : s.kind === "fc" ? BANDS[Math.min(2, fc.hours.indexOf(s.hours))] : RED;
+    const stop = `<li class="stop ${s.kind}" style="--stop-color:${color}"><button type="button" data-step="${i}" aria-pressed="${pressed}"><span class="k">${head}</span>` +
       `<span>${short(s.time, zone)}</span><span class="a">${s.kind === "fc" ? "+" : ""}${num(s.acres)} ac</span></button></li>`;
     return s.kind === "now" ? stop + '<li class="divider" aria-hidden="true">NOW<small>observed | predicted</small></li>' : stop;
   }).join("") + (fc ? "" : `<li class="stop none"><button type="button" disabled><span class="k">+6 / +12 / +24 h</span><span>No forecast</span></button></li>`);
@@ -408,19 +412,129 @@ function play() {
 }
 
 const say = (msg) => { $("#announce").textContent = msg; };
+
+const metric = (n, unit, digits = 0) => Number.isFinite(n) ? n.toFixed(digits) + unit : "Unavailable";
+function fuelName(code) {
+  if (!Number.isInteger(code)) return "Unavailable";
+  const groups = [[101,109,"Grass"],[121,124,"Grass–shrub"],[141,149,"Shrub"],
+    [161,165,"Timber–understory"],[181,189,"Timber litter"],[201,204,"Slash / blowdown"]];
+  const group = groups.find(([lo,hi]) => code >= lo && code <= hi);
+  const nonburnable = {91:"Urban / developed",92:"Snow / ice",93:"Agriculture",98:"Open water",99:"Barren"};
+  return (group?.[2] || nonburnable[code] || "Unclassified") + " · FBFM " + code;
+}
+function readConditions(f) {
+  const active = () => state.fire === f.id;
+  for (const id of ["fuel","wind","weather"]) $("#"+id).textContent = "Loading…";
+  $("#wx-source").textContent = "Sampled at the mapped fire center.";
+  const [lon,lat] = f.centroid;
+  api("/identify/fuel?lon="+lon+"&lat="+lat).then(data => {
+    if (active()) $("#fuel").textContent = fuelName(data.value) + " · LANDFIRE";
+  }).catch(() => { if (active()) $("#fuel").textContent = "Unavailable"; });
+  api("/api/fires/"+f.id+"/weather?time="+encodeURIComponent(at.time)).then(wx => {
+    if (!active()) return;
+    $("#wind").textContent = metric(wx.wind_mph," mph") + (Number.isFinite(wx.wind_from) && wx.wind_mph > 0 ? " from "+compass(wx.wind_from) : "");
+    $("#weather").textContent = "Air "+metric(wx.temp_f," °F")+" · Humidity "+metric(wx.humidity,"%")+" · Precipitation "+metric(wx.rain_mm," mm",1);
+    $("#wx-source").textContent = wx.source + " · " + when(wx.time,zoneOf(f)) + " · Fire center";
+  }).catch(() => { if (active()) { $("#wind").textContent = "Unavailable"; $("#weather").textContent = "Unavailable for this incident hour"; } });
+}
+let accessRoute = null, accessPoint = null, accessMarker = null, pickingAccess = false;
+function routeKey() { return "ops.route."+at.snapshot+"."+state.fire; }
+function parseRoute(value) {
+  const feature = value?.type === "FeatureCollection" && value.features?.length === 1 ? value.features[0] : value;
+  const geometry = feature?.type === "Feature" ? feature.geometry : feature;
+  const points = geometry?.coordinates;
+  if (geometry?.type !== "LineString" || !Array.isArray(points) || points.length < 2 || points.length > 20000 ||
+      !points.every(p => Array.isArray(p) && p.length >= 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]) && Math.abs(p[0]) <= 180 && Math.abs(p[1]) <= 85))
+    throw new Error("Choose a GeoJSON file containing one route LineString.");
+  const props = feature.properties || {};
+  if (props.fire_id != null && String(props.fire_id) !== String(state.fire)) throw new Error("This route belongs to another fire.");
+  return {type:"Feature",geometry:{type:"LineString",coordinates:points.map(p=>p.slice(0,2))},properties:{name:String(props.name || "Incident access route").slice(0,120),fire_id:state.fire}};
+}
+function drawRoute() {
+  map?.getSource("access")?.setData(accessRoute || EMPTY);
+}
+function pickMode(active) {
+  pickingAccess = active;
+  $("#pick-access").setAttribute("aria-pressed", String(active));
+  $("#pick-access").textContent = active ? "Cancel point selection" : "Choose access point on map";
+  $("#access-note").textContent = active ? "Tap the dispatch-designated road access point." : "";
+  if (map) map.getCanvas().style.cursor = active ? "crosshair" : "";
+}
+$("#pick-access").onclick = () => {
+  if (!map) { $("#access-note").textContent = "Map unavailable."; return; }
+  pickMode(!pickingAccess);
+};
+function showRoute() {
+  drawRoute();
+  $("#fit-route").hidden = !accessRoute;
+  const link = $("#road-directions");
+  const destination = accessPoint || accessRoute?.geometry.coordinates[0];
+  link.hidden = !destination;
+  accessMarker?.remove();
+  if (destination) {
+    const [lon,lat] = destination;
+    link.textContent = accessPoint ? "Road directions to access point ↗" : "Road directions to route start ↗";
+    if (map) {
+      const dot = document.createElement("div");
+      dot.className = "access-dot"; dot.title = "Incident access point";
+      accessMarker = new maplibregl.Marker({element:dot}).setLngLat(destination).addTo(map);
+    }
+    link.href = "https://www.google.com/maps/dir/?" + new URLSearchParams({api:"1",destination:lat+","+lon,travelmode:"driving"});
+  } else link.removeAttribute("href");
+  $("#route-note").textContent = accessRoute ? accessRoute.properties.name + " · Follow the teal line. Road status, slope and radio coverage are unverified." :
+    "No incident access route supplied. Load a dispatch GeoJSON route to display it alongside your GPS position.";
+}
+function restoreRoute(provided) {
+  let saved;
+  try { saved = localStorage.getItem(routeKey()); } catch {}
+  accessRoute = null;
+  for (const source of [provided,saved]) {
+    if (!source) continue;
+    try { accessRoute = parseRoute(typeof source === "string" ? JSON.parse(source) : source); break; } catch {}
+  }
+  showRoute();
+}
+$("#fit-route").onclick = () => {
+  if (!accessRoute) return;
+  const coords = accessRoute.geometry.coordinates;
+  fit(coords.map(([x,y])=>[x,y,x,y]).reduce(union));
+};
+$("#route-file").onchange = async e => {
+  const file = e.target.files[0], key = routeKey();
+  e.target.value = "";
+  if (!file) return;
+  try {
+    if (file.size > 2000000) throw new Error("Route file exceeds 2 MB.");
+    const value = JSON.parse(await file.text());
+    if (!state.fire || routeKey() !== key) return;
+    accessRoute = parseRoute(value);
+    accessPoint = null; pickMode(false);
+    try { localStorage.removeItem(key+".point"); } catch {}
+    showRoute(); $("#fit-route").click();
+    try { localStorage.setItem(key,JSON.stringify(accessRoute)); }
+    catch { $("#route-note").textContent += " Device storage unavailable; route is open for this session only."; }
+  } catch (err) { if (state.fire && routeKey() === key) $("#route-note").textContent = err.message; }
+};
+
 async function select(id, {fitMap = true} = {}) {
   const f = byId.get(id);
   if (!f) return;
   if (playing) play();
   document.body.classList.add("selected"); $(".sidebar").scrollTop = 0; map?.resize();
-  state.fire = id; cacheFire(f); state.mode = "progression"; cur = {fire: f};
+  state.fire = id; pickMode(false); accessPoint = null;
+  try {
+    const point = JSON.parse(localStorage.getItem(routeKey()+".point"));
+    if (Array.isArray(point) && point.length === 2 && point.every(Number.isFinite)) accessPoint = point;
+  } catch {}
+  restoreRoute(null); readConditions(f); cacheFire(f); state.mode = "progression"; cur = {fire: f};
   writeUrl(); renderList(); renderStatus(); renderDetail(f, null); renderTimeline();
   if (fitMap) fit(fireBounds(f));
-  if (map && map.getSource("fires")) { clearDetail(); applyView(); }
+  if (map && map.getSource("fires")) { clearDetail(); drawRoute(); applyView(); }
   try {
     const d = await detail(id);
     if (state.fire !== id) return;
     cur = {fire: f, detail: d, stops: buildStops(d)};
+    restoreRoute(d.access_route);
     state.step = d.history.length - 1;
     renderDetail(f, d); renderTimeline();
     if (map && map.getSource("fires")) setDetail(d);
@@ -433,7 +547,7 @@ async function select(id, {fitMap = true} = {}) {
 function overview() {
   if (playing) play();
   document.body.classList.remove("selected"); map?.resize();
-  state.fire = null; cur = null;
+  state.fire = null; cur = null; accessRoute = null; accessPoint = null; accessMarker?.remove(); pickMode(false);
   $("#detail").hidden = true; $("#timeline").hidden = true;
   writeUrl(); renderList(); renderStatus(); legendForecast(null);
   if (map && map.getSource("fires")) { clearDetail(); applyView(); }
@@ -488,6 +602,13 @@ function initMap() {
   });
   map.once("idle", () => performance.mark("ops-map-idle"));
   const pick = (e) => {
+    if (pickingAccess && state.fire) {
+      accessPoint = [e.lngLat.wrap().lng,e.lngLat.lat];
+      pickMode(false); showRoute();
+      try { localStorage.setItem(routeKey()+".point",JSON.stringify(accessPoint)); } catch {}
+      $("#access-note").textContent = "Selected access point: "+accessPoint[1].toFixed(5)+", "+accessPoint[0].toFixed(5)+". Road directions open in Google Maps; slope and radio coverage are unverified.";
+      return;
+    }
     const hit = map.queryRenderedFeatures(e.point, {layers: ["sel-fill", "fires-fill", "points"]}).find((x) => x.layer.id !== "points" || map.getZoom() < x.properties.zh);
     if (hit) select(hit.properties.id, {fitMap: hit.properties.id !== state.fire});
   };

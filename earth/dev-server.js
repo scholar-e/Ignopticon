@@ -715,8 +715,36 @@ var apiFire = apiHandler(function(req, res, at, time) {
         time: at.time, snapshot: at.snapshot, fire: withoutPrivate(fire), previous: fire._previous,
         history: historyOf(index, id, 0, at._i),
         forecast: forecast, observed_after: forecast ? observedAfter(index, id, forecast, at._i) : [],
+        access_route: readJson(path.join(DATA, "fires", "access-routes", at.snapshot.slice(0, 10), id + ".geojson")),
         hotspots: hotspotsFor(fire, time)
     });
+});
+
+// Hourly model conditions sampled at the mapped centroid and the requested UTC hour.
+var apiWeather = apiHandler(function(req, res, at, time) {
+    var fire = at.fires.find(function(item) { return item.id === +req.params.id; });
+    if (!fire) return apiError(res, 404, "Unknown fire");
+    var hour = time.toISOString().slice(0, 13) + ":00";
+    var date = hour.slice(0, 10);
+    var archived = Date.now() - time.getTime() > 5 * 86400000;
+    var endpoint = archived ? "https://archive-api.open-meteo.com/v1/archive" : "https://api.open-meteo.com/v1/forecast";
+    var params = new URLSearchParams({latitude: fire.centroid[1], longitude: fire.centroid[0],
+        start_date: date, end_date: date, timezone: "GMT", temperature_unit: "fahrenheit", wind_speed_unit: "mph",
+        hourly: "temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation"});
+    fetch(endpoint + "?" + params, {signal: AbortSignal.timeout(8000)}).then(function(response) {
+        if (!response.ok) throw new Error("Weather provider unavailable");
+        return response.json();
+    }).then(function(payload) {
+        var values = payload.hourly, index = values.time.indexOf(hour);
+        if (index < 0) return apiError(res, 404, "No weather for this hour");
+        function sample(key) {
+            var value = values[key] && values[key][index];
+            return Number.isFinite(value) ? value : null;
+        }
+        res.json({time: hour + "Z", source: archived ? "Open-Meteo reanalysis" : "Open-Meteo forecast",
+            wind_mph: sample("wind_speed_10m"), wind_from: sample("wind_direction_10m"),
+            temp_f: sample("temperature_2m"), humidity: sample("relative_humidity_2m"), rain_mm: sample("precipitation")});
+    }).catch(function() { apiError(res, 502, "Weather unavailable"); });
 });
 
 var port = process.argv[2];
@@ -734,6 +762,7 @@ app.get("/identify/thermal", thermalIdentify);
 app.get("/identify/i4", i4Identify);
 app.get("/api/fires", apiFires);
 app.get("/api/fires/:id", apiFire);
+app.get("/api/fires/:id/weather", apiWeather);
 app.all("/api/*", function(req, res) { apiError(res, 404, "No API endpoint " + req.path); });
 app.use(i4Tile);
 app.use(express.static("public"));

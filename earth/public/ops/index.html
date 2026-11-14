@@ -32,8 +32,10 @@
       </select></div><p id="count" class="count">Loading fires…</p>
     <ul id="list" class="list"></ul>
   </nav>
-<section class="fieldnotes"><h3>Field navigation</h3><p>No verified approach route. Slope and radio coverage along approaches are unknown.</p><p id="saved" role="status"></p><a href="storage.html">Offline maps</a></section><div id="status" class="status" role="status" aria-live="polite"></div><section id="timeline" class="timeline" aria-label="Fire timeline" hidden>
-    <div class="tl-bar">
+<section class="conditions"><h3>Incident conditions</h3><dl><div><dt>Mapped fuel type</dt><dd id="fuel"></dd></div><div><dt>Wind at 10 m</dt><dd id="wind"></dd></div><div><dt>Weather</dt><dd id="weather"></dd></div></dl><p id="wx-source"></p></section>
+<section class="fieldnotes"><h3>Incident access route</h3><p id="route-note"></p><button type="button" id="pick-access" aria-pressed="false">Choose access point on map</button><p id="access-note"></p><button type="button" id="fit-route" hidden>Show full route</button> <a id="road-directions" hidden target="_blank" rel="noopener noreferrer">Directions to route start ↗</a>
+<label class="upload">Load dispatch route<input id="route-file" type="file" accept=".geojson,.json,application/geo+json,application/json"></label><p id="saved" role="status"></p><a href="storage.html">Offline maps</a></section><div id="status" class="status" role="status" aria-live="polite"></div><section id="timeline" class="timeline" aria-label="Fire timeline" hidden>
+    <div class="time-key" aria-label="Fire progression colors"><span>Past</span><span>Current</span><span>Future</span></div><div class="tl-bar">
       <div role="group" aria-label="Timeline mode" class="seg">
         <button type="button" data-mode="progression" aria-pressed="true">Progression</button>
         <button type="button" data-mode="step" aria-pressed="false">Step</button>
@@ -66,7 +68,7 @@
     <h2 id="legend-h" class="sr-only">Map layers</h2>
     <ul id="legend-list">
       <li><button type="button" aria-pressed="true" data-layer="current"><span class="sw sw-cur"></span><span class="s">Perimeter</span><span class="l">Current perimeter (FEDS)</span></button></li>
-      <li><button type="button" aria-pressed="true" data-layer="previous"><span class="sw sw-prev"></span><span class="s">Past</span><span class="l">Past perimeters (oldest dimmest)</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="previous"><span class="sw sw-prev"></span><span class="s">Past</span><span class="l">Past perimeters (brown to yellow)</span></button></li>
       <li><button type="button" aria-pressed="true" data-layer="forecast"><span class="sw-fc"><span class="sw sw-b0"></span><span class="sw sw-b1"></span><span class="sw sw-b2"></span></span><span class="s">Forecast</span><span class="l" id="fc-legend">Predicted front growth +6 / +12 / +24 h (hatched)</span></button></li>
       <li><button type="button" aria-pressed="true" data-layer="arrows"><span class="sw sw-arrow" aria-hidden="true">➜</span><span class="s">Advances</span><span class="l">Largest predicted advances</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="interior"><span class="sw sw-faint"></span><span class="s">Burnout</span><span class="l">Burnout inside perimeter (predicted)</span></button></li>
