@@ -1,0 +1,1827 @@
+{
+ "catalog_version": 1,
+ "updated": "2026-11-14",
+ "description": "Every Ignopticon dataset, labelled for serving. Validate with scripts/catalog_check.py. Formats are detailed in docs/DATASETS.md.",
+ "tiers": {
+  "public-static": "payloads the UI loads; serve from object storage + CDN",
+  "backend-only": "processed grids the back end reads to make payloads; private",
+  "raw-archive": "downloaded or intermediate files, rebuildable, never served"
+ },
+ "grid_0p1deg": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+ "path_root": "repository root",
+ "datasets": [
+  {
+   "id": "fire-grid/MODIS-Terra",
+   "title": "MODIS Terra daily fire grid, 0.1 deg (MOD14A1)",
+   "description": "MOD14A1 FireMask/MaxFRP aggregated per 0.1 deg cell and day: fire pixel counts, clear looks and FRP. Three states per cell-day: fire, clear no fire, not observed.",
+   "source": {
+    "name": "NASA LAADS MOD14A1",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MOD14A1",
+    "collection": "6.1",
+    "doi": "10.5067/MODIS/MOD14A1.061",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/gridded_fire_grid.py",
+    "command": "scripts/gridded_fire_grid.py data/raw/gridded MOD14A1 YEAR data/harmonize/grid"
+   },
+   "path": "data/harmonize/grid/MOD14A1_{YEAR}.npz",
+   "format": "npz (numpy)",
+   "schema": {
+    "doc": "docs/DATASETS.md#2a-fire-grid-dataharmonizegridproduct_yearnpz",
+    "arrays": {
+     "fire": "uint16 days x 260 x 590",
+     "fire_nh": "uint16",
+     "clear": "uint16",
+     "frp": "float32",
+     "day": "int, day of year"
+    }
+   },
+   "units": {
+    "fire": "1 km pixels",
+    "fire_nh": "1 km pixels",
+    "clear": "1 km pixels",
+    "frp": "MW (sum of MaxFRP)"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "start": "2000-02-18",
+    "end": "2026-11-12",
+    "cadence": "daily",
+    "years_present": [
+     2000,
+     2001,
+     2002,
+     2003,
+     2004,
+     2005,
+     2006,
+     2007,
+     2008,
+     2009,
+     2010,
+     2011,
+     2012,
+     2013,
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/harmonize/grid/MOD14A1_*.npz"
+   ],
+   "size_bytes": 811660982,
+   "file_count": 27,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "fire-grid/MODIS-Aqua",
+   "title": "MODIS Aqua daily fire grid, 0.1 deg (MYD14A1)",
+   "description": "MYD14A1 FireMask/MaxFRP aggregated per 0.1 deg cell and day: fire pixel counts, clear looks and FRP. Three states per cell-day: fire, clear no fire, not observed.",
+   "source": {
+    "name": "NASA LAADS MYD14A1",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD14A1",
+    "collection": "6.1",
+    "doi": "10.5067/MODIS/MYD14A1.061",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/gridded_fire_grid.py",
+    "command": "scripts/gridded_fire_grid.py data/raw/gridded MYD14A1 YEAR data/harmonize/grid"
+   },
+   "path": "data/harmonize/grid/MYD14A1_{YEAR}.npz",
+   "format": "npz (numpy)",
+   "schema": {
+    "doc": "docs/DATASETS.md#2a-fire-grid-dataharmonizegridproduct_yearnpz",
+    "arrays": {
+     "fire": "uint16 days x 260 x 590",
+     "fire_nh": "uint16",
+     "clear": "uint16",
+     "frp": "float32",
+     "day": "int, day of year"
+    }
+   },
+   "units": {
+    "fire": "1 km pixels",
+    "fire_nh": "1 km pixels",
+    "clear": "1 km pixels",
+    "frp": "MW (sum of MaxFRP)"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "start": "2002-07-04",
+    "end": "2026-11-12",
+    "cadence": "daily",
+    "years_present": [
+     2002,
+     2003,
+     2004,
+     2005,
+     2006,
+     2007,
+     2008,
+     2009,
+     2010,
+     2011,
+     2012,
+     2013,
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/harmonize/grid/MYD14A1_*.npz"
+   ],
+   "size_bytes": 756424993,
+   "file_count": 25,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "fire-grid/VIIRS-SNPP",
+   "title": "VIIRS Suomi NPP daily fire grid, 0.1 deg (VNP14A1)",
+   "description": "VNP14A1 FireMask/MaxFRP aggregated per 0.1 deg cell and day: fire pixel counts, clear looks and FRP. Three states per cell-day: fire, clear no fire, not observed.",
+   "source": {
+    "name": "NASA LAADS VNP14A1",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/VNP14A1",
+    "collection": "2",
+    "doi": "10.5067/VIIRS/VNP14A1.002",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/gridded_fire_grid.py",
+    "command": "scripts/gridded_fire_grid.py data/raw/gridded VNP14A1 YEAR data/harmonize/grid"
+   },
+   "path": "data/harmonize/grid/VNP14A1_{YEAR}.npz",
+   "format": "npz (numpy)",
+   "schema": {
+    "doc": "docs/DATASETS.md#2a-fire-grid-dataharmonizegridproduct_yearnpz",
+    "arrays": {
+     "fire": "uint16 days x 260 x 590",
+     "fire_nh": "uint16",
+     "clear": "uint16",
+     "frp": "float32",
+     "day": "int, day of year"
+    }
+   },
+   "units": {
+    "fire": "1 km pixels",
+    "fire_nh": "1 km pixels",
+    "clear": "1 km pixels",
+    "frp": "MW (sum of MaxFRP)"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "start": "2012-01-19",
+    "end": "2026-11-12",
+    "cadence": "daily",
+    "years_present": [
+     2012,
+     2013,
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024
+    ]
+   },
+   "check_paths": [
+    "data/harmonize/grid/VNP14A1_*.npz"
+   ],
+   "size_bytes": 368105913,
+   "file_count": 13,
+   "status": "partial years",
+   "status_note": "2025 and 2026 not gridded yet: raw download still running",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "fire-grid/VIIRS-NOAA20",
+   "title": "VIIRS NOAA-20 daily fire grid, 0.1 deg (VJ114A1)",
+   "description": "VJ114A1 FireMask/MaxFRP aggregated per 0.1 deg cell and day: fire pixel counts, clear looks and FRP. Three states per cell-day: fire, clear no fire, not observed.",
+   "source": {
+    "name": "NASA LAADS VJ114A1",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/VJ114A1",
+    "collection": "2",
+    "doi": "10.5067/VIIRS/VJ114A1.002",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/gridded_fire_grid.py",
+    "command": "scripts/gridded_fire_grid.py data/raw/gridded VJ114A1 YEAR data/harmonize/grid"
+   },
+   "path": "data/harmonize/grid/VJ114A1_{YEAR}.npz",
+   "format": "npz (numpy)",
+   "schema": {
+    "doc": "docs/DATASETS.md#2a-fire-grid-dataharmonizegridproduct_yearnpz",
+    "arrays": {
+     "fire": "uint16 days x 260 x 590",
+     "fire_nh": "uint16",
+     "clear": "uint16",
+     "frp": "float32",
+     "day": "int, day of year"
+    }
+   },
+   "units": {
+    "fire": "1 km pixels",
+    "fire_nh": "1 km pixels",
+    "clear": "1 km pixels",
+    "frp": "MW (sum of MaxFRP)"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "start": "2018-01-05",
+    "end": "2026-11-12",
+    "cadence": "daily",
+    "years_present": [
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/harmonize/grid/VJ114A1_*.npz"
+   ],
+   "size_bytes": 252038600,
+   "file_count": 9,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "weather/gridmet-0.1deg",
+   "title": "gridMET daily weather and fire danger, 0.1 deg",
+   "description": "gridMET wind speed, u/v components, VPD, ERC, 100-h fuel moisture and precipitation averaged from 1/24 deg into the 0.1 deg cells. NaN outside gridMET (ocean, Canada, Mexico, Great Lakes).",
+   "source": {
+    "name": "gridMET (Climatology Lab, University of Idaho)",
+    "url": "https://www.climatologylab.org/gridmet.html",
+    "collection": "METDATA daily",
+    "citation": "Abatzoglou (2013), Int. J. Climatol. 33:121-131",
+    "licence": "Public, free to use without restriction; cite Abatzoglou (2013)"
+   },
+   "produced_by": {
+    "script": "scripts/gridmet_grid.py",
+    "command": "scripts/gridmet_grid.py data/raw/gridmet YEAR data/harmonize/weather"
+   },
+   "path": "data/harmonize/weather/weather_{YEAR}.npz",
+   "format": "npz (numpy), float16",
+   "schema": {
+    "doc": "docs/DATASETS.md#2c-weather-and-wind-dataharmonizeweatherweather_yearnpz",
+    "arrays": {
+     "wind": "float16 days x 260 x 590",
+     "u": "float16 days x 260 x 590",
+     "v": "float16 days x 260 x 590",
+     "vpd": "float16 days x 260 x 590",
+     "erc": "float16 days x 260 x 590",
+     "fm100": "float16 days x 260 x 590",
+     "pr": "float16 days x 260 x 590"
+    }
+   },
+   "units": {
+    "wind": "m/s",
+    "u": "m/s",
+    "v": "m/s",
+    "vpd": "kPa",
+    "erc": "index (NFDRS fuel model G)",
+    "fm100": "%",
+    "pr": "mm/day"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "start": "2000-01-01",
+    "end": "2026-11-12",
+    "cadence": "daily",
+    "years_present": [
+     2000,
+     2001,
+     2002,
+     2003,
+     2004,
+     2005,
+     2006,
+     2007,
+     2008,
+     2009,
+     2010,
+     2011,
+     2012,
+     2013,
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/harmonize/weather/weather_*.npz"
+   ],
+   "size_bytes": 6035014198,
+   "file_count": 27,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "terrain/etopo-0.1deg",
+   "title": "Elevation and roughness, 0.1 deg",
+   "description": "Mean elevation and its standard deviation (terrain roughness) per 0.1 deg cell from ETOPO 2022 60 arc-second. Seafloor below -100 m is NaN.",
+   "source": {
+    "name": "NOAA NCEI ETOPO 2022",
+    "url": "https://www.ncei.noaa.gov/products/etopo-global-relief-model",
+    "collection": "ETOPO 2022 v1, 60 arc-second surface",
+    "doi": "10.25921/fd45-gt74",
+    "licence": "US Government work, public domain (NOAA open data)"
+   },
+   "produced_by": {
+    "script": "scripts/elevation_grid.py",
+    "command": "scripts/elevation_grid.py data/raw/dem/etopo2022_60s.nc data/harmonize/elevation.npz"
+   },
+   "path": "data/harmonize/elevation.npz",
+   "format": "npz (numpy)",
+   "schema": {
+    "doc": "docs/DATASETS.md#2b-elevation-dataharmonizeelevationnpz-in-the-repo-as-a-sample",
+    "arrays": {
+     "elev": "260 x 590",
+     "elev_sd": "260 x 590"
+    }
+   },
+   "units": {
+    "elev": "m",
+    "elev_sd": "m"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "cadence": "static"
+   },
+   "check_paths": [
+    "data/harmonize/elevation.npz"
+   ],
+   "size_bytes": 853832,
+   "file_count": 1,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "harmonized/viirs-equivalent",
+   "title": "Harmonized VIIRS-equivalent daily fire record, 0.1 deg, 2000 on",
+   "description": "Per cell-day probability that VIIRS S-NPP would have detected fire given what MODIS Terra/Aqua saw (p_viirs), plus observed, modis_fire and viirs_fire. Removes the 2012 step between sensors.",
+   "source": {
+    "name": "Ignopticon (derived from fire-grid/* and optionally terrain, weather)",
+    "url": "",
+    "licence": "Derived from open NASA/NOAA data"
+   },
+   "produced_by": {
+    "script": "scripts/harmonize.py",
+    "command": "HARMONIZE_FEATURES=all scripts/harmonize.py apply data/harmonize/grid data/harmonize/out 2000 2026"
+   },
+   "path": "data/harmonize/out/harmonized_{YEAR}.npz",
+   "format": "npz (numpy)",
+   "schema": {
+    "doc": "docs/DATASETS.md#2d-harmonized-record-dataharmonizeoutharmonized_yearnpz-in-progress",
+    "arrays": {
+     "p_viirs": "days x 260 x 590, 0..1",
+     "observed": "0 none, 1 MODIS only, 2 VIIRS",
+     "modis_fire": "",
+     "viirs_fire": "2012 on"
+    }
+   },
+   "units": {
+    "p_viirs": "probability"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "start": "2000-02-18",
+    "end": "2026-11-12",
+    "cadence": "daily"
+   },
+   "check_paths": [
+    "data/harmonize/out/harmonized_*.npz"
+   ],
+   "size_bytes": 0,
+   "file_count": 0,
+   "status": "planned",
+   "status_note": "Not written yet: model fitting in progress (see harmonized/models).",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "harmonized/models",
+   "title": "Harmonization models and held-out evaluations",
+   "description": "Fitted MODIS->VIIRS models (model.pkl, model_holdout.pkl) and evaluation.json for each feature set (base, elev, all) and training span (3-year and 13-year). Needed to apply the harmonization; results go in MODELLING_LOG.md.",
+   "source": {
+    "name": "Ignopticon",
+    "url": "",
+    "licence": "Ours"
+   },
+   "produced_by": {
+    "script": "scripts/harmonize.py",
+    "command": "HARMONIZE_FEATURES={base|elev|all} scripts/harmonize.py fit data/harmonize/grid data/harmonize/out-FEATURES[-13y] FIRST LAST"
+   },
+   "path": "data/harmonize/out-{FEATURES}[-13y]/{model.pkl,model_holdout.pkl,evaluation.json}",
+   "format": "pickle + JSON",
+   "schema": {
+    "doc": "docs/DATASETS.md#2d-harmonized-record-dataharmonizeoutharmonized_yearnpz-in-progress"
+   },
+   "units": {},
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "cadence": "per fit"
+   },
+   "check_paths": [
+    "data/harmonize/out-*"
+   ],
+   "size_bytes": 13046006,
+   "file_count": 18,
+   "status": "in progress",
+   "status_note": "Fits running; a winning feature set has not been chosen.",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "fuel/landfire-0.1deg",
+   "title": "LANDFIRE fuel and canopy grid, 0.1 deg",
+   "description": "Per 0.1 deg cell: share of each Scott & Burgan FBFM40 group, dominant FBFM40 code, and mean canopy cover, height, base height and bulk density, from LANDFIRE LF2025 CONUS. Static covariate for harmonization and ML.",
+   "source": {
+    "name": "LANDFIRE LF2025 CONUS (USGS/USFS) ImageServers FBFM40, CC, CH, CBH, CBD",
+    "url": "https://lfps.usgs.gov/arcgis/rest/services/Landfire_LF2025/",
+    "collection": "LF2025",
+    "licence": "Public domain (US Government)"
+   },
+   "produced_by": {
+    "script": "scripts/fuel_grid.py",
+    "command": "scripts/fuel_grid.py data/raw/landfire_tiles data/harmonize/fuel.npz"
+   },
+   "path": "data/harmonize/fuel.npz",
+   "format": "npz (numpy)",
+   "schema": {
+    "doc": "docs/DATASETS.md#2e-fuel-dataharmonizefuelnpz",
+    "arrays": {
+     "frac_nb": "float32 260 x 590, 0..1",
+     "frac_gr": "float32 260 x 590, 0..1",
+     "frac_gs": "float32 260 x 590, 0..1",
+     "frac_sh": "float32 260 x 590, 0..1",
+     "frac_tu": "float32 260 x 590, 0..1",
+     "frac_tl": "float32 260 x 590, 0..1",
+     "frac_sb": "float32 260 x 590, 0..1",
+     "valid": "float32 260 x 590, 0..1",
+     "fbfm40_mode": "int16 260 x 590, -1 none",
+     "cc": "float32",
+     "ch": "float32",
+     "cbh": "float32",
+     "cbd": "float32"
+    }
+   },
+   "units": {
+    "frac_*": "fraction of valid samples",
+    "cc": "%",
+    "ch": "m",
+    "cbh": "m",
+    "cbd": "kg/m3",
+    "valid": "fraction of 625 samples"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "cadence": "static (LF2025)"
+   },
+   "check_paths": [
+    "data/harmonize/fuel.npz"
+   ],
+   "size_bytes": 1788116,
+   "file_count": 1,
+   "status": "complete",
+   "status_note": "In git (added with -f, like elevation.npz).",
+   "in_git": "yes",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "fire/widemouth-observations",
+   "title": "Widemouth 2 fire: observed heat timeline and fire state",
+   "description": "Observed heat per VIIRS/MODIS overpass for the Widemouth 2 fire (Aug 2026) and the burned-state rasters it implies, used to initialise and score ELMFIRE forecasts.",
+   "source": {
+    "name": "NASA FIRMS / LAADS VIIRS 375 m active fire (VNP14IMG, VJ114IMG, VJ214IMG)",
+    "url": "https://firms.modaps.eosdis.nasa.gov/",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/fire_observations.py",
+    "command": "scripts/fire_observations.py data/fires/widemouth-0802-0806 DETECTIONS.csv data/raw/viirs_fire 2026-08-02 LON LAT [RADIUS_KM] 2026-08-06"
+   },
+   "path": "data/fires/widemouth-*-{observed.json,observed.nocloud.json,state.tif}",
+   "format": "JSON + GeoTIFF",
+   "schema": {
+    "doc": "scripts/fire_observations.py docstring; MODELLING_LOG.md"
+   },
+   "units": {},
+   "grid": "ELMFIRE landscape grid (GeoTIFF, projected)",
+   "temporal": {
+    "start": "2026-08-02",
+    "end": "2026-08-06",
+    "cadence": "per overpass"
+   },
+   "check_paths": [
+    "data/fires/widemouth-*"
+   ],
+   "size_bytes": 907871,
+   "file_count": 7,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "partial",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "fire/widemouth-landscape",
+   "title": "Widemouth 2 ELMFIRE landscape (LANDFIRE fuels, canopy, topography)",
+   "description": "LANDFIRE LF2025 fuels and canopy plus topography for the Widemouth 2 area, the static ELMFIRE input.",
+   "source": {
+    "name": "LANDFIRE LF2025 (USGS/USFS)",
+    "url": "https://landfire.gov/",
+    "collection": "LF2025",
+    "licence": "Public domain (US Government)"
+   },
+   "produced_by": {
+    "script": "scripts/landscape_download.py",
+    "command": "scripts/landscape_download.py TEMPLATE.tif REFINE data/elmfire/widemouth/landscape.tif"
+   },
+   "path": "data/elmfire/widemouth/{landscape.tif,landscape_raw/}",
+   "format": "GeoTIFF (multiband)",
+   "schema": {
+    "doc": "scripts/landscape_download.py docstring"
+   },
+   "units": {},
+   "grid": "projected, ELMFIRE cell size",
+   "temporal": {
+    "cadence": "static"
+   },
+   "check_paths": [
+    "data/elmfire/widemouth/landscape.tif",
+    "data/elmfire/widemouth/landscape_raw"
+   ],
+   "size_bytes": 30765074,
+   "file_count": 7,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "forecast/widemouth-elmfire-runs",
+   "title": "Widemouth 2 ELMFIRE runs and scores",
+   "description": "ELMFIRE case directories and outputs for Widemouth 2: plain model (a*), update-at-VIIRS-pass model (b*), sweeps, weather inputs and scores. forecast_to_geojson.py turns a run into the ops page forecast.",
+   "source": {
+    "name": "Ignopticon (ELMFIRE)",
+    "url": "https://github.com/lautenberger/elmfire",
+    "licence": "Ours (ELMFIRE is EPL-2.0)"
+   },
+   "produced_by": {
+    "script": "scripts/elmfire_case.py, scripts/run_ensemble.sh, scripts/heat_frames.py",
+    "command": "see MODELLING_LOG.md"
+   },
+   "path": "data/elmfire/widemouth/",
+   "format": "ELMFIRE case dirs (GeoTIFF/BIL, namelists, text)",
+   "schema": {
+    "doc": "MODELLING_LOG.md"
+   },
+   "units": {},
+   "grid": "ELMFIRE landscape grid",
+   "temporal": {
+    "start": "2026-08-02",
+    "end": "2026-08-06",
+    "cadence": "per run"
+   },
+   "check_paths": [
+    "data/elmfire/widemouth"
+   ],
+   "size_bytes": 2964157719,
+   "file_count": 7492,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "backend-only",
+    "url": null
+   }
+  },
+  {
+   "id": "forecast/widemouth-ensembles",
+   "title": "Widemouth 2 ensemble member definitions",
+   "description": "One directory per ensemble member (parameter set) for run_member.sh, locally or as a Slurm array.",
+   "source": {
+    "name": "Ignopticon",
+    "url": "",
+    "licence": "Ours"
+   },
+   "produced_by": {
+    "script": "scripts/make_ensemble.py",
+    "command": "scripts/make_ensemble.py data/ensembles/widemouth ENGINE KEY=VALUE[,VALUE...]"
+   },
+   "path": "data/ensembles/widemouth/",
+   "format": "text/namelist",
+   "schema": {
+    "doc": "scripts/make_ensemble.py docstring"
+   },
+   "units": {},
+   "grid": "n/a",
+   "temporal": {
+    "cadence": "per ensemble"
+   },
+   "check_paths": [
+    "data/ensembles"
+   ],
+   "size_bytes": 2387463,
+   "file_count": 85,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "forecast/widemouth-ellipse-runs",
+   "title": "Widemouth 2 ellipse-spread baseline runs",
+   "description": "Simple elliptical spread runs at several rate-of-spread settings, a baseline for ELMFIRE.",
+   "source": {
+    "name": "Ignopticon",
+    "url": "",
+    "licence": "Ours"
+   },
+   "produced_by": {
+    "script": "scripts/ellipse_spread.py",
+    "command": "scripts/ellipse_spread.py ..."
+   },
+   "path": "data/fires/runs/widemouth-ros{ROS}/",
+   "format": "GeoTIFF/JSON",
+   "schema": {
+    "doc": "scripts/ellipse_spread.py docstring"
+   },
+   "units": {},
+   "grid": "ELMFIRE landscape grid",
+   "temporal": {
+    "cadence": "per run"
+   },
+   "check_paths": [
+    "data/fires/runs"
+   ],
+   "size_bytes": 895611,
+   "file_count": 12,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "ui/index",
+   "title": "UI index: grid definition, products, available dates",
+   "description": "index.json for the fire grid UI. The repo copy is a sample covering Aug 2013.",
+   "source": {
+    "name": "Ignopticon",
+    "url": "",
+    "licence": "Derived from open NASA/NOAA data"
+   },
+   "produced_by": {
+    "script": "scripts/export_ui.py",
+    "command": "scripts/export_ui.py ... OUT_DIR"
+   },
+   "path": "data/samples/ui/index.json",
+   "format": "JSON",
+   "schema": {
+    "doc": "docs/DATASETS.md#3-ui-export-format-what-the-back-end-returns"
+   },
+   "units": {},
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "cadence": "updated with each export"
+   },
+   "check_paths": [
+    "data/samples/ui/index.json"
+   ],
+   "size_bytes": 1617,
+   "file_count": 1,
+   "status": "partial years",
+   "status_note": "Sample only (Aug 2013).",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "{API}/index.json"
+   }
+  },
+  {
+   "id": "ui/fire-daily-layers",
+   "title": "UI daily fire layers per product (PNG + fire-cell JSON)",
+   "description": "One 590x260 RGBA PNG per product and day (R fire pixels, G clear looks, B log FRP, A observed) and a JSON list of fire cells. Products MOD14A1, MYD14A1, VNP14A1, VJ114A1, later harmonized.",
+   "source": {
+    "name": "Ignopticon (from fire-grid/* and harmonized/viirs-equivalent)",
+    "url": "",
+    "licence": "Derived from open NASA data"
+   },
+   "produced_by": {
+    "script": "scripts/export_ui.py",
+    "command": "scripts/export_ui.py fires data/harmonize/grid PRODUCT YEAR FIRST_DOY LAST_DOY OUT_DIR"
+   },
+   "path": "data/samples/ui/{PRODUCT}/{YYYY-MM-DD}.{png,json}",
+   "format": "PNG (RGBA) + JSON",
+   "schema": {
+    "doc": "docs/DATASETS.md#3-ui-export-format-what-the-back-end-returns"
+   },
+   "units": {
+    "R": "fire pixels",
+    "G": "clear 1 km looks",
+    "B": "FRP_MW = 10^(B/40) - 1",
+    "A": "255 observed / 0 not"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "start": "2000-02-18",
+    "end": "2026-11-12",
+    "cadence": "daily",
+    "present": "2013-08 MYD14A1 and VNP14A1 only"
+   },
+   "check_paths": [
+    "data/samples/ui/MYD14A1",
+    "data/samples/ui/VNP14A1"
+   ],
+   "size_bytes": 6748403,
+   "file_count": 124,
+   "status": "partial years",
+   "status_note": "Only the Aug 2013 sample is exported. Full export estimate ~37,000 product-days x ~108 KB = ~4 GB.",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "{API}/{product}/{YYYY-MM-DD}.png and {API}/{product}/{YYYY-MM-DD}.json",
+    "estimated_full_size_bytes": 4000000000
+   }
+  },
+  {
+   "id": "ui/elevation-png",
+   "title": "UI elevation and roughness layer",
+   "description": "Static PNG on the 0.1 deg grid: R*256+G = elevation m + 1000, B = roughness/4 m, A = 0 no data.",
+   "source": {
+    "name": "NOAA NCEI ETOPO 2022 (via terrain/etopo-0.1deg)",
+    "url": "https://www.ncei.noaa.gov/products/etopo-global-relief-model",
+    "licence": "US Government work, public domain (NOAA open data)"
+   },
+   "produced_by": {
+    "script": "scripts/export_ui.py",
+    "command": "scripts/export_ui.py elevation ..."
+   },
+   "path": "data/samples/ui/elevation.png",
+   "format": "PNG (RGBA)",
+   "schema": {
+    "doc": "docs/DATASETS.md#3-ui-export-format-what-the-back-end-returns"
+   },
+   "units": {
+    "elevation": "m",
+    "roughness": "m"
+   },
+   "grid": "0.1 deg lat/lon, 590 x 260, lon -125..-66, lat 24..50, row 0 north (WGS84 lat/lon, plate carree)",
+   "temporal": {
+    "cadence": "static"
+   },
+   "check_paths": [
+    "data/samples/ui/elevation.png"
+   ],
+   "size_bytes": 239718,
+   "file_count": 1,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "{API}/elevation.png"
+   }
+  },
+  {
+   "id": "map/fires-viirs",
+   "title": "Map: VIIRS/MODIS hotspots and heat field",
+   "description": "Hotspot points and a smoothed heat field for earth, per day plus current.",
+   "source": {
+    "name": "NASA FIRMS VIIRS/MODIS active fire (and LAADS 375 m granules)",
+    "url": "https://firms.modaps.eosdis.nasa.gov/",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/firms_to_earth_json.py",
+    "command": "scripts/firms_to_earth_json.py [--hours=N] OUT.json IN.csv ...; scripts/firms_heat_grid.py OUT-heat.json IN.csv ..."
+   },
+   "path": "earth/public/data/fires/viirs/{current,YYYY/MM/DD}[-heat].json",
+   "format": "JSON",
+   "schema": {
+    "doc": "scripts/firms_to_earth_json.py docstring"
+   },
+   "units": {},
+   "grid": "global lat/lon (earth projection)",
+   "temporal": {
+    "cadence": "per day / current",
+    "present": "2026-08-02, 2026-10-29"
+   },
+   "check_paths": [
+    "earth/public/data/fires/viirs"
+   ],
+   "size_bytes": 4103930,
+   "file_count": 6,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/fires/viirs/{YYYY}/{MM}/{DD}.json (+ -heat.json, current.json)"
+   }
+  },
+  {
+   "id": "map/fires-feds",
+   "title": "Map: FEDS fire perimeters",
+   "description": "NASA FEDS VIIRS-derived active fire perimeters for earth to outline.",
+   "source": {
+    "name": "NASA FEDS (VEDA features API)",
+    "url": "https://www.earthdata.nasa.gov/dashboard/",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/feds_to_earth_json.py",
+    "command": "scripts/feds_to_earth_json.py OUT.json [TIME]"
+   },
+   "path": "earth/public/data/fires/feds/{index,current,YYYY/MM/DD[-HHMM]}.json",
+   "format": "JSON (GeoJSON-like)",
+   "schema": {
+    "doc": "scripts/feds_to_earth_json.py docstring"
+   },
+   "units": {},
+   "grid": "global lat/lon (earth projection)",
+   "temporal": {
+    "cadence": "12-hourly snapshots",
+    "present": "2026-08, 2026-10"
+   },
+   "check_paths": [
+    "earth/public/data/fires/feds"
+   ],
+   "size_bytes": 1391374,
+   "file_count": 16,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/fires/feds/{YYYY}/{MM}/{DD}-{HHMM}.json"
+   }
+  },
+  {
+   "id": "map/fire-frames",
+   "title": "Map: modelled vs observed heat frames (Widemouth 2)",
+   "description": "Heat VIIRS would see from each model run at each overpass, with scores.",
+   "source": {
+    "name": "Ignopticon (ELMFIRE + VIIRS)",
+    "url": "",
+    "licence": "Ours"
+   },
+   "produced_by": {
+    "script": "scripts/heat_frames.py",
+    "command": "scripts/heat_frames.py OBSERVED.json STATE.tif ISSUE OUT.json RUN_DIR ..."
+   },
+   "path": "earth/public/data/fires/frames/YYYY/MM/DD.json",
+   "format": "JSON",
+   "schema": {
+    "doc": "scripts/heat_frames.py docstring"
+   },
+   "units": {},
+   "grid": "global lat/lon (earth projection)",
+   "temporal": {
+    "start": "2026-08-02",
+    "cadence": "per overpass"
+   },
+   "check_paths": [
+    "earth/public/data/fires/frames"
+   ],
+   "size_bytes": 681410,
+   "file_count": 1,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/fires/frames/{YYYY}/{MM}/{DD}.json"
+   }
+  },
+  {
+   "id": "map/forecasts",
+   "title": "Map: ops-page fire spread forecasts",
+   "description": "Burned area at issue and non-overlapping forecast bands per fire, for the firefighter ops page.",
+   "source": {
+    "name": "Ignopticon (ELMFIRE)",
+    "url": "",
+    "licence": "Ours"
+   },
+   "produced_by": {
+    "script": "scripts/forecast_to_geojson.py",
+    "command": "scripts/forecast_to_geojson.py RUN_DIR STATE.tif ISSUE FIRE_ID NAME MODEL OUT_DIR"
+   },
+   "path": "earth/public/data/forecasts/{index.json,FIRE_ID/ISSUE.json}",
+   "format": "GeoJSON",
+   "schema": {
+    "doc": "scripts/forecast_to_geojson.py docstring"
+   },
+   "units": {},
+   "grid": "global lat/lon (earth projection)",
+   "temporal": {
+    "start": "2026-08-02T12:00",
+    "cadence": "per issue"
+   },
+   "check_paths": [
+    "earth/public/data/forecasts"
+   ],
+   "size_bytes": 217364,
+   "file_count": 2,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/forecasts/{fire_id}/{issue}.json (+ index.json)"
+   }
+  },
+  {
+   "id": "map/fuels-legend",
+   "title": "Map: LANDFIRE FBFM40 legend colours",
+   "description": "Colour per fuel model from LANDFIRE's image service, for the fuel legend.",
+   "source": {
+    "name": "LANDFIRE FBFM40 image service",
+    "url": "https://landfire.gov/",
+    "licence": "Public domain (US Government)"
+   },
+   "produced_by": {
+    "script": "scripts/landfire_legend.py",
+    "command": "scripts/landfire_legend.py OUT.json"
+   },
+   "path": "earth/public/data/fuels/fbfm40-colors.json",
+   "format": "JSON",
+   "schema": {
+    "doc": "scripts/landfire_legend.py docstring"
+   },
+   "units": {},
+   "grid": "n/a",
+   "temporal": {
+    "cadence": "static"
+   },
+   "check_paths": [
+    "earth/public/data/fuels"
+   ],
+   "size_bytes": 838,
+   "file_count": 1,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/fuels/fbfm40-colors.json"
+   }
+  },
+  {
+   "id": "map/thermal-i4",
+   "title": "Map: VIIRS I4 (3.7 um) brightness temperature tiles",
+   "description": "Slippy-map PNG tiles of NOAA-21 I4 brightness temperature, day and night, from L1B swaths. Zooms 8-9 are git-ignored.",
+   "source": {
+    "name": "NASA LAADS VIIRS L1B VJ202IMG + VJ203IMG (NOAA-21)",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/",
+    "collection": "2.1 (021)",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/viirs_i4_tiles.py",
+    "command": "scripts/viirs_i4_tiles.py SCALE.json earth/public/data/thermal/i4/DATE data/raw/viirs_l1b VJ2 DATE"
+   },
+   "path": "earth/public/data/thermal/{i4-scale.json,brightness-temp-scale.json,i4/DATE/N21-{day,night}/{info.json,Z/X/Y.png}}",
+   "format": "PNG tiles + JSON",
+   "schema": {
+    "doc": "scripts/viirs_i4_tiles.py docstring"
+   },
+   "units": {},
+   "grid": "Web Mercator XYZ tiles",
+   "temporal": {
+    "cadence": "per day (day + night pass)",
+    "present": "2026-08-02, 2026-10-29"
+   },
+   "check_paths": [
+    "earth/public/data/thermal"
+   ],
+   "size_bytes": 744565603,
+   "file_count": 24790,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "partial",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/thermal/i4/{date}/N21-{day|night}/{z}/{x}/{y}.png"
+   }
+  },
+  {
+   "id": "map/weather-gfs-wind",
+   "title": "Map: GFS wind (surface and isobaric levels)",
+   "description": "GFS 0.5/1 deg U/V wind in earth's grib2json layout, current and archived.",
+   "source": {
+    "name": "NOAA GFS (NOAA open data on AWS)",
+    "url": "https://registry.opendata.aws/noaa-gfs-bdp-pds/",
+    "licence": "US Government work, public domain (NOAA open data)"
+   },
+   "produced_by": {
+    "script": "scripts/grib_to_earth_json.py",
+    "command": "scripts/gfs_archive_download.py data/raw/gfs DATE HOUR; scripts/grib_to_earth_json.py IN.grb2 OUT.json"
+   },
+   "path": "earth/public/data/weather/{current,YYYY/MM/DD}/*-wind-*-gfs-1.0.json",
+   "format": "JSON (grib2json)",
+   "schema": {
+    "doc": "scripts/grib_to_earth_json.py docstring"
+   },
+   "units": {},
+   "grid": "global lat/lon (earth projection)",
+   "temporal": {
+    "cadence": "per analysis",
+    "present": "2026-08-02, 2026-10-29 + current"
+   },
+   "check_paths": [
+    "earth/public/data/weather"
+   ],
+   "size_bytes": 70909758,
+   "file_count": 25,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/weather/{YYYY}/{MM}/{DD}/{HHMM}-wind-{level}-gfs-1.0.json"
+   }
+  },
+  {
+   "id": "map/earth-topo",
+   "title": "Map: coastlines and borders",
+   "description": "TopoJSON base map from upstream earth.",
+   "source": {
+    "name": "Natural Earth via cambecc/earth",
+    "url": "https://github.com/cambecc/earth",
+    "licence": "Natural Earth public domain; earth MIT"
+   },
+   "produced_by": {
+    "script": "upstream (cambecc/earth)",
+    "command": ""
+   },
+   "path": "earth/public/data/earth-topo{,-mobile}.json",
+   "format": "TopoJSON",
+   "schema": {
+    "doc": "cambecc/earth"
+   },
+   "units": {},
+   "grid": "global lat/lon (earth projection)",
+   "temporal": {
+    "cadence": "static"
+   },
+   "check_paths": [
+    "earth/public/data/earth-topo.json",
+    "earth/public/data/earth-topo-mobile.json"
+   ],
+   "size_bytes": 681638,
+   "file_count": 2,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/earth-topo.json, /data/earth-topo-mobile.json"
+   }
+  },
+  {
+   "id": "map/oscar-sample",
+   "title": "Map: OSCAR ocean currents sample",
+   "description": "Upstream earth sample file (Jan 2014 surface currents); not part of the fire product.",
+   "source": {
+    "name": "NASA PO.DAAC OSCAR via cambecc/earth",
+    "url": "https://github.com/cambecc/earth",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "upstream (cambecc/earth)",
+    "command": ""
+   },
+   "path": "earth/public/data/oscar/*.json",
+   "format": "JSON",
+   "schema": {
+    "doc": "cambecc/earth"
+   },
+   "units": {},
+   "grid": "global lat/lon (earth projection)",
+   "temporal": {
+    "cadence": "static sample"
+   },
+   "check_paths": [
+    "earth/public/data/oscar"
+   ],
+   "size_bytes": 5210618,
+   "file_count": 2,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "yes",
+   "serving": {
+    "tier": "public-static",
+    "url": "/data/oscar/{file}.json"
+   }
+  },
+  {
+   "id": "raw/MOD14A1",
+   "title": "Raw MOD14A1 tiles (MODIS Terra)",
+   "description": "NASA MOD14A1 daily gridded active fire HDF/netCDF tiles over the lower 48 (17 sinusoidal tiles).",
+   "source": {
+    "name": "NASA LAADS DAAC MOD14A1",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MOD14A1",
+    "collection": "6.1",
+    "doi": "10.5067/MODIS/MOD14A1.061",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/gridded_fire_download.py",
+    "command": "scripts/gridded_fire_download.py data/raw/gridded MOD14A1 2000 2026 16"
+   },
+   "path": "data/raw/gridded/MOD14A1/{YEAR}/*",
+   "format": "HDF4 (MODIS) / HDF5 (VIIRS)",
+   "schema": {
+    "doc": "docs/DATASETS.md#1-source-products-nasa-laads-earthdata-login"
+   },
+   "units": {},
+   "grid": "MODIS sinusoidal 1 km (926.6 m), 17 tiles h07-h13 v04-v06",
+   "temporal": {
+    "start": "2000-02-18",
+    "end": "2026-11",
+    "cadence": "daily (MODIS 8 days per file)",
+    "years_present": [
+     2000,
+     2001,
+     2002,
+     2003,
+     2004,
+     2005,
+     2006,
+     2007,
+     2008,
+     2009,
+     2010,
+     2011,
+     2012,
+     2013,
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/raw/gridded/MOD14A1"
+   ],
+   "size_bytes": 19580202463,
+   "file_count": 20859,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/MYD14A1",
+   "title": "Raw MYD14A1 tiles (MODIS Aqua)",
+   "description": "NASA MYD14A1 daily gridded active fire HDF/netCDF tiles over the lower 48 (17 sinusoidal tiles).",
+   "source": {
+    "name": "NASA LAADS DAAC MYD14A1",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD14A1",
+    "collection": "6.1",
+    "doi": "10.5067/MODIS/MYD14A1.061",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/gridded_fire_download.py",
+    "command": "scripts/gridded_fire_download.py data/raw/gridded MYD14A1 2002 2026 16"
+   },
+   "path": "data/raw/gridded/MYD14A1/{YEAR}/*",
+   "format": "HDF4 (MODIS) / HDF5 (VIIRS)",
+   "schema": {
+    "doc": "docs/DATASETS.md#1-source-products-nasa-laads-earthdata-login"
+   },
+   "units": {},
+   "grid": "MODIS sinusoidal 1 km (926.6 m), 17 tiles h07-h13 v04-v06",
+   "temporal": {
+    "start": "2002-07-04",
+    "end": "2026-11",
+    "cadence": "daily (MODIS 8 days per file)",
+    "years_present": [
+     2002,
+     2003,
+     2004,
+     2005,
+     2006,
+     2007,
+     2008,
+     2009,
+     2010,
+     2011,
+     2012,
+     2013,
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/raw/gridded/MYD14A1"
+   ],
+   "size_bytes": 18202348508,
+   "file_count": 19023,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/VNP14A1",
+   "title": "Raw VNP14A1 tiles (VIIRS Suomi NPP)",
+   "description": "NASA VNP14A1 daily gridded active fire HDF/netCDF tiles over the lower 48 (17 sinusoidal tiles).",
+   "source": {
+    "name": "NASA LAADS DAAC VNP14A1",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/VNP14A1",
+    "collection": "2",
+    "doi": "10.5067/VIIRS/VNP14A1.002",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/gridded_fire_download.py",
+    "command": "scripts/gridded_fire_download.py data/raw/gridded VNP14A1 2012 2026 16"
+   },
+   "path": "data/raw/gridded/VNP14A1/{YEAR}/*",
+   "format": "HDF4 (MODIS) / HDF5 (VIIRS)",
+   "schema": {
+    "doc": "docs/DATASETS.md#1-source-products-nasa-laads-earthdata-login"
+   },
+   "units": {},
+   "grid": "MODIS sinusoidal 1 km (926.6 m), 17 tiles h07-h13 v04-v06",
+   "temporal": {
+    "start": "2012-01-19",
+    "end": "2026-11",
+    "cadence": "daily (MODIS 8 days per file)",
+    "years_present": [
+     2012,
+     2013,
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/raw/gridded/VNP14A1"
+   ],
+   "size_bytes": 18310460044,
+   "file_count": 90811,
+   "status": "in progress",
+   "status_note": "Download still running: 2026 about half done (2,809 files); 2012, 2022 and 2024 have fewer files than a full year.",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/VJ114A1",
+   "title": "Raw VJ114A1 tiles (VIIRS NOAA-20)",
+   "description": "NASA VJ114A1 daily gridded active fire HDF/netCDF tiles over the lower 48 (17 sinusoidal tiles).",
+   "source": {
+    "name": "NASA LAADS DAAC VJ114A1",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/VJ114A1",
+    "collection": "2",
+    "doi": "10.5067/VIIRS/VJ114A1.002",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/gridded_fire_download.py",
+    "command": "scripts/gridded_fire_download.py data/raw/gridded VJ114A1 2018 2026 16"
+   },
+   "path": "data/raw/gridded/VJ114A1/{YEAR}/*",
+   "format": "HDF4 (MODIS) / HDF5 (VIIRS)",
+   "schema": {
+    "doc": "docs/DATASETS.md#1-source-products-nasa-laads-earthdata-login"
+   },
+   "units": {},
+   "grid": "MODIS sinusoidal 1 km (926.6 m), 17 tiles h07-h13 v04-v06",
+   "temporal": {
+    "start": "2018-01-05",
+    "end": "2026-11",
+    "cadence": "daily (MODIS 8 days per file)",
+    "years_present": [
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/raw/gridded/VJ114A1"
+   ],
+   "size_bytes": 11068429435,
+   "file_count": 54802,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/gridmet",
+   "title": "Raw gridMET yearly netCDF (vs, th, vpd, erc, fm100, pr)",
+   "description": "gridMET daily 1/24 deg fields, one file per variable and year.",
+   "source": {
+    "name": "gridMET",
+    "url": "https://thredds.northwestknowledge.net/thredds/catalog/MET/catalog.html",
+    "licence": "Public, free to use; cite Abatzoglou (2013)"
+   },
+   "produced_by": {
+    "script": "data/raw/gridmet/fetch.sh",
+    "command": "curl https://thredds.northwestknowledge.net/thredds/fileServer/MET/{var}/{var}_{YEAR}.nc"
+   },
+   "path": "data/raw/gridmet/{var}_{YEAR}.nc",
+   "format": "netCDF4",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "1/24 deg lat/lon (~4 km), CONUS",
+   "temporal": {
+    "start": "2000-01-01",
+    "end": "2026-11-12",
+    "cadence": "daily, yearly files",
+    "years_present": [
+     2000,
+     2001,
+     2002,
+     2003,
+     2004,
+     2005,
+     2006,
+     2007,
+     2008,
+     2009,
+     2010,
+     2011,
+     2012,
+     2013,
+     2014,
+     2015,
+     2016,
+     2017,
+     2018,
+     2019,
+     2020,
+     2021,
+     2022,
+     2023,
+     2024,
+     2025,
+     2026
+    ]
+   },
+   "check_paths": [
+    "data/raw/gridmet"
+   ],
+   "size_bytes": 12826269048,
+   "file_count": 165,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/etopo2022",
+   "title": "Raw ETOPO 2022 60 arc-second surface elevation",
+   "description": "Global relief model, source of terrain/etopo-0.1deg.",
+   "source": {
+    "name": "NOAA NCEI ETOPO 2022",
+    "url": "https://www.ngdc.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_surface_elev_netcdf/ETOPO_2022_v1_60s_N90W180_surface.nc",
+    "doi": "10.25921/fd45-gt74",
+    "licence": "US Government work, public domain (NOAA open data)"
+   },
+   "produced_by": {
+    "script": "curl",
+    "command": "curl -o data/raw/dem/etopo2022_60s.nc URL"
+   },
+   "path": "data/raw/dem/etopo2022_60s.nc",
+   "format": "netCDF4",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "60 arc-second global lat/lon",
+   "temporal": {
+    "cadence": "static"
+   },
+   "check_paths": [
+    "data/raw/dem"
+   ],
+   "size_bytes": 478290125,
+   "file_count": 1,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/viirs-afp-375m",
+   "title": "Raw VIIRS 375 m active fire swaths (VNP14IMG, VJ114IMG, VJ214IMG)",
+   "description": "Per-granule 375 m active fire detections around the Widemouth 2 and Oct 29 events.",
+   "source": {
+    "name": "NASA LAADS DAAC",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/",
+    "collection": "2 (002)",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/laads_download.py",
+    "command": "scripts/laads_download.py --all data/raw/viirs_fire PRODUCT DATE FROM TO [BBOX]"
+   },
+   "path": "data/raw/viirs_fire/{PRODUCT}.A{YYYYDDD}.{HHMM}.002.*.nc",
+   "format": "netCDF4",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "swath",
+   "temporal": {
+    "start": "2026-07-30",
+    "end": "2026-08-06",
+    "cadence": "per overpass (granule)"
+   },
+   "check_paths": [
+    "data/raw/viirs_fire"
+   ],
+   "size_bytes": 296994231,
+   "file_count": 151,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/viirs-l1b",
+   "title": "Raw VIIRS I-band L1B swaths (NOAA-21 VJ202IMG + VJ203IMG geolocation)",
+   "description": "I-band radiances for the I4 thermal tiles.",
+   "source": {
+    "name": "NASA LAADS DAAC",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/",
+    "collection": "2.1 (021)",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/laads_download.py",
+    "command": "scripts/laads_download.py data/raw/viirs_l1b VJ202IMG DATE FROM TO [BBOX]"
+   },
+   "path": "data/raw/viirs_l1b/{VJ202IMG,VJ203IMG}.A{YYYYDDD}.*.nc",
+   "format": "netCDF4",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "swath",
+   "temporal": {
+    "cadence": "per overpass",
+    "present": "2026-08-02 (DOY 214), 2026-10-29 (DOY 302)"
+   },
+   "check_paths": [
+    "data/raw/viirs_l1b"
+   ],
+   "size_bytes": 12901336318,
+   "file_count": 76,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/viirs-geo",
+   "title": "Raw VIIRS I-band geolocation (VJ103IMG, VJ203IMG, VNP03IMG)",
+   "description": "Geolocation granules for the L1B and active fire swaths.",
+   "source": {
+    "name": "NASA LAADS DAAC",
+    "url": "https://ladsweb.modaps.eosdis.nasa.gov/",
+    "collection": "2.1 (021)",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/laads_download.py",
+    "command": "scripts/laads_download.py data/raw/viirs_geo VJ103IMG DATE FROM TO [BBOX]"
+   },
+   "path": "data/raw/viirs_geo/*.nc",
+   "format": "netCDF4",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "swath",
+   "temporal": {
+    "start": "2026-08-02",
+    "end": "2026-08-06",
+    "cadence": "per overpass"
+   },
+   "check_paths": [
+    "data/raw/viirs_geo"
+   ],
+   "size_bytes": 5605615593,
+   "file_count": 33,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/firms-csv",
+   "title": "Raw FIRMS hotspot CSVs (and LAADS-derived FIRMS-style CSVs)",
+   "description": "FIRMS 24 h CONUS downloads (MODIS, S-NPP, NOAA-20, NOAA-21) and CSVs made from LAADS 375 m granules.",
+   "source": {
+    "name": "NASA FIRMS VIIRS/MODIS active fire (and LAADS 375 m granules)",
+    "url": "https://firms.modaps.eosdis.nasa.gov/",
+    "licence": "NASA Earth science data: open, free to use with no restrictions (NASA Earthdata data use policy); cite the product DOI"
+   },
+   "produced_by": {
+    "script": "scripts/viirs_fire_to_firms_csv.py",
+    "command": "FIRMS download; scripts/viirs_fire_to_firms_csv.py ..."
+   },
+   "path": "data/raw/firms/*.csv",
+   "format": "CSV (FIRMS columns)",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "points (lat/lon)",
+   "temporal": {
+    "cadence": "snapshots",
+    "present": "2026-07-30..08-05, 2026-10-30"
+   },
+   "check_paths": [
+    "data/raw/firms"
+   ],
+   "size_bytes": 18798137,
+   "file_count": 7,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/landfire-tiles",
+   "title": "Raw LANDFIRE LF2025 tile cache (FBFM40, CC, CH, CBH, CBD)",
+   "description": "2 x 2 degree exportImage tiles sampled at 0.004 deg, cached by fuel_grid.py.",
+   "source": {
+    "name": "LANDFIRE LF2025 ImageServers",
+    "url": "https://lfps.usgs.gov/arcgis/rest/services/Landfire_LF2025/",
+    "collection": "LF2025",
+    "licence": "Public domain (US Government)"
+   },
+   "produced_by": {
+    "script": "scripts/fuel_grid.py",
+    "command": "scripts/fuel_grid.py data/raw/landfire_tiles data/harmonize/fuel.npz"
+   },
+   "path": "data/raw/landfire_tiles/{LAYER}/*",
+   "format": "image tiles",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "0.004 deg EPSG:4326 lattice, CONUS",
+   "temporal": {
+    "cadence": "static (LF2025)"
+   },
+   "check_paths": [
+    "data/raw/landfire_tiles"
+   ],
+   "size_bytes": 644718540,
+   "file_count": 1950,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/gfs",
+   "title": "Raw GFS wind GRIB2",
+   "description": "GFS analyses (10 m and isobaric wind) for the map wind layers.",
+   "source": {
+    "name": "NOAA GFS on AWS",
+    "url": "https://registry.opendata.aws/noaa-gfs-bdp-pds/",
+    "licence": "US Government work, public domain (NOAA open data)"
+   },
+   "produced_by": {
+    "script": "scripts/gfs_archive_download.py",
+    "command": "scripts/gfs_archive_download.py data/raw/gfs DATE HOUR"
+   },
+   "path": "data/raw/gfs/gfs_{YYYYMMDD}_{HH}z_f000_*.grb2",
+   "format": "GRIB2",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "0.5 deg global",
+   "temporal": {
+    "cadence": "per analysis",
+    "present": "2026-08-02 18z, 2026-10-29 18z"
+   },
+   "check_paths": [
+    "data/raw/gfs"
+   ],
+   "size_bytes": 7059253,
+   "file_count": 4,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  },
+  {
+   "id": "raw/hrrr",
+   "title": "Raw HRRR forecast GRIB2 (Widemouth 2 weather)",
+   "description": "HRRR hourly forecasts used to make ELMFIRE weather inputs.",
+   "source": {
+    "name": "NOAA HRRR (NOAA open data)",
+    "url": "https://registry.opendata.aws/noaa-hrrr-pds/",
+    "licence": "US Government work, public domain (NOAA open data)"
+   },
+   "produced_by": {
+    "script": "scripts/hrrr_weather.py",
+    "command": "scripts/hrrr_weather.py TEMPLATE.tif RUN HOURS OUTDIR data/raw/hrrr"
+   },
+   "path": "data/raw/hrrr/hrrr_{YYYYMMDD}_t{HH}z_f{FF}.grb2",
+   "format": "GRIB2",
+   "schema": {
+    "doc": "source product documentation"
+   },
+   "units": {},
+   "grid": "3 km Lambert conformal (CONUS)",
+   "temporal": {
+    "start": "2026-08-02",
+    "cadence": "hourly forecast steps"
+   },
+   "check_paths": [
+    "data/raw/hrrr"
+   ],
+   "size_bytes": 759205458,
+   "file_count": 100,
+   "status": "complete",
+   "status_note": "",
+   "in_git": "no",
+   "serving": {
+    "tier": "raw-archive",
+    "url": null
+   }
+  }
+ ]
+}

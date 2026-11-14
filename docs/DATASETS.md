@@ -101,7 +101,7 @@ Built by `scripts/gridmet_grid.py GRIDMET_DIR YEAR OUT` from gridMET (University
 | `fm100` | 100-hour dead fuel moisture, % |
 | `pr` | precipitation, mm/day |
 
-Cells outside gridMET (ocean, Canada, Mexico) are NaN.
+Cells outside gridMET (ocean, Canada, Mexico, the Great Lakes) are NaN, the same cells on every day. Values are rounded before the float16 cast (wind, u, v and vpd to 0.01; erc, fm100 and pr to 0.1). All 27 years 2000–2026 are gridded (2026 runs to Nov 12, 316 days), about 200 MB a year, 5.7 GB in total.
 
 ### 2d. Harmonized record: `data/harmonize/out/harmonized_YEAR.npz` (in progress)
 Built by `scripts/harmonize.py fit|apply`.
@@ -111,6 +111,27 @@ Built by `scripts/harmonize.py fit|apply`.
 - **Testing:** whole years held out, against simply rescaling MODIS.
 - **Feature sets** (`HARMONIZE_FEATURES`): `base` (MODIS only), `elev` (adds elevation), `all` (adds elevation and weather). Each set is kept only if it helps on the held-out years.
 - Results will be logged in MODELLING_LOG.md.
+
+### 2e. Fuel: `data/harmonize/fuel.npz`
+Built by `scripts/fuel_grid.py TILEDIR OUT.npz` from LANDFIRE LF2025 (CONUS, 30 m) through its public ArcGIS ImageServers (`https://lfps.usgs.gov/arcgis/rest/services/Landfire_LF2025/LF2025_{FBFM40,CC,CH,CBH,CBD}_CONUS/ImageServer`, no key). Each layer is sampled nearest-neighbour on a 0.004° lat/lon lattice, which gives 25 × 25 = 625 samples per cell, about 350–450 m apart. The script fetches 2° × 2° tiles (500 × 500 px, under a second each) on 12 threads and caches them in `data/raw/landfire_tiles/LAYER/` (620 MB). A full build takes about 100 s, and a rerun reuses the tiles. At this sample spacing the server reads from its pyramids. On a test half-degree in the Sierra foothills, the class shares came within 2.5 points of a near-native (~30 m) request.
+
+Arrays are 260 × 590. They are float32 unless noted, and NaN where the cell has no LANDFIRE sample (ocean, Canada, Mexico):
+
+| Array | Meaning |
+|---|---|
+| `frac_nb` | share of the cell's valid samples that are non-burnable, FBFM40 91–99 (urban 91, snow 92, agriculture 93, water 98, bare 99; the Great Lakes count as water) |
+| `frac_gr`, `frac_gs`, `frac_sh` | grass (101–109), grass-shrub (121–124), shrub (141–149) |
+| `frac_tu`, `frac_tl`, `frac_sb` | timber-understory (161–165), timber litter (181–189), slash-blowdown (201–204) |
+| `fbfm40_mode` | int16, the commonest FBFM40 code in the cell (−1 where there is none) |
+| `cc` | mean canopy cover, % |
+| `ch` | mean canopy height, m |
+| `cbh` | mean canopy base height, m |
+| `cbd` | mean canopy bulk density, kg/m³ |
+| `valid` | share of the cell's 625 samples with a valid FBFM40 code (below 1 on coasts and borders) |
+
+The seven group shares add up to 1 wherever a cell is valid. LANDFIRE stores CH and CBH as m × 10 and CBD as kg/m³ × 100. The script divides these out, and the service metadata agrees (maximums: CC 95, CH 510, CBH 100, CBD 45). Non-forest samples have zero canopy values, so the canopy means combine how much of the cell is forest with how the stands are built.
+
+National area shares (cos-latitude weighted): non-burnable 27.5%, grass 24.8%, grass-shrub 12.5%, shrub 9.3%, timber-understory 7.5%, timber litter 18.3%, slash-blowdown under 0.1%. By dominant code, 18.5% of cells are mostly agriculture (93) and 6.8% mostly water (98).
 
 ## 3. UI export format (what the back end returns)
 
@@ -153,6 +174,7 @@ curl -o data/raw/dem/etopo2022_60s.nc https://www.ngdc.noaa.gov/thredds/fileServ
 scripts/elevation_grid.py data/raw/dem/etopo2022_60s.nc data/harmonize/elevation.npz
 # gridMET: https://thredds.northwestknowledge.net/thredds/fileServer/MET/{vs,th,vpd,erc,fm100,pr}/{var}_{YEAR}.nc
 scripts/gridmet_grid.py data/raw/gridmet 2013 data/harmonize/weather
+scripts/fuel_grid.py data/raw/landfire_tiles data/harmonize/fuel.npz
 HARMONIZE_FEATURES=all scripts/harmonize.py fit data/harmonize/grid data/harmonize/out 2012 2026
 scripts/export_ui.py fires data/harmonize/grid VNP14A1 2013 213 243 data/samples/ui
 ```
@@ -169,3 +191,56 @@ scripts/export_ui.py fires data/harmonize/grid VNP14A1 2013 213 243 data/samples
 | UI samples and example page | done: Aqua and S-NPP for August 2013, elevation, index (6.9 MB, in the repo); checked against the source grids |
 | Harmonization | script written, fitted once the overlap years are gridded |
 | Fire-spread modelling (ELMFIRE, Widemouth 2) | separate track: see MODELLING_LOG.md |
+
+## 6. Dataset catalog and serving
+
+Every dataset is listed in [`data/catalog.json`](../data/catalog.json), one entry per dataset. Each entry has a stable id, source (URL, collection, DOI, licence), producing script and command, path pattern, format, schema (pointing back to the sections above), units, grid, temporal coverage, size on disk, status, whether it is in git, and a serving tier. `scripts/catalog_check.py` checks the catalog against the disk and prints this table. Run it after adding data. Sizes below were measured on 2026-11-14.
+
+Tiers:
+- **public-static:** payloads the UI loads. The `{API}` paths match the endpoint table at the top of this file; `/data/...` paths are earth's map layers.
+- **backend-only:** processed grids the back end reads to make payloads. Never public.
+- **raw-archive:** downloads and intermediates. Rebuildable from public sources with the listed script, and never served.
+
+| id | tier | size | status | serving path |
+|---|---|---|---|---|
+| ui/index | public-static | 1.6 KB | sample (Aug 2013) | `{API}/index.json` |
+| ui/fire-daily-layers | public-static | 6.7 MB (full export ~4 GB) | sample (Aug 2013, MYD14A1 + VNP14A1) | `{API}/{product}/{YYYY-MM-DD}.png`, `.json` |
+| ui/elevation-png | public-static | 0.2 MB | complete | `{API}/elevation.png` |
+| map/fires-viirs | public-static | 4.1 MB | 2026-08-02, 2026-10-29 | `/data/fires/viirs/{YYYY}/{MM}/{DD}[-heat].json` |
+| map/fires-feds | public-static | 1.4 MB | Aug and Oct 2026 | `/data/fires/feds/{YYYY}/{MM}/{DD}-{HHMM}.json` |
+| map/fire-frames | public-static | 0.7 MB | Widemouth 2 | `/data/fires/frames/{YYYY}/{MM}/{DD}.json` |
+| map/forecasts | public-static | 0.2 MB | Widemouth 2 | `/data/forecasts/{fire_id}/{issue}.json` |
+| map/fuels-legend | public-static | <1 KB | complete | `/data/fuels/fbfm40-colors.json` |
+| map/thermal-i4 | public-static | 745 MB | 2 days (zooms 8-9 not in git) | `/data/thermal/i4/{date}/N21-{day,night}/{z}/{x}/{y}.png` |
+| map/weather-gfs-wind | public-static | 71 MB | 2 days + current | `/data/weather/{YYYY}/{MM}/{DD}/...-gfs-1.0.json` |
+| map/earth-topo | public-static | 0.7 MB | complete (upstream) | `/data/earth-topo.json` |
+| map/oscar-sample | public-static | 5.2 MB | upstream sample | `/data/oscar/...` |
+| fire-grid/MODIS-Terra | backend-only | 812 MB | 2000–2026 | |
+| fire-grid/MODIS-Aqua | backend-only | 756 MB | 2002–2026 | |
+| fire-grid/VIIRS-SNPP | backend-only | 368 MB | 2012–2024 (2025–26 waiting on download) | |
+| fire-grid/VIIRS-NOAA20 | backend-only | 252 MB | 2018–2026 | |
+| weather/gridmet-0.1deg | backend-only | 6.0 GB | 2000–2026 (to Nov 12) | |
+| terrain/etopo-0.1deg | backend-only | 0.9 MB | complete (in git) | |
+| fuel/landfire-0.1deg | backend-only | 1.8 MB | complete (in git) | |
+| harmonized/viirs-equivalent | backend-only | (not yet written) | planned | later `{API}/harmonized/...` |
+| harmonized/models | backend-only | 13 MB | fits in progress | |
+| fire/widemouth-observations | backend-only | 0.9 MB | complete | |
+| fire/widemouth-landscape | backend-only | 31 MB | complete | |
+| forecast/widemouth-elmfire-runs | backend-only | 3.0 GB | complete | |
+| forecast/widemouth-ensembles, forecast/widemouth-ellipse-runs | raw-archive | 3.3 MB | complete | |
+| raw/MOD14A1, raw/MYD14A1, raw/VNP14A1, raw/VJ114A1 | raw-archive | 19.6 + 18.2 + 18.3 + 11.1 GB | VNP14A1 2026 still downloading | |
+| raw/gridmet, raw/etopo2022, raw/landfire-tiles | raw-archive | 12.8 GB, 0.5 GB, 0.6 GB | complete | |
+| raw/viirs-afp-375m, raw/viirs-l1b, raw/viirs-geo | raw-archive | 0.3, 12.9, 5.6 GB | event granules | |
+| raw/firms-csv, raw/gfs, raw/hrrr | raw-archive | 19 MB, 7 MB, 0.76 GB | event snapshots | |
+
+**Storage totals (2026-11-14):**
+- **public-static:** 0.83 GB now, mostly the I4 thermal tiles. With the full daily fire layers for all products plus `harmonized` (~37,000 product-days × ~108 KB), expect about 5 GB.
+- **backend-only:** 11.2 GB. Of that, the serving inputs (fire grids, weather, terrain, fuel) are 8.2 GB and the ELMFIRE runs are 3.0 GB.
+- **raw-archive:** 101 GB. Keep it on this machine, or in cold storage if it must be shared. It never needs to be online.
+
+**Hosting recommendation:**
+- **Public-static payloads go on static object storage behind a CDN:** S3 + CloudFront, or Cloudflare R2 (no egress fees). The payloads are immutable files keyed by product and date, so they cache forever, cost cents a month at ~5 GB, and stay up without a server. The UI's `{API}` base URL becomes the bucket's CDN domain. Add CORS headers for the UI origin and long `Cache-Control` on dated files, and short caching on `index.json` and `current*.json`.
+- **Backend-only grids go in the same bucket under a private prefix** (for example `private/`, with no public read and no CDN), or simply stay on the machine that regenerates the payloads. The back end here is a batch exporter (`export_ui.py`, `forecast_to_geojson.py`, ...), not a live service: it reads these grids, writes payloads, and uploads them.
+- **This PC is for local development only.** It sits behind a home network, so serving from it would need a tunnel, and it is down whenever it is off. Serve `data/samples/ui/` or `earth/public/` locally with `python3 -m http.server` while building the UI.
+- **EC2 (or another always-on VM or container) only if a live API is added later,** for example on-demand forecasts that run ELMFIRE for a new ignition. Even then, keep the static payloads on the CDN.
+- **Tillicum is an HPC batch cluster (Slurm, GPU-hours), not a web host.** Use it to produce data (ensembles, training) and copy the results to the bucket.
