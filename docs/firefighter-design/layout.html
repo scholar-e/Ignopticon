@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ignopticon Ops: fires and spread forecasts</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-192.png"><meta name="theme-color" content="#162c25">
+<link rel="preload" href="vendor/maplibre-gl.js" as="script">
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<link rel="stylesheet" href="ops.css">
+
+
+<style>:root {
+  --bg:#0E1116;--panel:#151A21;--raise:#1E252E;--line:#3B4553;--text:#F2F4F7;--muted:#B4BEC9;
+  --focus:#5AB0FF;--red:#FF453A;--redtext:#FF8A80;--amber:#FF9F0A;--case:#0B0D10;--past:#FFD649;
+}
+*{box-sizing:border-box}
+body {
+  margin:0;height:100vh;overflow:hidden;display:grid;grid-template-columns:380px 1fr;
+  background:var(--bg);color:var(--text);font:1rem/1.45 system-ui, "Segoe UI", Roboto, Helvetica, Arial,sans-serif;
+}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--muted)}
+.error{color:#FFB4AB}
+
+/* Sidebar */
+.sidebar{background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;display:flex;flex-direction:column}
+.brand{padding:12px 16px 8px}
+.brand h1{margin:0;font-size:1.25rem;letter-spacing:0.02em}
+.brand h1 span{color:var(--amber)}
+.replay{min-height:1.45em;margin:4px 0 0;color:#FFD27A;font-size:0.9rem}
+.controls{position:sticky;top:0;z-index:1;display:flex;gap:8px;align-items:center;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+.controls input{flex:1;min-width:0}
+.controls input,.controls select{min-height:44px;background:var(--raise);border:1px solid #6B7686;border-radius:6px;padding:0 10px}
+.controls label{color:var(--muted)}
+.count{margin:8px 16px;color:var(--muted);font-size:0.9rem}
+.list{list-style:none;margin:0;padding:0 8px 16px}
+.fire {
+  display:grid;gap:2px;width:100%;min-height:44px;margin:0 0 6px;padding:10px 12px;text-align:left;
+  background:var(--raise);border:1px solid transparent;border-radius:8px;
+}
+.fire:hover{border-color:#6B7686}
+.fire[aria-current]{border-color:var(--red);box-shadow:inset 4px 0 0 var(--red)}
+.r1,.r2,.r3{display:flex;gap:10px;align-items:baseline;justify-content:space-between}
+.r3{justify-content:flex-start;color:var(--muted);font-size:0.9rem}
+.r3:empty{display:none}
+.nm{font-weight:650;font-size:1.05rem}
+.st{color:var(--muted);font-weight:600}
+.ac{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.ac small,.big small{font-size:1rem;font-weight:500;color:var(--muted)}
+.gr{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+.up{color:var(--redtext);font-weight:600}
+.new{color:#FFD27A;font-weight:600}
+.badge{background:var(--amber);color:#111;font-weight:700;border-radius:4px;padding:0 8px}
+
+/* Detail */
+.detail{padding:8px 16px 16px;border-bottom:1px solid var(--line)}
+.detail h2{margin:8px 0 0;font-size:1.6rem;line-height:1.2}
+.detail p{margin:4px 0}
+.detail dl{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin:12px 0}
+.detail dt{color:var(--muted);font-size:0.9rem}
+.detail dd{margin:0}
+.big{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.back{min-height:44px;padding:0 12px;background:var(--raise);border:1px solid #6B7686;border-radius:6px}
+.fc,.nofc{margin:12px 0;padding:12px;border-radius:8px}
+.fc{border:2px solid var(--amber);background:repeating-linear-gradient(135deg,#2A2112 0 8px,#241D12 8px 16px)}
+.nofc{border:2px dashed #8A94A3;background:var(--raise)}
+.fc h3,.nofc h3{margin:0 0 4px;font-size:1.1rem}
+.fc ul{margin:4px 0 8px;padding-left:20px}
+.fc .big{font-size:1.35rem;color:#FFD27A}
+.disclaimer{margin-top:8px !important;padding:8px;border-left:4px solid #FFD27A;background:#2E2410}
+.detail details{margin-top:8px;color:var(--muted)}
+.detail summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--text)}
+.detail details ul{margin:0;padding-left:20px;font-size:0.9rem}
+
+/* Map */
+.mapwrap{position:relative;overflow:hidden}
+.map{position:absolute;inset:0;background:#1B2027}
+.status {
+  position:absolute;top:12px;left:12px;right:420px;display:flex;flex-wrap:wrap;gap:4px 20px;padding:8px 14px;
+  background:rgba(14,17,22,0.92);border:1px solid var(--line);border-radius:8px;font-size:0.95rem;
+}
+.status:empty{display:none}
+.status.warn .age{color:#FFD27A;font-weight:700}
+.status.warn{border-color:#FFB340}
+.mapctl{position:absolute;top:12px;right:12px;display:flex;gap:8px}
+.mapctl button,.seg button,.timeline button {
+  min-height:44px;padding:0 14px;background:rgba(21,26,33,0.95);border:1px solid #6B7686;border-radius:6px;
+}
+.seg{display:flex}
+.seg button{border-radius:0;margin-left:-1px}
+.seg button:first-child{border-radius:6px 0 0 6px}
+.seg button:last-child{border-radius:0 6px 6px 0}
+[aria-pressed="true"]:is(.seg button,#view3d,#labels,#compare){background:#E8EDF3;color:#0E1116;border-color:#E8EDF3;font-weight:700}
+
+.bottom{position:absolute;left:12px;right:12px;bottom:30px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+.bottom > *{pointer-events:auto}
+.legend{display:flex;align-items:flex-start;gap:4px;max-width:100%;padding:4px;background:rgba(14,17,22,0.92);border:1px solid var(--line);border-radius:8px}
+.legend ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px}
+.legend.open ul{display:block;width:330px}
+.legend:not(.open) .l,.legend.open .s{display:none}
+.lg-toggle{flex:none;min-height:44px;padding:0 12px;background:var(--raise);border:1px solid #6B7686;border-radius:6px;white-space:nowrap}
+.legend li button{display:flex;gap:8px;align-items:center;width:100%;min-height:44px;padding:4px 8px;text-align:left;background:none;border:0;border-radius:6px;font-size:0.95rem}
+.legend li button:hover{background:var(--raise)}
+.legend li button[aria-pressed="false"]{color:var(--muted);text-decoration:line-through}
+.legend li button[aria-pressed="false"] .sw,.legend li button[aria-pressed="false"] .sw-fc{opacity:0.25}
+.legend .none button{color:var(--muted)}
+.legend .none .sw-fc{opacity:0.25}
+.sw{flex:none;display:inline-block;width:28px;height:16px;border-radius:3px}
+.sw-cur{background:rgba(255,69,58,0.2);border:3px solid var(--red);box-shadow:0 0 0 2px var(--case)}
+.sw-prev{height:0;border-top:3px dashed var(--past);box-shadow:0 0 0 2px var(--case)}
+.sw-fc{display:inline-flex;gap:2px;flex:none}
+.sw-fc .sw{width:14px;border:2px solid var(--case)}
+.sw-b0,.sw-b1,.sw-b2{background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.5) 0 2px,transparent 2px 6px)}
+.sw-b0{background-color:#FF45C6} .sw-b1{background-color:#C75AF5} .sw-b2{background-color:#9464FF}
+.sw-arrow{width:28px;height:auto;text-align:center;color:#fff;font-size:1.2rem;text-shadow:0 0 3px #000, 0 0 3px #000}
+.sw-faint{background:rgba(255,214,10,0.2);border:1px dashed #FFD60A}
+.sw-hot{width:12px;height:12px;margin:0 8px;border-radius:50%;background:#FF2D95;border:1px solid var(--case)}
+
+/* Timeline */
+.timeline{align-self:stretch;padding:8px;background:rgba(14,17,22,0.94);border:1px solid var(--line);border-radius:8px}
+.tl-bar{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.tl-hint{margin:0 0 0 auto;color:var(--muted);font-size:0.9rem}
+.stops{min-height:104px;display:flex;gap:6px;list-style:none;margin:0;padding:0;overflow-x:auto}
+.stop button{height:100%;display:grid;min-width:104px;padding:4px 10px;text-align:left;line-height:1.25}
+.stop .k{font-weight:700}
+.stop .a{font-variant-numeric:tabular-nums;color:var(--muted)}
+.stop.past button{border-style:dashed;border-color:var(--past)}
+.stop.now button{border:3px solid var(--red)}
+.stop.fc button{border:2px solid var(--amber);background-image:repeating-linear-gradient(135deg,rgba(255,159,10,.22) 0 6px,transparent 6px 12px)}
+.stop.none button{border:2px dashed #8A94A3;background-image:none;color:var(--muted);cursor:default}
+.stop button[aria-pressed="true"]{background:#E8EDF3;color:#0E1116}
+.stop button[aria-pressed="true"] .a{color:#2A313B}
+.divider{display:grid;align-content:center;padding:0 4px 0 10px;border-left:5px solid var(--red);color:var(--redtext);font-weight:800;letter-spacing:0.08em;line-height:1.2}
+.divider small{font-weight:500;letter-spacing:0;color:var(--muted);font-size:0.8rem}
+
+.maplibregl-ctrl-group button{width:44px;height:44px}
+.maplibregl-ctrl-top-right{top:64px}
+
+/* Narrow screens (the phone layout comes later): list above the map. */
+@media (max-width:800px) {
+  body{grid-template-columns:1fr;grid-template-rows:45vh 1fr}
+  .status{right:12px;top:64px}
+}
+
+/* The map stays above a separately scrollable incident sheet on every screen. */
+body{height:100dvh;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,56fr) minmax(0,44fr);background:#162c25;--panel:#15231f;--raise:#21332c;--line:#45564d}
+body.selected{grid-template-rows:auto minmax(0,1fr) minmax(0,1fr)}
+.fresh{grid-row:1;background:#162c25;padding:6px max(16px,env(safe-area-inset-right));display:flex;justify-content:space-between;color:#e2efe5;font:600 12px/1.4 system-ui}
+.fresh span:first-child{letter-spacing:.13em}
+.mapwrap{grid-row:2;grid-column:1}.sidebar{grid-row:3;grid-column:1;display:block;border:0;border-top:3px solid #98ab94;padding:8px max(8px,calc((100% - 960px)/2)) max(14px,env(safe-area-inset-bottom))}
+.brand h1{font-size:1.65rem}.replay:empty{display:none}.brand p{min-height:0}
+.controls,.mapnav{position:absolute;left:12px;top:12px;right:70px;max-width:640px;background:none;border:0;padding:0;z-index:2}
+.controls label,.controls select{position:absolute;left:-9999px}.controls select:focus{position:static}
+.controls input,.mapnav button,#locate{background:#15231ff2;color:white;border:1px solid #93a397;border-radius:12px;box-shadow:0 2px 12px #0005;min-height:46px}
+.controls input{padding:0 16px}.mapnav{display:none;gap:6px}.mapnav button,#locate{padding:0 14px}
+#locate{position:absolute;bottom:32px;right:12px}.gpsdot{width:19px;height:19px;border-radius:50%;background:#ff3636;border:3px solid white;box-shadow:0 0 0 5px #ca23234d}
+.fieldnotes,.sidebar .status,.mapnav{display:none}.selected .fieldnotes,.selected .sidebar .status{display:block}
+.selected .mapnav{display:flex}.selected .controls,.selected .fires,.selected .brand h1,.selected #back{display:none}
+.fieldnotes,.settings,.sidebar .status,.timeline{margin:10px 16px}.fieldnotes{padding:12px 16px;border-left:3px solid #e1b55e;background:#252e25}.fieldnotes h3,.fieldnotes p{margin:4px 0}.fieldnotes a{color:#d0e7cf}.sidebar .status,.settings .mapctl{position:static}
+.settings summary{padding:12px 0;cursor:pointer}.settings .mapctl,.seg,.tl-bar{flex-wrap:wrap}.tl-hint{display:none}
+.fire{background:transparent;border-bottom:1px solid var(--line);border-radius:0;margin:0;padding:12px}.ac{font-size:1.15rem}.r2,.r3{font-size:.9rem}.r3{margin-top:3px}.maplibregl-ctrl-top-right{top:0}.bottom{right:auto;max-width:calc(100% - 100px)}.legend.open{max-height:32dvh;overflow:auto}
+
+.order{float:right;margin:0 16px 4px 8px}.order select{margin-left:6px;background:var(--raise);border:1px solid var(--line);border-radius:6px;padding:8px}.count{min-height:40px}.list{clear:both}
+
+.conditions{display:none;margin:14px 16px}.selected .conditions{display:block}
+.conditions h3,.conditions dl,.conditions dd{margin:0}.conditions dl{display:grid;gap:10px;padding:10px 0}.conditions dt,.conditions p{color:var(--muted);font-size:.9rem}
+.upload,#fit-route{display:inline-flex;align-items:center;min-height:44px;background:var(--raise);border:1px solid var(--line);border-radius:6px;padding:6px 12px;margin:4px 4px 4px 0;cursor:pointer}
+.upload{position:relative}.upload input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer}.upload:focus-within{outline:2px solid var(--focus)}
+#fit-route[hidden]{display:none}
+.time-key{display:flex;gap:6px;margin-bottom:12px}.time-key span{flex:1;font-size:.9rem}.time-key span::before{content:"";display:block;height:5px;border-radius:3px;margin-bottom:3px;background:linear-gradient(90deg,#995B30,#FFD649)}
+.time-key span:nth-child(2)::before{background:var(--red)}.time-key span:last-child::before{background:linear-gradient(90deg,#FF45C6,#9464FF)}
+.sw-prev{border:0;height:5px;background:linear-gradient(90deg,#995B30,#FFD649)}.sw-faint{background:#bb5cf533;border-color:#ce75ef}
+.stop.past button,.stop.fc button{border-color:var(--stop-color);background-image:none}.stop.fc button{border-style:double;border-width:3px}
+.fc{border-color:#d06bef;background:#271e2d}.fc .big{color:#eea3ff}
+@media (min-width:1100px) and (min-aspect-ratio:4/3){
+ body,body.selected{grid-template-columns:minmax(320px,380px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+ .fresh{grid-column:1/-1}.sidebar{grid-column:1;grid-row:2;padding:12px 6px;border-top:0;border-right:1px solid var(--line)}
+ .mapwrap{grid-column:2;grid-row:2}.sidebar .timeline{margin:12px}.tl-bar{gap:5px}.sidebar .stop button{min-width:94px}
+}
+
+.sw-hot{background:#fff}
+
+#road-directions:not([hidden]){display:inline-block;padding:12px 4px}
+</style></head>
+<body>
+<div class="fresh"><span>IGNOPTICON / OPS</span><span id="fresh">Loading snapshot…</span></div>
+<div class="sidebar">
+  <header class="brand">
+    <h1>Wildfires</h1>
+    <p class="replay" id="replay"></p>
+  </header>
+  <section id="detail" class="detail" aria-labelledby="detail-name" hidden></section>
+  <nav class="fires" aria-label="Fires">
+    
+    <div class="order">
+      <label for="sort">Sort</label>
+      <select id="sort">
+        <option value="distance">Nearest</option>
+        <option value="growth">12 h growth</option>
+        <option value="size">Size</option>
+        <option value="name">Name</option>
+      </select></div><p id="count" class="count">Loading fires…</p>
+    <ul id="list" class="list"></ul>
+  </nav>
+<section class="conditions"><h3>Incident conditions</h3><dl><div><dt>Mapped fuel type</dt><dd id="fuel"></dd></div><div><dt>Wind at 10 m</dt><dd id="wind"></dd></div><div><dt>Weather</dt><dd id="weather"></dd></div></dl><p id="wx-source"></p></section>
+<section class="fieldnotes"><h3>Incident access route</h3><p id="route-note"></p><button type="button" id="fit-route" hidden>Show full route</button> <a id="road-directions" hidden target="_blank" rel="noopener noreferrer">Directions to route start ↗</a>
+<label class="upload">Load dispatch route<input id="route-file" type="file" accept=".geojson,.json,application/geo+json,application/json"></label><p id="saved" role="status"></p><a href="storage.html">Offline maps</a></section><div id="status" class="status" role="status" aria-live="polite"></div><section id="timeline" class="timeline" aria-label="Fire timeline" hidden>
+    <div class="time-key" aria-label="Fire progression colors"><span>Past</span><span>Current</span><span>Future</span></div><div class="tl-bar">
+      <div role="group" aria-label="Timeline mode" class="seg">
+        <button type="button" data-mode="progression" aria-pressed="true">Progression</button>
+        <button type="button" data-mode="step" aria-pressed="false">Step</button>
+      </div>
+      <button type="button" id="play">Play</button>
+      <button type="button" id="compare" aria-pressed="false" hidden>Compare with what happened <small>(later data)</small></button>
+      <p class="tl-hint">Step: ← → keys</p>
+    </div>
+    <ol id="stops" class="stops"></ol>
+  </section>
+<details class="settings"><summary>Map settings</summary><div class="mapctl" role="group" aria-label="Map view">
+    <div role="group" aria-label="Basemap" class="seg" id="basemaps">
+      <button type="button" data-base="satellite">Satellite</button>
+      <button type="button" data-base="imagerytopo">Satellite + topo</button>
+      <button type="button" data-base="topo">Topo map</button>
+    </div>
+    <button type="button" id="view3d" aria-pressed="false" title="3D terrain (key 3)">3D</button>
+    <button type="button" id="labels" aria-pressed="false">Labels</button>
+  </div></details>
+</div>
+<main class="mapwrap" aria-label="Map">
+  <div id="map" class="map"></div><div class="controls">
+      <label for="filter" class="sr-only">Filter fires</label>
+      <input id="filter" type="search" placeholder="Search fire name or location" autocomplete="off" spellcheck="false">
+    </div><div class="mapnav"><button id="home">⌂ Home</button><button id="return">← Back</button></div><button id="locate" aria-label="Show my GPS position">◎ GPS</button>
+  
+  
+  <div class="bottom">
+  <section class="legend" id="legend" aria-labelledby="legend-h">
+    <h2 id="legend-h" class="sr-only">Map layers</h2>
+    <ul id="legend-list">
+      <li><button type="button" aria-pressed="true" data-layer="current"><span class="sw sw-cur"></span><span class="s">Perimeter</span><span class="l">Current perimeter (FEDS)</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="previous"><span class="sw sw-prev"></span><span class="s">Past</span><span class="l">Past perimeters (brown to yellow)</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="forecast"><span class="sw-fc"><span class="sw sw-b0"></span><span class="sw sw-b1"></span><span class="sw sw-b2"></span></span><span class="s">Forecast</span><span class="l" id="fc-legend">Predicted front growth +6 / +12 / +24 h (hatched)</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="arrows"><span class="sw sw-arrow" aria-hidden="true">➜</span><span class="s">Advances</span><span class="l">Largest predicted advances</span></button></li>
+      <li><button type="button" aria-pressed="false" data-layer="interior"><span class="sw sw-faint"></span><span class="s">Burnout</span><span class="l">Burnout inside perimeter (predicted)</span></button></li>
+      <li><button type="button" aria-pressed="false" data-layer="detached"><span class="sw sw-faint"></span><span class="s">Detached</span><span class="l">Growth on hotspots &gt; 1 km from fire (predicted)</span></button></li>
+      <li><button type="button" aria-pressed="false" data-layer="hotspots"><span class="sw sw-hot"></span><span class="s">Hotspots</span><span class="l">VIIRS hotspots, last 12 h</span></button></li>
+    </ul>
+    <button type="button" id="legend-toggle" class="lg-toggle" aria-expanded="false" aria-controls="legend-list">Legend ▸</button>
+  </section>
+  
+  </div>
+  <p id="announce" class="sr-only" aria-live="polite"></p>
+</main>
+<script>const b=document.body;b.className="selected";const m=document.querySelector(".mapwrap").getBoundingClientRect(),p=document.querySelector(".sidebar").getBoundingClientRect();document.documentElement.dataset.test=innerWidth>=1100?(m.left>=p.right-1?"desktop-pass":"desktop-fail"):(p.top>=m.bottom-1?"stack-pass":"stack-fail");</script></body>
+</html>
+

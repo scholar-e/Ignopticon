@@ -1,3 +1,4 @@
+import {registerOffline, saveArea, listAreas} from "./offline.js";
 // Ignopticon Ops: fire list, map, forecast and timeline from /api/fires (dev-server.js).
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -9,10 +10,73 @@ const BASEMAPS = ["satellite", "imagerytopo", "topo"];
 const state = {
   t: params.get("t"), fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
   base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") === "on",
-  sort: "growth", filter: "", mode: "progression", step: 0, compare: false,
+  sort: "distance", filter: "", mode: "progression", step: 0, compare: false,
   layers: {current: true, previous: true, forecast: true, arrows: true, hotspots: false, interior: false, detached: false},
 };
 let fires = [], byId = new Map(), at = null, map = null, cur = null, playing = null;
+
+
+let gps = null, gpsMarker = null, gpsWatch = null, gpsMessage = "Waiting for GPS";
+let connected = navigator.onLine;
+function freshness() {
+  const stamp = Date.parse(at?.snapshot);
+  const age = Math.max(0, Math.floor((Date.now() - stamp) / 1000));
+  $("#fresh").textContent = (Number.isFinite(age) ? "Updated " + age.toLocaleString() + " seconds ago" : "Snapshot unavailable") + (connected ? "" : " · OFFLINE");
+}
+registerOffline({onStatus: status => { connected = status.online; freshness(); }}).catch(() => {});
+setInterval(freshness, 1000);
+function matchesFire(f) {
+  const q = state.filter.trim().toLowerCase();
+  return [label(f), f.place, f.state].join(" ").toLowerCase().includes(q);
+}
+function distance(f) {
+  if (!gps) return Infinity;
+  const radians = Math.PI / 180;
+  const [lon, lat] = f.centroid;
+  const term = Math.sin((lat-gps[1])*radians/2)**2 +
+    Math.cos(gps[1]*radians)*Math.cos(lat*radians)*Math.sin((lon-gps[0])*radians/2)**2;
+  return 12742000 * Math.asin(Math.sqrt(Math.min(1,term)));
+}
+function showPosition() {
+  if (!map || !gps) return;
+  if (!gpsMarker) {
+    const dot = document.createElement("div");
+    dot.className = "gpsdot"; dot.title = "Your GPS position";
+    gpsMarker = new maplibregl.Marker({element: dot});
+  }
+  gpsMarker.setLngLat(gps).addTo(map);
+}
+function requestGps() {
+  if (gpsWatch !== null) navigator.geolocation.clearWatch(gpsWatch);
+  if (!navigator.geolocation) { gpsMessage = "GPS unavailable"; if (at) renderList(); return; }
+  gpsWatch = navigator.geolocation.watchPosition(({coords}) => {
+    gps = [coords.longitude, coords.latitude]; showPosition(); if (at) renderList();
+  }, () => { gps = null; gpsMarker?.remove(); gpsMessage = "GPS unavailable"; if (at) renderList(); },
+  {enableHighAccuracy: true, maximumAge: 10000, timeout: 15000});
+}
+const saves = new Map();
+async function cacheFire(f) {
+  const key = [f.id, at.snapshot, state.base, state.t || "default"].join("-");
+  const report = msg => { if (state.fire === f.id) $("#saved").textContent = msg; };
+  if (!saves.has(key)) {
+    const task = (async () => {
+      if (!window.caches || !navigator.serviceWorker) throw new Error("Offline storage requires HTTPS");
+      const cached = (await listAreas()).some(area => area.id === key && area.complete);
+      if (!cached) {
+      if (!navigator.onLine) throw new Error("Reconnect to finish saving");
+      const result = await saveArea({id:key, label:label(f), bbox:fireBounds(f), bufferKm:3,
+        sources:{[state.base]:[7,13]}, urls:["/api/fires"+query(), "/api/fires/"+f.id+query()],
+        onProgress: p => report("Saving incident map · " + p.done + "/" + p.total)});
+      if (!result.complete) throw new Error("Some tiles are missing. Reopen while online to retry");
+      }
+      if (!navigator.serviceWorker.controller) await Promise.race([navigator.serviceWorker.ready, new Promise((_, reject) => setTimeout(() => reject(new Error("Offline app shell is not ready")), 15000))]);
+    })();
+    saves.set(key,task);
+  }
+  report("Preparing offline incident map…");
+  try { await saves.get(key); report("Incident data and area map saved offline"); }
+  catch (e) { saves.delete(key); report("Offline map incomplete · " + e.message); }
+}
 
 const fmts = {};
 function parts(iso, zone) {
@@ -64,21 +128,22 @@ function writeUrl() {
 }
 
 const SORTS = {
+  distance: (a,b) => distance(a) - distance(b) || label(a).localeCompare(label(b)),
   growth: (a, b) => (b.growth_acres ?? -1e12) - (a.growth_acres ?? -1e12) || b.acres - a.acres,
   size: (a, b) => b.acres - a.acres,
   name: (a, b) => label(a).localeCompare(label(b)),
 };
 function renderList() {
-  const q = state.filter.trim().toLowerCase();
-  const rows = fires.filter((f) => !q || `${label(f)} ${f.place || ""} ${f.state || ""}`.toLowerCase().includes(q)).sort(SORTS[state.sort]);
+  if (!at) return;
+  const rows = fires.filter(matchesFire).sort(SORTS[state.sort]);
   $("#list").innerHTML = rows.map((f) => {
     const g = growthText(f);
     return `<li><button type="button" class="fire" data-id="${f.id}"${f.id === state.fire ? ' aria-current="true"' : ""}>
-<span class="r1"><span class="nm">${esc(label(f))}</span><span class="st">${esc(f.state || "")}</span></span>
+<span class="r1"><span class="nm">${esc(label(f))}</span><span class="st">${gps ? miles(distance(f)) + " mi · " : ""}${esc(f.state || "")}</span></span>
 <span class="r2"><span class="ac">${num(f.acres)}<small> ac</small></span><span class="gr ${g.cls}">${g.text}</span></span>
 <span class="r3">${f.forecast ? '<span class="badge">Forecast</span>' : ""}${f.contained != null && f.incident_as_of && f.incident_as_of <= at.time ? `<span>${f.contained}% contained (WFIGS)</span>` : ""}</span></button></li>`;
   }).join("");
-  $("#count").textContent = `${rows.length} of ${fires.length} fires · FEDS ${when(at.snapshot)}`;
+  $("#count").textContent = `${rows.length} of ${fires.length} fires · ${gps ? "Distance to fire center" : gpsMessage + " · Alphabetical"} · FEDS ${when(at.snapshot)}`;
 }
 
 function renderStatus() {
@@ -131,8 +196,8 @@ ${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li>Map: USGS The
   $("#back").onclick = overview;
 }
 
-const RED = "#FF453A", CASE = "#0B0D10", BANDS = ["#FF9F0A", "#FFD60A", "#FFF2A8"], BAND_OPACITY = [0.5, 0.4, 0.3];
-const PAST = ["#4F7CAC", "#D6F3FF"], OBSERVED = "#F0A8FF", HOT = "#FF2D95", FONT = ["Noto Sans Bold"];
+const RED = "#FF453A", CASE = "#0B0D10", BANDS = ["#FF45C6", "#C75AF5", "#9464FF"], BAND_OPACITY = [0.5, 0.4, 0.3];
+const PAST = ["#995B30", "#FFD649"], OBSERVED = "#F0A8FF", HOT = "#FFFFFF", FONT = ["Noto Sans Bold"];
 const EMPTY = {type: "FeatureCollection", features: []};
 const origin = location.origin;
 const byRank = (v) => ["match", ["get", "rank"], 0, v[0], 1, v[1], v[2]];
@@ -155,7 +220,7 @@ function style() {
     version: 8, glyphs: new URL("vendor/fonts/", import.meta.url).href + "{fontstack}/{range}.pbf",
     sky: {"sky-color": "#6E9CC8", "horizon-color": "#D9E4EE", "fog-color": "#D9E4EE"},
     sources: {base: baseSource(state.base), hydro: {type: "raster", tiles: [`${origin}/tiles/hydro/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16},
-      fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo()},
+      fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo(), access: geo()},
     layers: [
       L("base", "raster", "base", {}),
       L("hydro", "raster", "hydro", {}, {visibility: state.labels ? "visible" : "none"}),
@@ -168,6 +233,7 @@ function style() {
       ...cased("fires", "fires", 2, 4, {"line-color": RED}),
       ...cased("sel", "fires", 3.5, 7, {"line-color": RED}),
       ...cased("obs", "obs", 2.5, 5, {"line-color": OBSERVED, "line-dasharray": [0.5, 1.5]}, {"line-cap": "round"}),
+      ...cased("access", "access", 4, 7, {"line-color": "#59DAD0"}),
       L("hot", "circle", "hot", {"circle-color": HOT, "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 1.5, 15, 5], "circle-stroke-color": CASE, "circle-stroke-width": 1}),
       ...cased("arrow", "fc", 3.5, 8, {"line-color": "#FFFFFF"}, {"line-cap": "round"}),
       L("arrow-head", "symbol", "heads", {}, {"icon-image": "head", "icon-rotate": ["get", "bearing"], "icon-rotation-alignment": "map",
@@ -205,9 +271,8 @@ function addImages() {
 
 // Fit inside what the status bar, map controls and the bottom legend/timeline stack leave visible.
 function fitPadding() {
-  const m = $("#map").getBoundingClientRect(), stack = $(".bottom").getBoundingClientRect();
-  const top = Math.max($("#status").getBoundingClientRect().bottom, $(".mapctl").getBoundingClientRect().bottom) - m.top + 16;
-  return {top, bottom: Math.min(m.bottom - stack.top + 16, m.height - top - 100), left: 24, right: 72};
+  const height = $("#map").clientHeight;
+  return {top: Math.min(68,height/4), bottom: Math.min(52,height/5), left: 20, right: 52};
 }
 function fit(b) {
   if (!map) return;
@@ -217,16 +282,17 @@ function fit(b) {
 }
 const union = (a, b) => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])];
 const fireBounds = (f) => union(f.bbox, f.forecast && f.forecast.bbox || f.bbox);
-const allBounds = () => fires.map((f) => f.bbox).reduce(union);
+const allBounds = () => fires.length ? fires.map((f) => f.bbox).reduce(union) : [-125,24,-66,50];
 
 function setFires() {
   const feature = (f, geometry, props) => ({type: "Feature", geometry, properties: {id: f.id, ...props}});
-  map.getSource("fires").setData({type: "FeatureCollection", features: fires.map((f) => feature(f, f.geometry, {}))});
-  map.getSource("points").setData({type: "FeatureCollection", features: fires.map((f) => feature(f, {type: "Point", coordinates: f.centroid},
+  map.getSource("fires").setData({type: "FeatureCollection", features: fires.filter(matchesFire).map((f) => feature(f, f.geometry, {}))});
+  map.getSource("points").setData({type: "FeatureCollection", features: fires.filter(matchesFire).map((f) => feature(f, {type: "Point", coordinates: f.centroid},
     {label: f.name || f.place || "", zh: Math.log2(4320 / (512 * Math.max(f.bbox[2] - f.bbox[0], 1e-4)))}))});
 }
 
 function setDetail(d) {
+  drawRoute();
   const zone = zoneOf(d.fire), fc = d.forecast, n = d.history.length;
   const collection = (features) => ({type: "FeatureCollection", features});
   const ft = (geometry, properties) => ({type: "Feature", geometry, properties});
@@ -255,7 +321,7 @@ function setDetail(d) {
   applyView();
 }
 function clearDetail() {
-  for (const s of ["hist", "fc", "heads", "hot", "obs"]) map.getSource(s).setData(EMPTY);
+  for (const s of ["hist", "fc", "heads", "hot", "obs", "access"]) map.getSource(s).setData(EMPTY);
 }
 
 // Which stop and layers show. Switching stops only changes filters and visibility.
@@ -310,7 +376,9 @@ function renderTimeline() {
   $("#stops").innerHTML = cur.stops.map((s, i) => {
     const pressed = state.mode === "step" && i === state.step;
     const head = s.kind === "now" ? "Now" : s.kind === "fc" ? `+${s.hours} h` : "Observed";
-    const stop = `<li class="stop ${s.kind}"><button type="button" data-step="${i}" aria-pressed="${pressed}"><span class="k">${head}</span>` +
+    const progress = i / Math.max(1, cur.detail.history.length - 2);
+    const color = s.kind === "past" ? `color-mix(in srgb, ${PAST[0]}, ${PAST[1]} ${Math.round(100 * progress)}%)` : s.kind === "fc" ? BANDS[Math.min(2, fc.hours.indexOf(s.hours))] : RED;
+    const stop = `<li class="stop ${s.kind}" style="--stop-color:${color}"><button type="button" data-step="${i}" aria-pressed="${pressed}"><span class="k">${head}</span>` +
       `<span>${short(s.time, zone)}</span><span class="a">${s.kind === "fc" ? "+" : ""}${num(s.acres)} ac</span></button></li>`;
     return s.kind === "now" ? stop + '<li class="divider" aria-hidden="true">NOW<small>observed | predicted</small></li>' : stop;
   }).join("") + (fc ? "" : `<li class="stop none"><button type="button" disabled><span class="k">+6 / +12 / +24 h</span><span>No forecast</span></button></li>`);
@@ -344,29 +412,142 @@ function play() {
 }
 
 const say = (msg) => { $("#announce").textContent = msg; };
+
+const metric = (n, unit, digits = 0) => Number.isFinite(n) ? n.toFixed(digits) + unit : "Unavailable";
+function fuelName(code) {
+  if (!Number.isInteger(code)) return "Unavailable";
+  const groups = [[101,109,"Grass"],[121,124,"Grass–shrub"],[141,149,"Shrub"],
+    [161,165,"Timber–understory"],[181,189,"Timber litter"],[201,204,"Slash / blowdown"]];
+  const group = groups.find(([lo,hi]) => code >= lo && code <= hi);
+  const nonburnable = {91:"Urban / developed",92:"Snow / ice",93:"Agriculture",98:"Open water",99:"Barren"};
+  return (group?.[2] || nonburnable[code] || "Unclassified") + " · FBFM " + code;
+}
+function readConditions(f) {
+  const active = () => state.fire === f.id;
+  for (const id of ["fuel","wind","weather"]) $("#"+id).textContent = "Loading…";
+  $("#wx-source").textContent = "Sampled at the mapped fire center.";
+  const [lon,lat] = f.centroid;
+  api("/identify/fuel?lon="+lon+"&lat="+lat).then(data => {
+    if (active()) $("#fuel").textContent = fuelName(data.value) + " · LANDFIRE";
+  }).catch(() => { if (active()) $("#fuel").textContent = "Unavailable"; });
+  api("/api/fires/"+f.id+"/weather?time="+encodeURIComponent(at.time)).then(wx => {
+    if (!active()) return;
+    $("#wind").textContent = metric(wx.wind_mph," mph") + (Number.isFinite(wx.wind_from) && wx.wind_mph > 0 ? " from "+compass(wx.wind_from) : "");
+    $("#weather").textContent = "Air "+metric(wx.temp_f," °F")+" · Humidity "+metric(wx.humidity,"%")+" · Precipitation "+metric(wx.rain_mm," mm",1);
+    $("#wx-source").textContent = wx.source + " · " + when(wx.time,zoneOf(f)) + " · Fire center";
+  }).catch(() => { if (active()) { $("#wind").textContent = "Unavailable"; $("#weather").textContent = "Unavailable for this incident hour"; } });
+}
+let accessRoute = null, accessPoint = null, accessMarker = null, pickingAccess = false;
+function routeKey() { return "ops.route."+at.snapshot+"."+state.fire; }
+function parseRoute(value) {
+  const feature = value?.type === "FeatureCollection" && value.features?.length === 1 ? value.features[0] : value;
+  const geometry = feature?.type === "Feature" ? feature.geometry : feature;
+  const points = geometry?.coordinates;
+  if (geometry?.type !== "LineString" || !Array.isArray(points) || points.length < 2 || points.length > 20000 ||
+      !points.every(p => Array.isArray(p) && p.length >= 2 && Number.isFinite(p[0]) && Number.isFinite(p[1]) && Math.abs(p[0]) <= 180 && Math.abs(p[1]) <= 85))
+    throw new Error("Choose a GeoJSON file containing one route LineString.");
+  const props = feature.properties || {};
+  if (props.fire_id != null && String(props.fire_id) !== String(state.fire)) throw new Error("This route belongs to another fire.");
+  return {type:"Feature",geometry:{type:"LineString",coordinates:points.map(p=>p.slice(0,2))},properties:{name:String(props.name || "Incident access route").slice(0,120),fire_id:state.fire}};
+}
+function drawRoute() {
+  map?.getSource("access")?.setData(accessRoute || EMPTY);
+}
+function pickMode(active) {
+  pickingAccess = active;
+  $("#pick-access").setAttribute("aria-pressed", String(active));
+  $("#pick-access").textContent = active ? "Cancel point selection" : "Choose access point on map";
+  $("#access-note").textContent = active ? "Tap the dispatch-designated road access point." : "";
+  if (map) map.getCanvas().style.cursor = active ? "crosshair" : "";
+}
+$("#pick-access").onclick = () => {
+  if (!map) { $("#access-note").textContent = "Map unavailable."; return; }
+  pickMode(!pickingAccess);
+};
+function showRoute() {
+  drawRoute();
+  $("#fit-route").hidden = !accessRoute;
+  const link = $("#road-directions");
+  const destination = accessPoint || accessRoute?.geometry.coordinates[0];
+  link.hidden = !destination;
+  accessMarker?.remove();
+  if (destination) {
+    const [lon,lat] = destination;
+    link.textContent = accessPoint ? "Road directions to access point ↗" : "Road directions to route start ↗";
+    if (map) {
+      const dot = document.createElement("div");
+      dot.className = "access-dot"; dot.title = "Incident access point";
+      accessMarker = new maplibregl.Marker({element:dot}).setLngLat(destination).addTo(map);
+    }
+    link.href = "https://www.google.com/maps/dir/?" + new URLSearchParams({api:"1",destination:lat+","+lon,travelmode:"driving"});
+  } else link.removeAttribute("href");
+  $("#route-note").textContent = accessRoute ? accessRoute.properties.name + " · Follow the teal line. Road status, slope and radio coverage are unverified." :
+    "No incident access route supplied. Load a dispatch GeoJSON route to display it alongside your GPS position.";
+}
+function restoreRoute(provided) {
+  let saved;
+  try { saved = localStorage.getItem(routeKey()); } catch {}
+  accessRoute = null;
+  for (const source of [provided,saved]) {
+    if (!source) continue;
+    try { accessRoute = parseRoute(typeof source === "string" ? JSON.parse(source) : source); break; } catch {}
+  }
+  showRoute();
+}
+$("#fit-route").onclick = () => {
+  if (!accessRoute) return;
+  const coords = accessRoute.geometry.coordinates;
+  fit(coords.map(([x,y])=>[x,y,x,y]).reduce(union));
+};
+$("#route-file").onchange = async e => {
+  const file = e.target.files[0], key = routeKey();
+  e.target.value = "";
+  if (!file) return;
+  try {
+    if (file.size > 2000000) throw new Error("Route file exceeds 2 MB.");
+    const value = JSON.parse(await file.text());
+    if (!state.fire || routeKey() !== key) return;
+    accessRoute = parseRoute(value);
+    accessPoint = null; pickMode(false);
+    try { localStorage.removeItem(key+".point"); } catch {}
+    showRoute(); $("#fit-route").click();
+    try { localStorage.setItem(key,JSON.stringify(accessRoute)); }
+    catch { $("#route-note").textContent += " Device storage unavailable; route is open for this session only."; }
+  } catch (err) { if (state.fire && routeKey() === key) $("#route-note").textContent = err.message; }
+};
+
 async function select(id, {fitMap = true} = {}) {
   const f = byId.get(id);
   if (!f) return;
   if (playing) play();
-  state.fire = id; state.mode = "progression"; cur = {fire: f};
+  document.body.classList.add("selected"); $(".sidebar").scrollTop = 0; map?.resize();
+  state.fire = id; pickMode(false); accessPoint = null;
+  try {
+    const point = JSON.parse(localStorage.getItem(routeKey()+".point"));
+    if (Array.isArray(point) && point.length === 2 && point.every(Number.isFinite)) accessPoint = point;
+  } catch {}
+  restoreRoute(null); readConditions(f); cacheFire(f); state.mode = "progression"; cur = {fire: f};
   writeUrl(); renderList(); renderStatus(); renderDetail(f, null); renderTimeline();
   if (fitMap) fit(fireBounds(f));
-  if (map && map.getSource("fires")) { clearDetail(); applyView(); }
+  if (map && map.getSource("fires")) { clearDetail(); drawRoute(); applyView(); }
   try {
     const d = await detail(id);
     if (state.fire !== id) return;
     cur = {fire: f, detail: d, stops: buildStops(d)};
+    restoreRoute(d.access_route);
     state.step = d.history.length - 1;
     renderDetail(f, d); renderTimeline();
     if (map && map.getSource("fires")) setDetail(d);
     say(`Selected ${label(f)}, ${num(f.acres)} acres. ${d.forecast ? "Spread forecast available." : "No spread forecast."}`);
   } catch (e) {
+    if (state.fire !== id) return;
     $("#detail").insertAdjacentHTML("beforeend", `<p class="error" role="alert">Could not load fire details: ${esc(e.message)}</p>`);
   }
 }
 function overview() {
   if (playing) play();
-  state.fire = null; cur = null;
+  document.body.classList.remove("selected"); map?.resize();
+  state.fire = null; cur = null; accessRoute = null; accessPoint = null; accessMarker?.remove(); pickMode(false);
   $("#detail").hidden = true; $("#timeline").hidden = true;
   writeUrl(); renderList(); renderStatus(); legendForecast(null);
   if (map && map.getSource("fires")) { clearDetail(); applyView(); }
@@ -407,7 +588,7 @@ function initMap() {
   if (!window.maplibregl) { $("#count").textContent += " · Map library failed to load"; return; }
   map = new maplibregl.Map({container: "map", style: style(), bounds: [[-125, 24], [-66, 50]], fitBoundsOptions: {padding: 40},
     attributionControl: {compact: false}, maxPitch: 70, fadeDuration: reduced ? 0 : 300});
-  window.opsMap = map;
+  window.opsMap = map; showPosition();
   if (at) fit(state.fire && byId.has(state.fire) ? fireBounds(byId.get(state.fire)) : allBounds());
   map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), "top-right");
   map.addControl(new maplibregl.ScaleControl({unit: "imperial"}), "bottom-right");
@@ -421,13 +602,21 @@ function initMap() {
   });
   map.once("idle", () => performance.mark("ops-map-idle"));
   const pick = (e) => {
+    if (pickingAccess && state.fire) {
+      accessPoint = [e.lngLat.wrap().lng,e.lngLat.lat];
+      pickMode(false); showRoute();
+      try { localStorage.setItem(routeKey()+".point",JSON.stringify(accessPoint)); } catch {}
+      $("#access-note").textContent = "Selected access point: "+accessPoint[1].toFixed(5)+", "+accessPoint[0].toFixed(5)+". Road directions open in Google Maps; slope and radio coverage are unverified.";
+      return;
+    }
     const hit = map.queryRenderedFeatures(e.point, {layers: ["sel-fill", "fires-fill", "points"]}).find((x) => x.layer.id !== "points" || map.getZoom() < x.properties.zh);
     if (hit) select(hit.properties.id, {fitMap: hit.properties.id !== state.fire});
   };
   map.on("click", pick);
 }
 
-$("#filter").addEventListener("input", (e) => { state.filter = e.target.value; renderList(); });
+$("#filter").addEventListener("input", (e) => { state.filter = e.target.value; renderList(); if (map?.getSource("fires")) setFires();
+  const matches = fires.filter(matchesFire); if (matches.length) fit(matches.map(f => f.bbox).reduce(union)); });
 $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderList(); });
 $("#list").addEventListener("click", (e) => { const b = e.target.closest("button.fire"); if (b) select(+b.dataset.id); });
 const prefetch = (e) => { const b = e.target.closest("button.fire"); if (b) detail(+b.dataset.id).catch(() => {}); };
@@ -482,6 +671,10 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+$("#home").onclick = () => { state.filter = ""; $("#filter").value = ""; if (map?.getSource("fires")) setFires(); overview(); };
+$("#return").onclick = () => { overview(); const matches = fires.filter(matchesFire); if (matches.length) fit(matches.map(f=>f.bbox).reduce(union)); };
+$("#locate").onclick = () => { if (gps && map) map.easeTo({center:gps, zoom:12}); else requestGps(); };
+requestGps();
 // The list renders from the API without waiting for the map.
 for (const x of document.querySelectorAll("[data-base]")) x.setAttribute("aria-pressed", x.dataset.base === state.base);
 $("#labels").setAttribute("aria-pressed", state.labels);

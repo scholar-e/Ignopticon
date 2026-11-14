@@ -1,0 +1,89 @@
+<meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;background:#e3e9e5;display:flex;justify-content:center;gap:12px;padding:12px}body>div{width:420px}.sheet{scrollbar-width:none}</style><div class="viz-dotted-background" id="incident-preview">
+<style>
+#incident-preview{padding:12px;font:15px/1.4 system-ui,sans-serif}
+#incident-preview article{max-width:416px;margin:auto;border-radius:16px;overflow:hidden;background:#15231f;color:#f2f4f7;box-shadow:0 6px 24px #0003;color-scheme:dark}
+#incident-preview header{display:flex;justify-content:space-between;background:#162c25;padding:8px 13px;font-size:11px;font-weight:650}
+#incident-preview header b{letter-spacing:.12em}
+#incident-preview .map{height:318px;position:relative;background:#465342;overflow:hidden}
+#incident-preview canvas{width:100%;height:100%;display:block}
+#incident-preview button,#incident-preview input{font:inherit;color:inherit}
+#incident-preview .top{position:absolute;inset:12px 12px auto;display:flex;gap:6px}
+#incident-preview input,#incident-preview .top button{padding:11px 13px;border:1px solid #91a295;border-radius:10px;background:#15231ff5}
+#incident-preview input{width:100%}
+#incident-preview .pin{position:absolute;border:0;background:none;transform:translate(-50%,-50%);display:grid;justify-items:center;color:white;text-shadow:0 1px 4px black;font-size:12px;font-weight:700;min-width:52px;min-height:42px}
+#incident-preview .pin i{display:block;width:35px;height:25px;background:#ff665d99;clip-path:polygon(0 50%,21% 35%,18% 17%,45% 23%,57% 0,78% 24%,78% 49%,100% 61%,78% 95%,43% 86%,29% 100%);filter:contrast(2)}
+#incident-preview .gps{position:absolute;left:27%;top:65%;width:14px;height:14px;border:3px solid white;background:#ff3636;border-radius:50%;box-shadow:0 0 0 5px #ca232350}
+#incident-preview .map small{position:absolute;bottom:7px;right:9px;color:white;background:#132019dd;padding:2px 6px;border-radius:3px}
+#incident-preview .sheet{height:290px;overflow:auto;padding:16px;border-top:3px solid #98ab94}
+#incident-preview h2{font:700 25px/1.2 system-ui;margin:0 0 5px;color:#f2f4f7}
+#incident-preview p{margin:5px 0;color:#bac8be}#incident-preview .meta{color:#ffd27a;font-size:13px}
+#incident-preview .row{display:block;width:100%;background:none;text-align:left;border:0;border-bottom:1px solid #45564d;padding:12px 1px}
+#incident-preview .line{display:flex;align-items:baseline;gap:8px;justify-content:space-between}
+#incident-preview .row small{color:#bfccc2}#incident-preview .facts{display:flex;gap:24px;margin:18px 0}#incident-preview .facts b{display:block;font-size:20px}
+#incident-preview aside{border-left:3px solid #e1b55e;background:#252e25;padding:10px}
+</style>
+<article><header><b>IGNOPTICON / OPS</b><span>Updated 42 seconds ago</span></header>
+<div class="map"><canvas width="480" height="360" aria-label="Illustrative terrain map"></canvas><div class="marks"></div><span class="gps" title="Example GPS position"></span><div class="top"><input type="search" aria-label="Search fire name or location" placeholder="Search fire name or location"></div><small>Illustrative map · sample GPS</small></div><div class="sheet"></div></article></div>
+<script>
+(()=>{
+ const root=document.getElementById('incident-preview'), q=s=>root.querySelector(s), panel=q('.sheet'), top=q('.top'), input=q('input');
+ const records=[['Widemouth 2','Utah',8.4,2740,180,49,50],['Dry Canyon','Utah',17.6,1160,54,74,28],['Pine Creek','Idaho',31.2,680,12,20,37]];
+ const canvas=q('canvas'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,img=ctx.createImageData(w,h);
+ function relief(x,y){const u=x+.38*y+32*Math.sin(y/75)+12*Math.sin((x+y)/42); return 19*Math.sin(u/40)+9*Math.sin(u/17+y/55)+5*Math.sin(u/8+y/30)+2*Math.sin(x/4+y/9)+9*Math.cos(y/34)}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const a=relief(x,y),s=(a-relief(x+1,y+1))*13+Math.sin(x*19+y*33)*2,k=(y*w+x)*4;img.data[k]=70+a*.44+s;img.data[k+1]=82+a*.32+s;img.data[k+2]=62+a*.31+s;img.data[k+3]=255}
+ ctx.putImageData(img,0,0);ctx.beginPath();ctx.moveTo(-5,110);ctx.bezierCurveTo(100,146,105,226,158,214);ctx.bezierCurveTo(230,202,280,300,490,307);ctx.strokeStyle='#718e93';ctx.lineWidth=3;ctx.stroke();
+ let selected=null;
+ function render(){const matches=records.filter(f=>f.slice(0,2).join(' ').toLowerCase().includes(input.value.toLowerCase()));q('.marks').replaceChildren();
+ (selected?[selected]:matches).forEach(f=>{let pin=document.createElement('button');pin.className='pin';pin.style.left=f[5]+'%';pin.style.top=f[6]+'%';pin.innerHTML='<i></i>'+f[0];pin.onclick=()=>open(f);q('.marks').append(pin)});
+ if(selected){const f=selected;panel.innerHTML='<h2>'+f[0]+'</h2><p>'+f[1]+' · Sample incident</p><div class="facts"><div>Mapped area<b>'+f[3].toLocaleString()+' ac</b></div><div>12 h growth<b>+'+f[4]+' ac</b></div></div><aside><b>Field navigation</b><p>No verified approach route. Slope and radio coverage along approaches are unknown.</p></aside>';return}
+ panel.innerHTML='<h2>Wildfires</h2><p class="meta">Replay · Sample incidents</p><p>'+matches.length+' of 3 fires · Distance to fire center</p>';
+ matches.forEach(f=>{let row=document.createElement('button');row.className='row';row.innerHTML='<span class="line"><b>'+f[0]+'</b><small>'+f[2]+' mi · '+f[1]+'</small></span><span class="line">'+f[3].toLocaleString()+' ac <small>+'+f[4]+' ac in 12 h</small></span>';row.onclick=()=>open(f);panel.append(row)})}
+ function open(f){selected=f;top.replaceChildren();['⌂ Home','← Back'].forEach((label,i)=>{let b=document.createElement('button');b.textContent=label;b.onclick=()=>{selected=null;if(i===0)input.value='';top.replaceChildren(input);render()};top.append(b)});render();panel.scrollTop=0}
+ input.oninput=render;render();
+})();
+</script>
+<div class="viz-dotted-background" id="incident-detail">
+<style>
+#incident-detail{padding:12px;font:15px/1.4 system-ui,sans-serif}
+#incident-detail article{max-width:416px;margin:auto;border-radius:16px;overflow:hidden;background:#15231f;color:#f2f4f7;box-shadow:0 6px 24px #0003;color-scheme:dark}
+#incident-detail header{display:flex;justify-content:space-between;background:#162c25;padding:8px 13px;font-size:11px;font-weight:650}
+#incident-detail header b{letter-spacing:.12em}
+#incident-detail .map{height:318px;position:relative;background:#465342;overflow:hidden}
+#incident-detail canvas{width:100%;height:100%;display:block}
+#incident-detail button,#incident-detail input{font:inherit;color:inherit}
+#incident-detail .top{position:absolute;inset:12px 12px auto;display:flex;gap:6px}
+#incident-detail input,#incident-detail .top button{padding:11px 13px;border:1px solid #91a295;border-radius:10px;background:#15231ff5}
+#incident-detail input{width:100%}
+#incident-detail .pin{position:absolute;border:0;background:none;transform:translate(-50%,-50%);display:grid;justify-items:center;color:white;text-shadow:0 1px 4px black;font-size:12px;font-weight:700;min-width:52px;min-height:42px}
+#incident-detail .pin i{display:block;width:35px;height:25px;background:#ff665d99;clip-path:polygon(0 50%,21% 35%,18% 17%,45% 23%,57% 0,78% 24%,78% 49%,100% 61%,78% 95%,43% 86%,29% 100%);filter:contrast(2)}
+#incident-detail .gps{position:absolute;left:27%;top:65%;width:14px;height:14px;border:3px solid white;background:#ff3636;border-radius:50%;box-shadow:0 0 0 5px #ca232350}
+#incident-detail .map small{position:absolute;bottom:7px;right:9px;color:white;background:#132019dd;padding:2px 6px;border-radius:3px}
+#incident-detail .sheet{height:290px;overflow:auto;padding:16px;border-top:3px solid #98ab94}
+#incident-detail h2{font:700 25px/1.2 system-ui;margin:0 0 5px;color:#f2f4f7}
+#incident-detail p{margin:5px 0;color:#bac8be}#incident-detail .meta{color:#ffd27a;font-size:13px}
+#incident-detail .row{display:block;width:100%;background:none;text-align:left;border:0;border-bottom:1px solid #45564d;padding:12px 1px}
+#incident-detail .line{display:flex;align-items:baseline;gap:8px;justify-content:space-between}
+#incident-detail .row small{color:#bfccc2}#incident-detail .facts{display:flex;gap:24px;margin:18px 0}#incident-detail .facts b{display:block;font-size:20px}
+#incident-detail aside{border-left:3px solid #e1b55e;background:#252e25;padding:10px}
+</style>
+<article><header><b>IGNOPTICON / OPS</b><span>Updated 42 seconds ago</span></header>
+<div class="map"><canvas width="480" height="360" aria-label="Illustrative terrain map"></canvas><div class="marks"></div><span class="gps" title="Example GPS position"></span><div class="top"><input type="search" aria-label="Search fire name or location" placeholder="Search fire name or location"></div><small>Illustrative map · sample GPS</small></div><div class="sheet"></div></article></div>
+<script>
+(()=>{
+ const root=document.getElementById('incident-detail'), q=s=>root.querySelector(s), panel=q('.sheet'), top=q('.top'), input=q('input');
+ const records=[['Widemouth 2','Utah',8.4,2740,180,49,50],['Dry Canyon','Utah',17.6,1160,54,74,28],['Pine Creek','Idaho',31.2,680,12,20,37]];
+ const canvas=q('canvas'),ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,img=ctx.createImageData(w,h);
+ function relief(x,y){const u=x+.38*y+32*Math.sin(y/75)+12*Math.sin((x+y)/42); return 19*Math.sin(u/40)+9*Math.sin(u/17+y/55)+5*Math.sin(u/8+y/30)+2*Math.sin(x/4+y/9)+9*Math.cos(y/34)}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const a=relief(x,y),s=(a-relief(x+1,y+1))*13+Math.sin(x*19+y*33)*2,k=(y*w+x)*4;img.data[k]=70+a*.44+s;img.data[k+1]=82+a*.32+s;img.data[k+2]=62+a*.31+s;img.data[k+3]=255}
+ ctx.putImageData(img,0,0);ctx.beginPath();ctx.moveTo(-5,110);ctx.bezierCurveTo(100,146,105,226,158,214);ctx.bezierCurveTo(230,202,280,300,490,307);ctx.strokeStyle='#718e93';ctx.lineWidth=3;ctx.stroke();
+ let selected=null;
+ function render(){const matches=records.filter(f=>f.slice(0,2).join(' ').toLowerCase().includes(input.value.toLowerCase()));q('.marks').replaceChildren();
+ (selected?[selected]:matches).forEach(f=>{let pin=document.createElement('button');pin.className='pin';pin.style.left=f[5]+'%';pin.style.top=f[6]+'%';pin.innerHTML='<i></i>'+f[0];pin.onclick=()=>open(f);q('.marks').append(pin)});
+ if(selected){const f=selected;panel.innerHTML='<h2>'+f[0]+'</h2><p>'+f[1]+' · Sample incident</p><div class="facts"><div>Mapped area<b>'+f[3].toLocaleString()+' ac</b></div><div>12 h growth<b>+'+f[4]+' ac</b></div></div><aside><b>Field navigation</b><p>No verified approach route. Slope and radio coverage along approaches are unknown.</p></aside>';return}
+ panel.innerHTML='<h2>Wildfires</h2><p class="meta">Replay · Sample incidents</p><p>'+matches.length+' of 3 fires · Distance to fire center</p>';
+ matches.forEach(f=>{let row=document.createElement('button');row.className='row';row.innerHTML='<span class="line"><b>'+f[0]+'</b><small>'+f[2]+' mi · '+f[1]+'</small></span><span class="line">'+f[3].toLocaleString()+' ac <small>+'+f[4]+' ac in 12 h</small></span>';row.onclick=()=>open(f);panel.append(row)})}
+ function open(f){selected=f;top.replaceChildren();['⌂ Home','← Back'].forEach((label,i)=>{let b=document.createElement('button');b.textContent=label;b.onclick=()=>{selected=null;if(i===0)input.value='';top.replaceChildren(input);render()};top.append(b)});render();panel.scrollTop=0}
+ input.oninput=render;render();
+})();
+</script>
+<script>document.querySelector("#incident-detail .row").click()</script>
