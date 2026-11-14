@@ -10,3 +10,4 @@ hyak/*.tar
 tools/
 data/elmfire/
 __pycache__/
+data/harmonize/

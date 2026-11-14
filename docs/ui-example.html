@@ -1,0 +1,122 @@
+<!doctype html>
+<!--
+  Minimal example of reading the Ignopticon MODIS/VIIRS fire layers. No dependencies, no build step.
+
+  IMPORTANT: THE FINAL DATA COMES FROM A BACK-END SERVICE, NOT FROM FILES BUNDLED INTO THE FRONT END.
+  The files in data/samples/ui/ are stand-ins for that service's responses (same paths, same payloads), so the UI
+  can be built before the back end exists. Keep the API base URL configurable: here it is the "API base" box, or
+  ?api=URL in the address. The payload format is in docs/DATASETS.md, section 3.
+
+  To run: serve the repo root (python3 -m http.server 8000) and open http://localhost:8000/docs/ui-example.html
+  (fetch does not work from file://).
+-->
+<meta charset="utf-8">
+<title>Ignopticon fire layers: example</title>
+<style>
+  body { font: 14px system-ui, sans-serif; margin: 16px; background: #14161a; color: #ddd; }
+  .note { background: #4a3300; border-left: 4px solid #ffb300; padding: 8px 12px; max-width: 1156px; }
+  .bar { margin: 10px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  canvas { width: 1180px; height: 520px; image-rendering: pixelated; border: 1px solid #444; cursor: crosshair; }
+  input, select, button { font: inherit; }  #api { width: 22em; }  #date { min-width: 6.5em; text-align: center; }
+  .key span { display: inline-block; width: 12px; height: 12px; margin: 0 4px 0 12px; vertical-align: -1px; }
+</style>
+<p class="note"><b>Sample data.</b> The final data will come from a back-end service. The files this page loads
+  (<code>data/samples/ui/</code>) are stand-ins for that service's responses, in the same format. Point "API base" at
+  the real service when it exists.</p>
+<div class="bar">
+  <label>API base <input id="api"></label>
+  <label>Product <select id="product"></select></label>
+  <button id="prev">&#9664;</button><b id="date"></b><button id="next">&#9654;</button>
+  <label>Colour fire by <select id="mode"><option value="count">fire pixels</option><option value="frp">FRP</option></select></label>
+</div>
+<canvas id="map" width="590" height="260"></canvas>
+<div class="key"><span style="background:#6b6b6b"></span>not observed (cloud or no pass)
+  <span style="background:#1c2a1e"></span>seen clearly, no fire (brighter = more clear looks)
+  <span style="background:#ffd000"></span>fire (yellow = little, red = much)</div>
+<p id="info">Move the pointer over the map.</p>
+<p id="status"></p>
+<script>
+const $ = id => document.getElementById(id);
+const DEFAULT_API = '../data/samples/ui';        // the stand-in files; the real back end replaces this URL
+$('api').value = new URLSearchParams(location.search).get('api') || DEFAULT_API;
+const ctx = $('map').getContext('2d', {willReadFrequently: true});
+let index, dates = [], day = 0, raw = null;      // raw = the PNG's RGBA bytes, 4 per cell, row 0 = north
+
+// 1. index.json: the grid, the products and the dates each one has.
+async function loadIndex() {
+  try {
+    index = await (await fetch($('api').value + '/index.json')).json();
+  } catch (e) { $('status').textContent = 'Could not load index.json from ' + $('api').value + ': ' + e; return; }
+  $('product').innerHTML = Object.keys(index.products).map(p => `<option>${p}</option>`).join('');
+  pickProduct();
+}
+function pickProduct() {
+  const keep = dates[day];                       // stay on the same date when switching product, if it has it
+  dates = index.products[$('product').value].dates;
+  day = Math.max(0, dates.indexOf(keep));
+  loadDay();
+}
+
+// 2. One day's layer: GET {API}/{product}/{YYYY-MM-DD}.png. Draw it to a canvas to get at the bytes.
+//    (Alpha is only ever 0 or 255, so the browser's alpha premultiplication does not change R, G, B.)
+async function loadDay() {
+  const url = `${$('api').value}/${$('product').value}/${dates[day]}.png`;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';                 // needed to read pixels when the API is on another origin
+  img.src = url;
+  try { await img.decode(); } catch (e) { $('status').textContent = 'Could not load ' + url; return; }
+  ctx.clearRect(0, 0, 590, 260);
+  ctx.drawImage(img, 0, 0);
+  raw = ctx.getImageData(0, 0, 590, 260).data;
+  $('date').textContent = dates[day];
+  $('status').textContent = 'Loaded ' + url;
+  render();
+}
+
+// 3. Decode a cell (docs/DATASETS.md section 3).
+function cell(x, y) {
+  const i = 4 * (y * index.grid.cols + x);
+  return {
+    fire: raw[i],                                // R: 1 km pixels classed fire (capped at 255)
+    clear: raw[i + 1],                           // G: 1 km pixels seen clearly
+    frp: Math.pow(10, raw[i + 2] / 40) - 1,      // B: summed fire radiative power, MW
+    observed: raw[i + 3] === 255,                // A: 0 = not observed (cloud or no overpass)
+    lon: index.grid.west + index.grid.cell_deg * (x + 0.5),
+    lat: index.grid.north - index.grid.cell_deg * (y + 0.5),
+  };
+}
+
+// 4. Recolour: grey = not observed, dark green = clear and no fire, yellow to red = fire.
+function render() {
+  const out = ctx.createImageData(590, 260), o = out.data, byFrp = $('mode').value === 'frp';
+  for (let y = 0; y < 260; y++) for (let x = 0; x < 590; x++) {
+    const c = cell(x, y), i = 4 * (y * 590 + x);
+    let rgb;
+    if (!c.observed) rgb = [107, 107, 107];
+    else if (!c.fire) rgb = [10 + c.clear / 8, 16 + c.clear / 5, 12 + c.clear / 8];
+    else {                                       // t: 0..1 on a log scale, 1 = 50 fire pixels or 10 GW
+      const t = Math.min(1, byFrp ? Math.log10(1 + c.frp) / 4 : Math.log(1 + c.fire) / Math.log(51));
+      rgb = [255, 220 * (1 - t), 0];
+    }
+    o[i] = rgb[0]; o[i + 1] = rgb[1]; o[i + 2] = rgb[2]; o[i + 3] = 255;
+  }
+  ctx.putImageData(out, 0, 0);
+}
+
+$('map').onmousemove = e => {
+  if (!raw) return;
+  const r = $('map').getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) * 590 / r.width), y = Math.floor((e.clientY - r.top) * 260 / r.height);
+  if (x < 0 || y < 0 || x >= 590 || y >= 260) return;
+  const c = cell(x, y);
+  $('info').textContent = `col ${x}, row ${y} (${c.lat.toFixed(2)}, ${c.lon.toFixed(2)}): ` + (!c.observed
+    ? 'not observed' : `${c.fire} fire pixels, ${c.clear} clear looks, FRP about ${c.frp.toFixed(0)} MW`);
+};
+const step = d => { day = Math.min(dates.length - 1, Math.max(0, day + d)); loadDay(); };
+$('prev').onclick = () => step(-1);
+$('next').onclick = () => step(1);
+$('product').onchange = pickProduct;
+$('mode').onchange = render;
+$('api').onchange = loadIndex;
+loadIndex();
+</script>
