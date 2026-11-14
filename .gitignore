@@ -1,5 +1,12 @@
 earth/node_modules/
+data/raw/
 earth/tile-cache/
-# Fire band tiles: only zooms 3-7 are kept (~14 MB a pass); dev-server.js enlarges them for closer zooms.
 earth/public/data/thermal/i4/*/*/8/
 earth/public/data/thermal/i4/*/*/9/
+data/fires/runs/
+data/ensembles/
+hyak/*.sif
+hyak/*.tar
+tools/
+data/elmfire/
+__pycache__/

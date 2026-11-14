@@ -1,0 +1,49 @@
+#!/usr/bin/env -S uv run -q --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["rasterio"]
+# ///
+"""Stand-in for GDAL's gdal_translate, for machines without the GDAL tools: copies a raster with only the options
+ELMFIRE passes (-q, -of FORMAT, -ot TYPE, -co NAME=VALUE, -a_srs SRS), e.g. its .bil outputs to GeoTIFF or a .tif
+input to ENVI .bsq. Usage: gdal_translate [options] SRC DST"""
+import sys
+
+import rasterio
+
+TYPES = {"byte": "uint8", "int16": "int16", "uint16": "uint16", "int32": "int32", "float32": "float32",
+         "float64": "float64"}
+args, fmt, dtype, crs, options, files = sys.argv[1:], "GTiff", None, None, {}, []
+i = 0
+while i < len(args):
+    a = args[i]
+    if a == "-q":
+        pass
+    elif a in ("-of", "-ot", "-a_srs", "-co"):
+        value = args[i + 1].strip('"')
+        i += 1
+        if a == "-of":
+            fmt = value
+        elif a == "-ot":
+            dtype = TYPES[value.lower()]
+        elif a == "-a_srs":
+            crs = value
+        else:
+            k, v = value.split("=", 1)
+            options[k] = v
+    else:
+        files.append(a)
+    i += 1
+src_path, dst_path = files
+with rasterio.open(src_path) as src:
+    data = src.read()
+    profile = src.profile.copy()
+profile.update(driver=fmt, **options)
+for key in ("blockxsize", "blockysize", "tiled", "interleave"):
+    profile.pop(key, None)
+if dtype:
+    profile["dtype"] = dtype
+    data = data.astype(dtype)
+if crs:
+    profile["crs"] = crs
+with rasterio.open(dst_path, "w", **profile) as dst:
+    dst.write(data)

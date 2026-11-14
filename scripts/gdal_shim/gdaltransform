@@ -1,0 +1,22 @@
+#!/usr/bin/env -S uv run -q --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["rasterio"]
+# ///
+"""Stand-in for GDAL's gdaltransform, for machines without the GDAL tools: reads "X Y [Z]" lines on stdin, prints
+"X' Y' Z" in the target CRS (lon lat for EPSG:4326, GDAL's traditional axis order). ELMFIRE uses it for sunrise
+times (XY_TO_LATLON in elmfire_subs.f90). Usage: gdaltransform -s_srs SRS -t_srs SRS < IN"""
+import sys
+
+from rasterio.crs import CRS
+from rasterio.warp import transform
+
+args = sys.argv[1:]
+src = CRS.from_user_input(args[args.index("-s_srs") + 1])
+dst = CRS.from_user_input(args[args.index("-t_srs") + 1])
+for line in sys.stdin:
+    parts = line.split()
+    if len(parts) < 2:
+        continue
+    xs, ys = transform(src, dst, [float(parts[0])], [float(parts[1])])
+    print("%.10f %.10f %s" % (xs[0], ys[0], parts[2] if len(parts) > 2 else "0"))

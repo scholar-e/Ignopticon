@@ -1,0 +1,21 @@
+#!/usr/bin/env -S uv run -q --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["rasterio"]
+# ///
+"""Stand-in for GDAL's gdalsrsinfo, for machines without the GDAL tools: supports only what ELMFIRE asks for,
+"-o epsg FILE" (prints EPSG:CODE) and "-o proj4 FILE" (prints '+proj=...'). Usage: gdalsrsinfo -o epsg|proj4 FILE"""
+import sys
+
+import rasterio
+
+fmt = sys.argv[sys.argv.index("-o") + 1] if "-o" in sys.argv else "proj4"
+with rasterio.open(sys.argv[-1]) as src:
+    crs = src.crs
+if crs is None:
+    sys.exit(1)
+if fmt == "epsg":
+    epsg = crs.to_epsg()
+    print("EPSG:%d" % epsg if epsg else "EPSG:-1")
+else:
+    print("'%s'" % crs.to_proj4())

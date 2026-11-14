@@ -1,0 +1,21 @@
+#!/usr/bin/env -S uv run -q --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["rasterio"]
+# ///
+"""Stand-in for GDAL's gdalinfo, for machines without the GDAL tools: prints only the lines ELMFIRE parses
+(read_geotiff_meta_gdalinfo in elmfire_subs.f90): Size, Origin, Pixel Size, and the CRS's linear unit. Put this
+directory on the PATH when running ELMFIRE. Usage: gdalinfo FILE"""
+import sys
+
+import rasterio
+
+with rasterio.open(sys.argv[-1]) as src:
+    t = src.transform
+    print("Driver: %s" % src.driver)
+    print("Size is %d, %d" % (src.width, src.height))
+    if src.crs:
+        print("Coordinate System is:")
+        print(src.crs.to_wkt(version="WKT2_2019"))
+    print("Origin = (%.15f,%.15f)" % (t.c, t.f))
+    print("Pixel Size = (%.15f,%.15f)" % (t.a, t.e))

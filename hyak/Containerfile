@@ -1,0 +1,37 @@
+# Ignopticon modelling image: ELMFIRE (gfortran + Open MPI), GDAL's command line tools (ELMFIRE converts its BIL
+# outputs to GeoTIFF with gdal_translate unless CONVERT_TO_GEOTIFF = .FALSE.), and the Python packages the
+# scripts/ use, so array tasks need no network. The same image runs locally (podman) and on Hyak (Apptainer).
+#
+# Build (here, where podman is installed):  podman build -t ignopticon-model -f hyak/Containerfile hyak
+# For Hyak:  podman save -o ignopticon-model.tar ignopticon-model, copy it over, and on a compute node:
+#            apptainer build ignopticon-model.sif docker-archive://ignopticon-model.tar
+# See hyak/README.md. Pin ELMFIRE_REF to a commit once a build is checked, so every member runs the same code.
+FROM docker.io/library/ubuntu:24.04
+
+ARG ELMFIRE_REF=main
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gfortran openmpi-bin libopenmpi-dev make git ca-certificates \
+        gdal-bin python3 python3-pip python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# The Python scripts' dependencies (their "# dependencies" lines), in a venv on the PATH.
+RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir \
+        numpy scipy h5py pyproj rasterio "shapely>=2.1" netCDF4 pillow
+ENV PATH=/opt/venv/bin:$PATH
+
+# ELMFIRE, built with its GNU build script; its executables go on the PATH, with "elmfire" for the main one.
+RUN git clone https://github.com/lautenberger/elmfire.git /opt/elmfire \
+    && cd /opt/elmfire && git checkout "$ELMFIRE_REF" \
+    && cd build/linux && ./make_gnu.sh \
+    && find /opt/elmfire/build/linux -maxdepth 2 -type f -perm -u+x -name 'elmfire*' \
+         -exec cp {} /usr/local/bin/ \; \
+    && main=$(ls /usr/local/bin/elmfire* | grep -v post | head -1) \
+    && ln -sf "$main" /usr/local/bin/elmfire \
+    && elmfire --help >/dev/null 2>&1 || true
+ENV ELMFIRE_BASE_DIR=/opt/elmfire
+
+# OpenMPI refuses to run as root in a container unless told it may (podman runs as root inside).
+ENV OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+WORKDIR /work
