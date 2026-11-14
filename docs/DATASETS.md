@@ -179,17 +179,19 @@ HARMONIZE_FEATURES=all scripts/harmonize.py fit data/harmonize/grid data/harmoni
 scripts/export_ui.py fires data/harmonize/grid VNP14A1 2013 213 243 data/samples/ui
 ```
 
-## 5. Status (2026-11-14, event day 1)
+## 5. Status (2026-11-14, event day 1, evening)
 
 | Item | State |
 |---|---|
-| MODIS downloads | Terra 2000–2012 and 2020, Aqua 2002–2015, continuing |
-| VIIRS downloads | S-NPP 2012–2014, 2017 and 2021; NOAA-20 2018–2020 and 2023; continuing (the slow part) |
-| Gridding to 0.1° | Terra 2000–2004 and 2020, Aqua 2013, S-NPP 2013; continuing as downloads finish |
-| Elevation | done (in the repo) |
-| gridMET | downloaded (6 variables × 2000–2026); gridding to 0.1° next |
-| UI samples and example page | done: Aqua and S-NPP for August 2013, elevation, index (6.9 MB, in the repo); checked against the source grids |
-| Harmonization | script written, fitted once the overlap years are gridded |
+| MODIS downloads | done: Terra 2000–2026, Aqua 2002–2026 |
+| VIIRS downloads | NOAA-20 2018–2025 done; S-NPP done except 2026 (running) and short years 2012, 2022, 2024 (to recheck) |
+| Gridding to 0.1° | every downloaded year except S-NPP 2025–2026 |
+| Weather (gridMET) | done: 2000–2026 gridded and checked (2026 to Nov 12) |
+| Elevation, fuel | done, both in the repo (`elevation.npz`, `fuel.npz`) |
+| UI samples and example page | done: Aqua and S-NPP for August 2013, elevation, index; the full export waits for the harmonized record |
+| Dataset catalog | done: `data/catalog.json`, 39 datasets with serving tiers; `scripts/catalog_check.py` validates it |
+| Harmonization | first fits running (MODIS only / + elevation / + weather); no feature set chosen yet |
+| Next-day fire activity model | in progress: hotspots, weather, elevation and fuel, held-out years |
 | Fire-spread modelling (ELMFIRE, Widemouth 2) | separate track: see MODELLING_LOG.md |
 
 ## 6. Dataset catalog and serving
