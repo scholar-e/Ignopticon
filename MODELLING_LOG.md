@@ -73,8 +73,42 @@ Growth happens almost entirely in the afternoon burning periods. Overnight it's 
   - A quiet edge stays non-burnable for the whole 24 h, even if it would have rekindled.
   - Results are pending (entry 5).
 
-### 5. Multi-day evaluation set (pending)
-- **Setup:** issue times at 12Z on Aug 2, 3, 4 and 5 (before each burning period), with 24 h forecasts. Each is scored on the afternoon and next-night overpasses and on the FEDS perimeters at +12 h and +24 h.
-- **Sweep:** spread multiplier 0.1, 0.2, 0.35, 0.5, 0.75 or 1.0 with LH 90%, plus 0.2 and 0.5 with LH 30%. That's 32 runs, each with its issue time's HRRR run.
-- **Plan:** choose settings on some days and test on the others, which is the first honest (out-of-sample) score of A.
-- **Runtime note:** earlier sweeps ran with every run pinned to one CPU core (Open MPI's default binding), so their timings understate the speed. The ELMFIRE results themselves are unaffected.
+### 5. Multi-day evaluation: four 24 h forecasts, scored within their horizon
+- **Setup:** issue times at 12Z on Aug 2, 3, 4 and 5 (before each burning period). Each forecast uses its issue time's HRRR run and starts from the burning edges (entry 4).
+- **Scored on:**
+  - Overpasses in (issue, issue + 24 h]: 7, 5, 6 and 3 per day. Scoring a 24 h forecast on later overpasses would count its silence after +24 h as misses, which an early pass did.
+  - The FEDS perimeter at +24 h.
+- **Comparison runs:** no growth (the area burned at issue, persisted), and ELMFIRE started from the whole burned area (the entry 2 start) at the same settings.
+- **Live herbaceous moisture:** 90% everywhere below, except where noted.
+
+| Run | CSI Aug 2 | Aug 3 | Aug 4 | Aug 5 | Mean CSI | IoU at +24 h (Aug 2 / 3 / 4 / 5) |
+|---|---|---|---|---|---|---|
+| No growth | 0 | 0 | 0 | 0 | 0 | 0.59 / 0.77 / 0.86 / 0.89 |
+| Whole burned area, ×0.1 | 0.30 | 0.14 | 0.18 | 0.10 | 0.18 | 0.65 / 0.69 / 0.77 / 0.78 |
+| Burning edges, ×0.02 | 0.33 | 0.28 | 0.36 | 0.30 | 0.32 | 0.66 / 0.79 / 0.89 / 0.90 |
+| **Burning edges, ×0.05** | 0.31 | 0.34 | 0.45 | 0.32 | **0.35** | 0.65 / 0.80 / 0.89 / 0.90 |
+| Burning edges, ×0.1 | 0.31 | 0.34 | 0.44 | 0.29 | 0.35 | 0.64 / 0.80 / 0.90 / 0.91 |
+| Burning edges, ×0.2 | 0.26 | 0.32 | 0.44 | 0.26 | 0.32 | 0.61 / 0.82 / 0.91 / 0.91 |
+| Burning edges, ×0.2, live herbaceous moisture 30% | 0.22 | 0.29 | 0.40 | 0.26 | 0.29 | 0.54 / 0.82 / 0.91 / 0.91 |
+| Burning edges, ×0.5 | 0.18 | 0.21 | 0.27 | 0.18 | 0.21 | 0.52 / 0.82 / 0.88 / 0.87 |
+| Burning edges, ×1.0 | 0.12 | 0.11 | 0.11 | 0.10 | 0.11 | 0.41 / 0.76 / 0.77 / 0.76 |
+
+- **Out-of-sample score:**
+  - Choose the spread multiplier on three days, by mean CSI, and score it on the fourth. Repeat for each day.
+  - The choice is ×0.05 every time.
+  - Held-out CSI: 0.31, 0.34, 0.45 and 0.32, mean **0.36**. This is the first honest number for plain ELMFIRE (model A) on this fire.
+  - The no-growth baseline scores 0, and the ellipse baseline 0.30, but the ellipse was scored only on Aug 2 and was itself tuned on it.
+- **Burning edges beat the whole-burned-area start:**
+  - On Aug 3–5, CSI 0.34 / 0.45 / 0.32 against 0.14 / 0.18 / 0.10.
+  - On Aug 2 the two are equal, when most of the edge was hot anyway.
+  - The whole-area start overpredicts area by 18–25% at +24 h, the edge start by −2% to −12%.
+- **The slowdown is still there:**
+  - The best multiplier is still ×0.05–0.1. Starting from burning edges did not remove the 10–20x slowdown, so the leading hypothesis of entry 3 explains the overprediction on Aug 3–5, but not the slow spread.
+  - Remaining suspects:
+    - the 375 m hot cells igniting whole blocks, which puts the front too far out;
+    - HRRR wind too strong at 20 ft over this terrain;
+    - the crude dead-moisture lags, and constant live moisture (wetter is better everywhere tried, so cured-grass assumptions may be wrong);
+    - fuel model mapping;
+    - suppression, which isn't modelled.
+- **Area versus hot cells:** IoU at +24 h is 0.80–0.91 on Aug 3–5, but no growth already reaches 0.77–0.89 there. The gain shows mostly in CSI, i.e. where the fire is burning, not in total area.
+- **Runtime:** with each run allowed on any core (`mpirun --bind-to none`), 32 forecasts took 8.7 min on 16 cores (~2.6 CPU-min each).

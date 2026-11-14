@@ -538,6 +538,7 @@ var µ = function() {
                 flow: "wind",                // what particles trace: "wind", or "smoke" from the hotspots
                 hotspots: "on",
                 areas: "on",                 // FEDS fire perimeters
+                transition: "off",           // fire-area change: "off", "prev" (the snapshot before), or "FROM,TO"
                 frames: "off",               // heat frames: observed and modelled heat at each VIIRS overpass
                 region: "northamerica",      // the part of the world loaded, see products.regions
                 showGridPoints: false
@@ -560,6 +561,9 @@ var µ = function() {
                 }
                 else if ((option = /^areas=(on|off)$/.exec(segment))) {
                     result.areas = option[1];
+                }
+                else if ((option = /^transition=(off|prev|\d{4}-\d\d-\d\dT\d\d,\d{4}-\d\d-\d\dT\d\d)$/.exec(segment))) {
+                    result.transition = option[1];  // FROM,TO are FEDS snapshot times, e.g. 2026-08-02T00
                 }
                 else if ((option = /^frames=(on|off)$/.exec(segment))) {
                     result.frames = option[1];
@@ -617,10 +621,11 @@ var µ = function() {
             var pc = !isValue(attr.particles) || attr.particles === "off" ? "" : "particles=" + attr.particles;
             var hs = attr.hotspots === "off" ? "hotspots=off" : "";
             var ar = attr.areas === "off" ? "areas=off" : "";
+            var tr = !isValue(attr.transition) || attr.transition === "off" ? "" : "transition=" + attr.transition;
             var fr = attr.frames === "on" ? "frames=on" : "";
             var fl = attr.flow === "smoke" ? "flow=smoke" : "";
             var rg = !isValue(attr.region) || attr.region === "northamerica" ? "" : "region=" + attr.region;
-            return [dir, attr.param, attr.surface, attr.level, ol, ul, mp, pc, fl, hs, ar, fr, rg, proj, grid].filter(isTruthy).join("/");
+            return [dir, attr.param, attr.surface, attr.level, ol, ul, mp, pc, fl, hs, ar, tr, fr, rg, proj, grid].filter(isTruthy).join("/");
         },
 
         /**

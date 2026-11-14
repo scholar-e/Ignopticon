@@ -16,7 +16,8 @@ collection, which keeps every snapshot since March 2025 but only fires that grew
 
 Usage: feds_to_earth_json.py OUT.json [TIME]     TIME like 2026-10-29T12:00:00; default: the latest
        feds_to_earth_json.py --index FEDS_DIR      list the snapshots in FEDS_DIR/YYYY/MM/DD-HHMM.json, oldest
-                                                   first, in FEDS_DIR/index.json, for earth's fire-area transitions
+                                                   first, and each one's fire ids, in FEDS_DIR/index.json, for
+                                                   earth's fire-area transitions
 Output: {"type": "FeatureCollection", "time": TIME, "features": [{"type": "Feature", "geometry": ...,
          "properties": {"id", "area_km2", "perimeter_km", "mean_frp", "days", "new_pixels", "pixels",
                         "place" (county, state), and if named: "name", "state", "acres", "contained"}}]}
@@ -126,6 +127,18 @@ def rounded(coords):
     return [rounded(c) for c in coords]
 
 
+def one_per_fire(features):
+    """The large-fire collection can list a fire several times in one snapshot, with the same outline but only one
+    copy carrying its FRP and new pixels; keep that copy, in the order first seen."""
+    best = {}
+    for f in features:
+        p, key = f["properties"], f["properties"]["fireid"]
+        rank = (p["meanfrp"] is not None, p["n_newpixels"] or 0)
+        if key not in best or rank > best[key][0]:
+            best[key] = (rank, f)
+    return [f for _, f in best.values()]
+
+
 def main(dst, time=None):
     if time is None:
         time = get({"region": REGION, "sortby": "-t", "limit": 1})["features"][0]["properties"]["t"]
@@ -133,6 +146,7 @@ def main(dst, time=None):
     if not result["features"]:
         result, source = get({"region": REGION, "t": time, "limit": 10000}, LARGE_FIRES), \
             "NASA FEDS large fires (VIIRS), " + REGION
+    result["features"] = one_per_fire(result["features"])
     named = incidents(time)
     shapes = [(f["properties"], shape(f["geometry"]).simplify(TOLERANCE, preserve_topology=True))
               for f in result["features"]]
@@ -165,20 +179,23 @@ def main(dst, time=None):
 
 
 def index(root):
-    """Writes ROOT/index.json: {"snapshots": [TIME, ...]}, oldest first, from the snapshot files' own times. Earth
-    finds a snapshot's file from its time (YYYY/MM/DD-HHMM.json); a day's DD.json is the one it loads for that day."""
-    times = []
+    """Writes ROOT/index.json: {"snapshots": [TIME, ...] oldest first, "fires": {TIME: [fire id, ...]}}, from the
+    snapshot files' own times. Earth finds a snapshot's file from its time (YYYY/MM/DD-HHMM.json); a day's DD.json is
+    the one it loads for that day. The large-fire collection leaves a fire out of snapshots in which it had no
+    detections, so the ids let earth tell a fire that is new, or out, from one that is only missing from a snapshot."""
+    fires = {}
     for path in glob.glob(os.path.join(root, "[0-9]" * 4, "[0-9]" * 2, "[0-9]" * 2 + "-" + "[0-9]" * 4 + ".json")):
         with open(path) as f:
-            time = json.load(f)["time"]
+            snapshot = json.load(f)
+        time = snapshot["time"]
         expected = time[:4] + "/" + time[5:7] + "/" + time[8:10] + "-" + time[11:13] + time[14:16] + ".json"
         if not path.replace(os.sep, "/").endswith(expected):
             log.warning("skipping %s: its snapshot time is %s", path, time)
             continue
-        times.append(time)
-    times.sort()
+        fires[time] = sorted({feature["properties"]["id"] for feature in snapshot["features"]})
+    times = sorted(fires)
     with open(os.path.join(root, "index.json"), "w") as out:
-        json.dump({"snapshots": times}, out, indent=1)
+        json.dump({"snapshots": times, "fires": {t: fires[t] for t in times}}, out, separators=(",", ":"))
     log.info("wrote %s: %d snapshots, %s to %s", os.path.join(root, "index.json"), len(times),
              times[0] if times else "-", times[-1] if times else "-")
 

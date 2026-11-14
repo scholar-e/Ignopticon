@@ -81,6 +81,24 @@ var products = function() {
         var day = date === "current" ? "current" : µ.dateToUTCymd(date, "/");
         return FIRE_AREA_PATH + "/" + day + ".json";
     }
+
+    /**
+     * @param {String} time a FEDS snapshot time, e.g. "2026-08-02T12:00:00"
+     * @returns {String} path of that 12-hourly snapshot, made by scripts/feds_to_earth_json.py, e.g.
+     *          /data/fires/feds/2026/08/02-1200.json. The snapshots that exist are listed in fireAreaIndexPath().
+     */
+    function fireAreaSnapshotPath(time) {
+        return FIRE_AREA_PATH + "/" + time.substr(0, 4) + "/" + time.substr(5, 2) + "/" + time.substr(8, 2) + "-" +
+            time.substr(11, 2) + time.substr(14, 2) + ".json";
+    }
+
+    /**
+     * @returns {String} path of the list of FEDS snapshots, {"snapshots": [time, ...]} oldest first, written by
+     *          scripts/feds_to_earth_json.py --index.
+     */
+    function fireAreaIndexPath() {
+        return FIRE_AREA_PATH + "/index.json";
+    }
     /**
      * @returns {String} path of the heat frames made by scripts/heat_frames.py for the date: each fire's observed
      *          heat at every VIIRS overpass, and its model runs' predicted heat, e.g. /data/fires/frames/2026/08/02.json
@@ -839,6 +857,8 @@ var products = function() {
         fireHeatScale: FIRE_HEAT_SCALE,
         firePath: firePath,
         fireAreaPath: fireAreaPath,
+        fireAreaSnapshotPath: fireAreaSnapshotPath,
+        fireAreaIndexPath: fireAreaIndexPath,
         heatFramesPath: heatFramesPath
     };
 

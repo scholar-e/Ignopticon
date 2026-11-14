@@ -62,6 +62,21 @@
     var FIRE_NAVIGATOR_MAX_DAYS = 90;                   // longer-burning "fires" are mostly flares and industry
     var FIRE_NAVIGATOR_SHARE = 0.6;                     // going to a fire zooms it to this share of the open view
     var FIRE_NAVIGATOR_MAX_SCALE = 200000;
+    var TRANSITION_OLD_FILL = "rgba(255, 80, 20, 0.07)";  // fire-area transitions: the earlier perimeter, faint and
+    var TRANSITION_OLD_STROKE = "rgba(255, 80, 20, 0.5)";  // dashed, under the later one drawn as usual
+    var TRANSITION_NEW_FIRE = "rgb(255, 225, 40)";        // fires only in the later snapshot
+    var TRANSITION_OUT_FIRE = "rgb(170, 170, 170)";       // fires only in the earlier snapshot, dashed
+    var TRANSITION_UNLISTED_FIRE = "rgba(255, 80, 20, 0.35)";  // earlier fires missing from the later snapshot
+                                                          // only (listed again after it), dotted
+    var TRANSITION_ARROW = "rgb(255, 255, 255)";
+    var TRANSITION_SAMPLES = 400;             // points sampled along each later perimeter, at most
+    var TRANSITION_MIN_STEP_KM = 0.1;         // and at least this far apart
+    var TRANSITION_MIN_ADVANCE_KM = 0.375;    // smaller advances (one VIIRS pixel) are not drawn
+    var TRANSITION_ARROW_SPACING = 40;        // arrow tips are at least this far apart on the screen (pixels)
+    var TRANSITION_ARROW_MIN_LENGTH = 8;      // shorter arrows on the screen are not drawn (pixels)
+    var TRANSITION_ARROWS_PER_FIRE = 24;
+    var TRANSITION_MAX_GAP = 24 * HOUR;       // "previous snapshot" means at most this much earlier
+    var SNAPSHOT_INTERVAL = 12 * HOUR;        // FEDS snapshots are 12-hourly, at 00Z and 12Z
     var FIRE_COLOR_BOOST = 4;                 // points take the heat color of FRP x this, so they read brighter
                                               // than the smoothed fire-heat overlay of the same fires
 
@@ -203,6 +218,7 @@
     var overlayGridsAgent = newAgent();  // the grids of the overlays switched on, as {grids:, list:}
     var fireAgent = newAgent();      // VIIRS hotspots for the grid's day
     var areaAgent = newAgent();      // FEDS fire perimeters for the grid's day
+    var transitionAgent = newAgent();  // how the FEDS perimeters changed between two snapshots, when asked for
     var framesAgent = newAgent();    // heat frames (observed and modelled heat per overpass) for the grid's day
 
     // Draws the overlay on the GPU when the projection allows, so moving the globe needs no re-interpolation.
@@ -1037,6 +1053,255 @@
     }
 
     /**
+     * @returns {Promise} the FEDS snapshots listed by scripts/feds_to_earth_json.py --index: {snapshots: [time, ...]
+     *          oldest first, e.g. "2026-08-01T00:00:00", listed: {time: {id: true}}} the fires in each, or no
+     *          snapshots if there is no index.
+     */
+    var snapshotIndex = _.memoize(function() {
+        return µ.loadJson(products.fireAreaIndexPath()).then(function(index) {
+            var listed = {};
+            _.each(index.fires || {}, function(ids, time) {
+                listed[time] = _.object(ids, ids.map(_.constant(true)));
+            });
+            return {snapshots: index.snapshots, listed: listed};
+        }).otherwise(function() {
+            return {snapshots: [], listed: {}};
+        });
+    });
+
+    /**
+     * @returns {Promise} the FEDS snapshot at the time, with each fire's bounding box as for loadFireAreas. A fire
+     *          listed more than once (older files from the large-fire collection) is kept once, so areas add up.
+     */
+    var loadSnapshot = _.memoize(function(time) {
+        return µ.loadJson(products.fireAreaSnapshotPath(time)).then(function(areas) {
+            var seen = {};
+            areas.features = areas.features.filter(function(feature) {
+                return !seen[feature.properties.id] && (seen[feature.properties.id] = true);
+            });
+            areas.features.forEach(function(feature) {
+                feature.bbox = d3.geo.bounds(feature);
+            });
+            return areas;
+        });
+    });
+
+    function snapshotMillis(time) {
+        return Date.parse(time.substr(0, 13) + ":00:00Z");
+    }
+
+    /**
+     * @returns {String} "2026-08-02T00": a snapshot time as the URL's transition= option writes it.
+     */
+    function snapshotKey(time) {
+        return time.substr(0, 13);
+    }
+
+    /**
+     * @returns {String} "08-02 00Z": a snapshot time as the menu shows it.
+     */
+    function snapshotLabel(time) {
+        return time.substr(5, 5) + " " + time.substr(11, 2) + "Z";
+    }
+
+    /**
+     * @returns {Object} {from:, to:} the snapshot times the configuration's transition compares, or {error:} saying
+     *          why there are none. "prev" compares the latest snapshot at or before the page's time (within 12 h)
+     *          with the one before it (within 24 h); "FROM,TO" names both.
+     */
+    function resolveTransition(times, attr) {
+        if (attr.transition === "prev") {
+            var now = attr.date === "current" ? Infinity :
+                Date.UTC(+attr.date.substr(0, 4), +attr.date.substr(5, 2) - 1, +attr.date.substr(8, 2),
+                    +attr.hour.substr(0, 2));
+            var i = times.length - 1;
+            while (i >= 0 && snapshotMillis(times[i]) > now) i--;
+            if (i < 0 || now - snapshotMillis(times[i]) >= SNAPSHOT_INTERVAL) {
+                return {error: "No FEDS snapshot in the 12 h up to this time. Pick two instead."};
+            }
+            if (i === 0 || snapshotMillis(times[i]) - snapshotMillis(times[i - 1]) > TRANSITION_MAX_GAP) {
+                return {to: times[i], error: "No FEDS snapshot in the day before " + snapshotLabel(times[i]) + "."};
+            }
+            return {from: times[i - 1], to: times[i]};
+        }
+        var keys = attr.transition.split(","), found = keys.map(function(key) {
+            return _.find(times, function(time) { return snapshotKey(time) === key; });
+        });
+        var result = {from: found[0], to: found[1]};
+        if (!result.from || !result.to) {
+            result.error = "No FEDS snapshot listed for " + keys.filter(function(key, i) {
+                return !found[i];
+            }).join(" or ").replace("T", " ") + "Z.";
+        }
+        else if (snapshotMillis(result.from) >= snapshotMillis(result.to)) {
+            result.error = "The first snapshot must come before the second.";
+        }
+        return result;
+    }
+
+    /**
+     * @returns {Array} the (Multi)Polygon's rings, holes included, or only each polygon's outer ring.
+     */
+    function ringsOf(geometry, outerOnly) {
+        var result = [];
+        (geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates).forEach(function(rings) {
+            result.push.apply(result, outerOnly ? rings.slice(0, 1) : rings);
+        });
+        return result;
+    }
+
+    /**
+     * @returns {Boolean} true if the two fires overlap: their boxes do, and a vertex of one lies in the other.
+     */
+    function firesOverlap(a, b) {
+        var p = a.bbox, q = b.bbox;
+        if (p[1][0] < q[0][0] || q[1][0] < p[0][0] || p[1][1] < q[0][1] || q[1][1] < p[0][1]) return false;
+        var anyInside = function(x, y) {
+            return ringsOf(x.geometry, true).some(function(ring) {
+                return ring.some(function(c) { return polygonContains(y.geometry, c[0], c[1]); });
+            });
+        };
+        return anyInside(a, b) || anyInside(b, a);
+    }
+
+    /**
+     * Finds where a fire advanced past its earlier perimeter(s): points every TRANSITION_MIN_STEP_KM or more along
+     * the later perimeter (TRANSITION_SAMPLES at most) that lie outside the earlier one, each with the nearest point
+     * of the earlier perimeter, kept if over TRANSITION_MIN_ADVANCE_KM apart. Distances are in km on a plane
+     * tangent at the fire, which is close enough for fires tens of km across.
+     *
+     * @returns {Array} [{from: [λ, φ], to: [λ, φ], km:, bearing: (degrees from north)}], largest
+     *          first, with tail and tip [x, y] in km for spacing them out.
+     */
+    function fireAdvances(feature, old) {
+        var b = feature.bbox, λ0 = (b[0][0] + b[1][0]) / 2, φ0 = (b[0][1] + b[1][1]) / 2;
+        var kx = 111.32 * Math.cos(φ0 * Math.PI / 180), ky = 110.57;  // km per degree
+        var toKm = function(c) { return [(c[0] - λ0) * kx, (c[1] - φ0) * ky]; };
+        var toLonLat = function(p) { return [p[0] / kx + λ0, p[1] / ky + φ0]; };
+        var oldRings = [];
+        old.forEach(function(f) {
+            ringsOf(f.geometry).forEach(function(ring) { oldRings.push(ring.map(toKm)); });
+        });
+        var outer = ringsOf(feature.geometry, true).map(function(ring) { return ring.map(toKm); });
+        var length = 0;
+        outer.forEach(function(ring) {
+            for (var i = 1; i < ring.length; i++) {
+                length += Math.sqrt(Math.pow(ring[i][0] - ring[i - 1][0], 2) + Math.pow(ring[i][1] - ring[i - 1][1], 2));
+            }
+        });
+        var step = Math.max(length / TRANSITION_SAMPLES, TRANSITION_MIN_STEP_KM), advances = [];
+
+        function consider(p) {
+            var ll = toLonLat(p);
+            if (old.some(function(f) { return polygonContains(f.geometry, ll[0], ll[1]); })) return;
+            var best = Infinity, nearest = null;
+            oldRings.forEach(function(ring) {
+                for (var i = 1; i < ring.length; i++) {
+                    var a = ring[i - 1], dx = ring[i][0] - a[0], dy = ring[i][1] - a[1], d2 = dx * dx + dy * dy;
+                    var t = d2 > 0 ? µ.clamp(((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / d2, 0, 1) : 0;
+                    var x = a[0] + t * dx, y = a[1] + t * dy, e2 = (p[0] - x) * (p[0] - x) + (p[1] - y) * (p[1] - y);
+                    if (e2 < best) {
+                        best = e2;
+                        nearest = [x, y];
+                    }
+                }
+            });
+            var km = Math.sqrt(best);
+            if (!nearest || km < TRANSITION_MIN_ADVANCE_KM) return;
+            var bearing = µ.floorMod(Math.atan2(p[0] - nearest[0], p[1] - nearest[1]) * 180 / Math.PI, 360);
+            advances.push({from: toLonLat(nearest), to: ll, tail: nearest, tip: p, km: km, bearing: bearing});
+        }
+
+        outer.forEach(function(ring) {
+            var carry = 0, s = 0;  // carry: distance into the next segment of the next sample
+            for (var i = 1; i < ring.length; i++) {
+                var a = ring[i - 1], c = ring[i];
+                var seg = Math.sqrt(Math.pow(c[0] - a[0], 2) + Math.pow(c[1] - a[1], 2));
+                for (s = carry; s < seg; s += step) {
+                    consider([a[0] + (c[0] - a[0]) * s / seg, a[1] + (c[1] - a[1]) * s / seg]);
+                }
+                carry = s - seg;
+            }
+        });
+        return _.sortBy(advances, function(a) { return -a.km; });
+    }
+
+    /**
+     * @returns {Object} how a fire changed from its earlier perimeter(s): {status: "both", feature:, old:,
+     *          advances:, oldArea:, newArea:, since: (the earlier snapshot's time)}
+     */
+    function fireChange(feature, old, since) {
+        return {
+            status: "both", feature: feature, old: old, advances: fireAdvances(feature, old), since: since,
+            oldArea: old.reduce(function(sum, f) { return sum + f.properties.area_km2; }, 0),
+            newArea: feature.properties.area_km2
+        };
+    }
+
+    /**
+     * Compares two FEDS snapshots. Fires are matched by FEDS id, else by overlap (FEDS merges and splits fires).
+     * FEDS's large-fire collection leaves a fire out of snapshots in which it had no detections, so the index's
+     * fire ids decide what the rest are: a later fire listed in an earlier snapshot is compared with its last
+     * perimeter there ("back", until loadTransition does so), else it is "new"; an earlier fire listed again after
+     * the later snapshot is "unlisted", else it is out.
+     *
+     * @returns {Object} {fires: [{status: "both", "back" or "new", feature:, ...}, ...], out: [earlier features],
+     *          unlisted: [earlier features]}
+     */
+    function buildTransition(before, after, index, from, to) {
+        var byId = _.groupBy(before.features, function(f) { return f.properties.id; }), used = [];
+        var earlier = index.snapshots.filter(function(time) { return time < from; }).reverse();
+        var later = index.snapshots.filter(function(time) { return time > to; });
+        var fires = after.features.map(function(feature) {
+            var id = feature.properties.id, old = byId[id] || before.features.filter(function(f) {
+                return firesOverlap(f, feature);
+            });
+            used.push.apply(used, old);
+            if (old.length > 0) return fireChange(feature, old, from);
+            var since = _.find(earlier, function(time) { return (index.listed[time] || {})[id]; });
+            return {status: since ? "back" : "new", feature: feature, old: [], advances: [], since: since};
+        });
+        var rest = _.groupBy(_.difference(before.features, used), function(f) {
+            return _.some(later, function(time) { return (index.listed[time] || {})[f.properties.id]; }) ?
+                "unlisted" : "out";
+        });
+        return {fires: fires, out: rest.out || [], unlisted: rest.unlisted || []};
+    }
+
+    /**
+     * Loads the two FEDS snapshots the configuration's transition names and compares them, then compares each
+     * fire missing from the earlier snapshot but listed before it with its last perimeter there. Null when the fire
+     * areas show one day. The result always has the snapshot times, for the menu to step through.
+     */
+    function loadTransition(attr) {
+        if (attr.areas === "off" || !attr.transition || attr.transition === "off") return null;
+        var cancel = this.cancel;
+        return snapshotIndex().then(function(index) {
+            var pair = _.extend(resolveTransition(index.snapshots, attr), {times: index.snapshots});
+            if (pair.error) return pair;
+            return when.all([loadSnapshot(pair.from), loadSnapshot(pair.to)]).then(function(both) {
+                if (cancel.requested) return null;
+                var transition = _.extend(buildTransition(both[0], both[1], index, pair.from, pair.to), pair);
+                var back = transition.fires.filter(function(f) { return f.status === "back"; });
+                return when.all(_.uniq(_.pluck(back, "since")).map(loadSnapshot)).then(function() {
+                    return when.all(back.map(function(fire) {
+                        return loadSnapshot(fire.since).then(function(snapshot) {
+                            var old = snapshot.features.filter(function(f) {
+                                return f.properties.id === fire.feature.properties.id;
+                            });
+                            _.extend(fire, old.length ? fireChange(fire.feature, old, fire.since) : {status: "new"});
+                        });
+                    }));
+                }).then(function() {
+                    return cancel.requested ? null : transition;
+                });
+            }, function() {
+                return _.extend(pair, {error: "Cannot load the FEDS snapshots."});
+            });
+        });
+    }
+
+    /**
      * @returns {Boolean} true if [λ, φ] lies in the (Multi)Polygon: an odd number of ring crossings, holes included.
      *          Plain lon/lat geometry, which is close enough for fires a few km across.
      */
@@ -1099,40 +1364,61 @@
     }
 
     /**
+     * @returns {Array} the fire's [x, y] center on the screen, or null if it is out of view (with a margin).
+     */
+    function fireOnScreen(feature, projection, isVisible) {
+        var b = feature.bbox, λ = (b[0][0] + b[1][0]) / 2, φ = (b[0][1] + b[1][1]) / 2, c, margin = 50;
+        if (!(c = projection([λ, φ])) || !isVisible(λ, φ) || c[0] < -margin || c[0] > view.width + margin ||
+                c[1] < -margin || c[1] > view.height + margin) {
+            return null;
+        }
+        return c;
+    }
+
+    /**
+     * Adds the fire's rings to the canvas path as projected straight lines.
+     * @returns {Array} [top, bottom] of the fire on the screen.
+     */
+    function traceFire(ctx, projection, feature) {
+        var geometry = feature.geometry, top = Infinity, bottom = -Infinity;
+        (geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates).forEach(function(rings) {
+            rings.forEach(function(ring) {
+                ring.forEach(function(coord, i) {
+                    var p = projection(coord);
+                    if (!p) return;
+                    if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+                    top = Math.min(top, p[1]);
+                    bottom = Math.max(bottom, p[1]);
+                });
+                ctx.closePath();
+            });
+        });
+        return [top, bottom];
+    }
+
+    /**
      * Draws the FEDS fire perimeters, under the hotspots, and labels them. Fires are a few km across, so each is
      * drawn as projected straight lines if its center is in view, which is much cheaper on every frame of a drag
      * than d3.geo.path's clipping and resampling. Fires smaller than FIRE_AREA_MIN_SIZE on the screen are left to
-     * their hotspots, though the navigator's fires are labeled at any size.
+     * their hotspots, though the navigator's fires are labeled at any size. In transition mode the change between
+     * two snapshots is drawn instead.
      */
     function drawFireAreas(ctx, globe) {
         var areas = areaAgent.value();
-        if (!areas || configuration.get("areas") === "off") return;
-        var projection = globe.projection, isVisible = visibilityTest(globe), margin = 50;
+        if (configuration.get("areas") === "off") return;
+        if (transitionShown()) return drawTransition(ctx, globe, transitionAgent.value());
+        if (!areas) return;
+        var projection = globe.projection, isVisible = visibilityTest(globe);
         var pxPerDegree = projection.scale() * Math.PI / 180, drawn = [], top = largestFires(areas);
         ctx.beginPath();
         areas.features.forEach(function(feature) {
-            var b = feature.bbox, λ = (b[0][0] + b[1][0]) / 2, φ = (b[0][1] + b[1][1]) / 2, c;
-            if (!(c = projection([λ, φ])) || !isVisible(λ, φ) || c[0] < -margin || c[0] > view.width + margin ||
-                    c[1] < -margin || c[1] > view.height + margin) {
-                return;
-            }
+            var b = feature.bbox, c = fireOnScreen(feature, projection, isVisible);
+            if (!c) return;
             if ((b[1][1] - b[0][1]) * pxPerDegree < FIRE_AREA_MIN_SIZE) {
                 if (_.contains(top, feature)) drawn.push({feature: feature, x: c[0], y: c[1] + FIRE_POINT_SIZE});
                 return;
             }
-            var geometry = feature.geometry, bottom = c[1];
-            (geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates).forEach(function(rings) {
-                rings.forEach(function(ring) {
-                    ring.forEach(function(coord, i) {
-                        var p = projection(coord);
-                        if (!p) return;
-                        if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
-                        bottom = Math.max(bottom, p[1]);
-                    });
-                    ctx.closePath();
-                });
-            });
-            drawn.push({feature: feature, x: c[0], y: bottom});
+            drawn.push({feature: feature, x: c[0], y: Math.max(c[1], traceFire(ctx, projection, feature)[1])});
         });
         ctx.fillStyle = FIRE_AREA_FILL;
         ctx.fill("evenodd");  // holes in a perimeter stay unfilled
@@ -1140,6 +1426,148 @@
         ctx.strokeStyle = FIRE_AREA_STROKE;
         ctx.stroke();
         drawFireLabels(ctx, drawn, top);
+    }
+
+    /**
+     * @returns {Boolean} true if the fire areas show a transition between two snapshots, and it is loaded.
+     */
+    function transitionShown() {
+        var t = transitionAgent.value();
+        return !!(t && t.fires) && configuration.get("areas") !== "off" && configuration.get("transition") !== "off";
+    }
+
+    /**
+     * @returns {Array} the arrows to draw for a fire at this zoom: its advances, largest first, whose tips are at
+     *          least TRANSITION_ARROW_SPACING apart on the screen (and tails half that, so a corner of the earlier
+     *          perimeter sends out few arrows) and that are at least TRANSITION_ARROW_MIN_LENGTH long there, at most
+     *          TRANSITION_ARROWS_PER_FIRE. Kept on the fire until the zoom changes.
+     */
+    function arrowsAtScale(fire, scale) {
+        if (fire.shown && fire.shown.scale === scale) return fire.shown.arrows;
+        var pxPerKm = scale / 6371, spacing = TRANSITION_ARROW_SPACING / pxPerKm, arrows = [];
+        for (var i = 0; i < fire.advances.length && arrows.length < TRANSITION_ARROWS_PER_FIRE; i++) {
+            var a = fire.advances[i];
+            if (a.km * pxPerKm < TRANSITION_ARROW_MIN_LENGTH) break;  // the rest are shorter still
+            var apart = arrows.every(function(b) {
+                return Math.sqrt(Math.pow(a.tip[0] - b.tip[0], 2) + Math.pow(a.tip[1] - b.tip[1], 2)) >= spacing &&
+                    Math.sqrt(Math.pow(a.tail[0] - b.tail[0], 2) + Math.pow(a.tail[1] - b.tail[1], 2)) >= spacing / 2;
+            });
+            if (apart) arrows.push(a);
+        }
+        fire.shown = {scale: scale, arrows: arrows};
+        return arrows;
+    }
+
+    /**
+     * Draws a fire-area transition: the earlier perimeters faint and dashed, the later ones as usual, fires new in
+     * the later snapshot in yellow and fires gone from it in dashed gray, each tagged, and white arrows from the
+     * earlier perimeter out to the later one where a fire advanced.
+     */
+    function drawTransition(ctx, globe, transition) {
+        var projection = globe.projection, isVisible = visibilityTest(globe), scale = projection.scale();
+        var pxPerDegree = scale * Math.PI / 180, drawn = [], tags = [], arrows = [];
+        var big = function(feature) {
+            return (feature.bbox[1][1] - feature.bbox[0][1]) * pxPerDegree >= FIRE_AREA_MIN_SIZE;
+        };
+        var layer = function(fill, stroke, dash, features) {
+            ctx.beginPath();
+            var extents = features.map(function(feature) { return traceFire(ctx, projection, feature); });
+            if (fill) {
+                ctx.fillStyle = fill;
+                ctx.fill("evenodd");
+            }
+            ctx.setLineDash(dash);
+            ctx.lineWidth = FIRE_AREA_LINE_WIDTH;
+            ctx.strokeStyle = stroke;
+            ctx.stroke();
+            ctx.setLineDash([]);
+            return extents;
+        };
+        var old = [], grown = [], born = [], gone = [];
+        transition.fires.forEach(function(fire) {
+            var c = fireOnScreen(fire.feature, projection, isVisible);
+            if (!c || !big(fire.feature)) return;
+            if (fire.status === "new") {
+                born.push(fire.feature);
+                tags.push({x: c[0], feature: fire.feature, text: "new", color: TRANSITION_NEW_FIRE});
+            }
+            else {
+                old.push.apply(old, fire.old);
+                grown.push(fire.feature);
+                arrows.push.apply(arrows, arrowsAtScale(fire, scale));
+            }
+            drawn.push({feature: fire.feature, x: c[0]});
+        });
+        var unlisted = [];
+        transition.out.concat(transition.unlisted).forEach(function(feature) {
+            var c = fireOnScreen(feature, projection, isVisible);
+            if (!c || !big(feature)) return;
+            if (_.contains(transition.unlisted, feature)) return unlisted.push(feature);
+            gone.push(feature);
+            tags.push({x: c[0], feature: feature, text: "out", color: TRANSITION_OUT_FIRE});
+        });
+        layer(TRANSITION_OLD_FILL, TRANSITION_OLD_STROKE, [4, 3], old);
+        var bottoms = {};
+        layer(FIRE_AREA_FILL, FIRE_AREA_STROKE, [], grown).forEach(function(e, i) {
+            bottoms[grown[i].properties.id] = e[1];
+        });
+        layer("rgba(255, 225, 40, 0.15)", TRANSITION_NEW_FIRE, [], born).forEach(function(e, i) {
+            bottoms[born[i].properties.id] = e[1];
+        });
+        layer(null, TRANSITION_OUT_FIRE, [5, 4], gone);
+        layer(null, TRANSITION_UNLISTED_FIRE, [2, 4], unlisted);
+
+        // Arrows: a dark halo under each, then the line and its head.
+        var pxPerKm = scale / 6371;
+        var trace = function() {
+            ctx.beginPath();
+            arrows.forEach(function(a) {
+                var p = projection(a.from), q = projection(a.to);
+                if (!p || !q) return;
+                var dx = q[0] - p[0], dy = q[1] - p[1], length = Math.sqrt(dx * dx + dy * dy) || 1;
+                var head = Math.min(9, Math.max(5, a.km * pxPerKm * 0.35)), ux = dx / length, uy = dy / length;
+                ctx.moveTo(p[0], p[1]);
+                ctx.lineTo(q[0], q[1]);
+                ctx.moveTo(q[0] - head * (ux - uy * 0.5), q[1] - head * (uy + ux * 0.5));
+                ctx.lineTo(q[0], q[1]);
+                ctx.lineTo(q[0] - head * (ux + uy * 0.5), q[1] - head * (uy - ux * 0.5));
+            });
+        };
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        trace();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.stroke();
+        ctx.lineWidth = 1.75;
+        ctx.strokeStyle = TRANSITION_ARROW;
+        ctx.stroke();
+        ctx.lineCap = "butt";
+
+        drawn.forEach(function(d) { d.y = bottoms[d.feature.properties.id]; });
+        drawFireLabels(ctx, drawn.filter(function(d) { return _.isFinite(d.y); }), []);
+        // Tags above the new and gone fires.
+        ctx.font = FIRE_LABEL_FONT;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.75)";
+        tags.forEach(function(tag) {
+            var y = traceTop(projection, tag.feature);
+            if (!_.isFinite(y)) return;
+            var text = tag.text === "out" ? "out: " + fireName(tag.feature.properties) : tag.text;
+            ctx.fillStyle = tag.color;
+            ctx.strokeText(text, tag.x, y - 3);
+            ctx.fillText(text, tag.x, y - 3);
+        });
+    }
+
+    /**
+     * @returns {Number} the top of the fire on the screen.
+     */
+    function traceTop(projection, feature) {
+        var b = feature.bbox, p = projection([(b[0][0] + b[1][0]) / 2, b[1][1]]);
+        return p ? p[1] : NaN;
     }
 
     /**
@@ -1396,6 +1824,7 @@
         section.append("p").attr("class", "info-title").text("Fire areas");
         if (!areas) {
             section.append("p").text("None for this day");
+            showTransitionControls(section);  // snapshots are listed apart from the day's file
             return;
         }
         var legend = section.append("p");
@@ -1405,7 +1834,165 @@
         section.append("p").attr("class", "info-source").text(
             "Perimeters NASA FEDS draws around VIIRS detections it groups into fires, named after NIFC incidents " +
             "or else their county. Click a fire for its size.");
+        showTransitionControls(section);
         showFireNavigator(section, areas);
+    }
+
+    var COMPASS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+
+    /**
+     * Shows the fire-area transition choices in the layers panel: Off, Last 12 h (the snapshot before the one at
+     * the page's time), or Pick, which steps the two snapshots compared; then what changed between them, and the
+     * legend.
+     */
+    function showTransitionControls(section) {
+        var mode = configuration.get("transition") || "off", t = transitionAgent.value();
+        var picked = mode !== "off" && mode !== "prev", times = (t && t.times) || [];
+        var row = section.append("p"), button = function(label, title, on, click) {
+            row.append("span").attr("class", "text-button" + (on ? " highlighted" : "")).attr("title", title)
+                .text(label).on("click", click);
+        };
+        row.append("span").text("Change | ");
+        button("Off", "Show the day's perimeters", mode === "off", function() {
+            configuration.save({transition: "off"});
+        });
+        row.append("span").text(" – ");
+        button("Last 12 h", "Arrows from the previous FEDS snapshot to the one at this time", mode === "prev",
+            function() { configuration.save({transition: "prev"}); });
+        row.append("span").text(" – ");
+        button("Pick", "Choose the two FEDS snapshots to compare", picked, function() {
+            if (picked) return;
+            var from = t && t.from, to = t && t.to;
+            if (!from || !to) {
+                if (times.length < 2) return;
+                from = times[times.length - 2];
+                to = times[times.length - 1];
+            }
+            configuration.save({transition: snapshotKey(from) + "," + snapshotKey(to)});
+        });
+        if (mode === "off" || !t) return;
+
+        if (picked && times.length > 1) {
+            var keys = mode.split(","), at = keys.map(function(key) { return times.map(snapshotKey).indexOf(key); });
+            var nav = section.append("p"), stepper = function(which, label) {
+                var i = at[which], other = at[1 - which];
+                var go = function(j, glyph) {
+                    var ok = j >= 0 && j < times.length && (which === 0 ? other < 0 || j < other : j > other);
+                    nav.append("span").attr("class", "text-button" + (ok ? "" : " disabled"))
+                        .attr("title", (glyph === "◀" ? "Earlier" : "Later") + " snapshot").text(glyph)
+                        .on("click", function() {
+                            if (!ok) return;
+                            var next = keys.slice();
+                            next[which] = snapshotKey(times[j]);
+                            configuration.save({transition: next.join(",")});
+                        });
+                };
+                nav.append("span").text(label + " ");
+                go(i < 0 ? times.length - 1 : i - 1, "◀");
+                nav.append("span").text(" " + (i < 0 ? keys[which].replace("T", " ") + "Z" :
+                    snapshotLabel(times[i])) + " ");
+                go(i < 0 ? 0 : i + 1, "▶");
+            };
+            stepper(0, "From");
+            nav.append("span").text("   ");
+            stepper(1, "to");
+        }
+        if (t.error) {
+            section.append("p").text(t.error);
+            return;
+        }
+        var both = t.fires.filter(function(f) { return f.status === "both"; });
+        var grew = both.filter(function(f) { return f.advances.length > 0; }).length;
+        var hours = Math.round((snapshotMillis(t.to) - snapshotMillis(t.from)) / HOUR);
+        var resumed = both.filter(function(f) { return f.since !== t.from; }).length;
+        section.append("p").text(snapshotLabel(t.from) + " → " + snapshotLabel(t.to) + " (" + hours + " h): " +
+            both.length + " fires compared" + (resumed ? " (" + resumed + " with an earlier snapshot)" : "") +
+            ", " + grew + " advanced; " + (t.fires.length - both.length) + " new, " + t.out.length + " out" +
+            (t.unlisted.length ? ", " + t.unlisted.length + " not listed at " + snapshotLabel(t.to) : ""));
+        var legend = section.append("p");
+        legend.append("span").style("color", TRANSITION_OLD_STROKE).text("┅ ");
+        legend.append("span").text(snapshotLabel(t.from) + "  ");
+        legend.append("span").style("color", FIRE_AREA_STROKE).text("□ ");
+        legend.append("span").text(snapshotLabel(t.to) + "  ");
+        legend.append("span").style("color", TRANSITION_ARROW).text("→ ");
+        legend.append("span").text("advance  ");
+        legend.append("span").style("color", TRANSITION_NEW_FIRE).text("□ ");
+        legend.append("span").text("new  ");
+        legend.append("span").style("color", TRANSITION_OUT_FIRE).text("┅ ");
+        legend.append("span").text("out  ");
+        legend.append("span").style("color", TRANSITION_UNLISTED_FIRE).text("┈ ");
+        legend.append("span").text("not listed");
+        section.append("p").attr("class", "info-source").text(
+            "Arrows run from the nearest point of the earlier perimeter to points of the later one beyond it, " +
+            "for advances over " + TRANSITION_MIN_ADVANCE_KM * 1000 + " m (a VIIRS pixel), largest first, fewer " +
+            "when zoomed out. Fires are matched by FEDS id, else by overlap. FEDS leaves out of a snapshot " +
+            "fires it saw no detections in, so a fire missing from the earlier snapshot is compared with its last " +
+            "listed perimeter, and is new only if never listed before; one missing from the later snapshot is " +
+            "out only if not listed again in the snapshots after it. Click a fire for its growth.");
+    }
+
+    /**
+     * @returns {Object} the transition's fire at [λ, φ]: one whose later or earlier perimeter holds it, or an
+     *          {status: "out", feature:} gone from the later snapshot.
+     */
+    function transitionFireAt(λ, φ) {
+        var t = transitionAgent.value(), holds = function(feature) {
+            var b = feature.bbox;
+            return λ >= b[0][0] && λ <= b[1][0] && φ >= b[0][1] && φ <= b[1][1] &&
+                polygonContains(feature.geometry, λ, φ);
+        };
+        var fire = _.find(t.fires, function(f) { return holds(f.feature); }) ||
+            _.find(t.fires, function(f) { return f.old.some(holds); });
+        var out = !fire && _.find(t.out, holds), unlisted = !fire && !out && _.find(t.unlisted, holds);
+        return fire || (out && {status: "out", feature: out}) || (unlisted && {status: "unlisted", feature: unlisted});
+    }
+
+    /**
+     * @returns {Object} the transition's fire with that FEDS id, later or earlier, as for transitionFireAt.
+     */
+    function transitionFireById(id) {
+        var t = transitionAgent.value(), same = function(f) { return f.properties.id === id; };
+        var fire = _.find(t.fires, function(f) { return same(f.feature); }) ||
+            _.find(t.fires, function(f) { return f.old.some(same); });
+        var out = !fire && _.find(t.out, same), unlisted = !fire && !out && _.find(t.unlisted, same);
+        return fire || (out && {status: "out", feature: out}) || (unlisted && {status: "unlisted", feature: unlisted});
+    }
+
+    /**
+     * Shows how a fire changed between the transition's snapshots in the location details: growth in km² and %,
+     * and its largest advance and the direction of it; or that it is new, or out.
+     */
+    function describeTransitionFire(fire) {
+        var t = transitionAgent.value(), p = fire.feature.properties, element = d3.select("#location-area");
+        var km2 = d3.format(",.1f");
+        element.text("");
+        element.append("span").text(fireName(p) + (p.name ? ", " + p.place : "") + " (FEDS " + p.id + ")");
+        element.append("br");
+        if (fire.status === "new") {
+            element.append("span").text("New: not in the " + snapshotLabel(t.from) + " snapshot; " + km2(p.area_km2) +
+                " km² at " + snapshotLabel(t.to));
+            return;
+        }
+        if (fire.status === "unlisted") {
+            element.append("span").text("Not in the " + snapshotLabel(t.to) + " snapshot (no detections then?), " +
+                "but listed again later; " + km2(p.area_km2) + " km² at " + snapshotLabel(t.from));
+            return;
+        }
+        if (fire.status === "out") {
+            element.append("span").text("Out: " + km2(p.area_km2) + " km² at " + snapshotLabel(t.from) +
+                ", not in the " + snapshotLabel(t.to) + " snapshot");
+            return;
+        }
+        var growth = fire.newArea - fire.oldArea, sign = growth >= 0 ? "+" : "−";
+        element.append("span").text(km2(fire.oldArea) + " → " + km2(fire.newArea) + " km², " + sign +
+            km2(Math.abs(growth)) + " km² (" + sign + d3.format(",.0f")(Math.abs(growth) / fire.oldArea * 100) +
+            "%), " + snapshotLabel(fire.since) + " → " + snapshotLabel(t.to));
+        element.append("br");
+        var a = fire.advances[0];
+        element.append("span").text(a ?
+            "Largest advance " + d3.format(",.1f")(a.km) + " km toward " + COMPASS[Math.round(a.bearing / 22.5) % 16] +
+                " (" + Math.round(a.bearing) + "°)" :
+            "No advance over " + TRANSITION_MIN_ADVANCE_KM * 1000 + " m");
     }
 
     /**
@@ -1498,8 +2085,14 @@
     function showAreaAtLocation(point, coord) {
         var areas = areaAgent.value();
         d3.select("#location-area").text("");
-        if (!areas || configuration.get("areas") === "off" || !coord || !_.isFinite(coord[0])) return;
+        if (configuration.get("areas") === "off" || !coord || !_.isFinite(coord[0])) return;
         var λ = coord[0], φ = coord[1];
+        if (transitionShown()) {
+            var changed = transitionFireAt(λ, φ);
+            if (changed) describeTransitionFire(changed);
+            return;
+        }
+        if (!areas) return;
         var fire = _.find(areas.features, function(feature) {
             var b = feature.bbox;
             return λ >= b[0][0] && λ <= b[1][0] && φ >= b[0][1] && φ <= b[1][1] &&
@@ -1512,6 +2105,8 @@
      * Shows a FEDS fire's name, size, age and power in the location details.
      */
     function describeFire(fire) {
+        var changed = transitionShown() && transitionFireById(fire.properties.id);
+        if (changed) return describeTransitionFire(changed);
         var p = fire.properties, element = d3.select("#location-area");
         // Two lines, so the details box stays no wider than the menu under it.
         element.text("");
@@ -2275,6 +2870,13 @@
         areaAgent.on("update", function(areas) {
             showAreaDetails(areas);
             showHeatFrameDetails();
+            drawFires();
+        });
+        transitionAgent.listenTo(configuration, "change:transition change:areas change:date change:hour", function() {
+            transitionAgent.submit(loadTransition, _.clone(configuration.attributes));
+        });
+        transitionAgent.on("update", function() {
+            showAreaDetails(areaAgent.value());
             drawFires();
         });
         framesAgent.listenTo(gridAgent, "update", function(grids) {
