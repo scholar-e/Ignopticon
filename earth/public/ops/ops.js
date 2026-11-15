@@ -162,6 +162,19 @@ function growthText(f) {
   return {text: `${sign}${num(Math.abs(g))} ac${before > 0 ? ` (${sign}${num(Math.abs(g) / before * 100)}%)` : ""} in 12 h`, cls: g > 0 ? "up" : ""};
 }
 
+// "This week vs 2003-2025": percentile of the fire's week (and region box, as scripts/history_calendar.py) from /data/calendar.
+const WEEK_BOXES = [["california", [[-124.5, -120, 39, 42], [-124.5, -118.4, 35, 39], [-121, -114.3, 32.4, 35]]], ["pacific-nw", [[-125, -116.5, 42, 49.6]]], ["great-basin", [[-120, -111, 36.5, 42]]],
+  ["southwest", [[-120, -103, 31, 37]]], ["rockies", [[-117, -104, 37, 49.6]]], ["southeast", [[-94.6, -75, 24, 36.5], [-82, -75, 36.5, 37.5]]], ["plains", [[-104, -93, 26, 49.6]]], ["northeast", [[-93, -66, 36.5, 49.6]]]];
+const regionOf = ([lon, lat]) => (WEEK_BOXES.find(([, bs]) => bs.some(([w, e, s, n]) => lon >= w && lon < e && lat >= s && lat < n)) || ["us"])[0];
+async function weekLine(f) {
+  const day = String((at && at.snapshot) || state.t).slice(0, 10), m = /^(\d{4})-(\d\d)-(\d\d)/.exec(day);
+  if (!m || +m[1] !== 2026 || !f.centroid) return "";
+  const doy = Math.round((Date.UTC(2026, +m[2] - 1, +m[3]) - Date.UTC(2026, 0, 0)) / 864e5), wk = Math.min(51, Math.floor((doy - 1) / 7)), reg = regionOf(f.centroid);
+  const j = await fetch(`/data/calendar/${reg}.json`).then((r) => r.ok ? r.json() : null).catch(() => null), p = j && j.pct2026.harm[wk];
+  if (p == null) return "";
+  const sfx = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10 > 3 ? 0 : n % 10]);
+  return `<p class="muted" id="weekline">This week vs 2003-2025: ${sfx(p)} percentile (${esc(j.name)})</p>`;
+}
 const api = (path) => fetch(path).then((r) => r.json().then((j) => r.ok ? j : Promise.reject(new Error(j.error || r.statusText))));
 const query = () => state.t ? `?time=${encodeURIComponent(state.t)}` : "";
 const details = new Map();
@@ -292,6 +305,7 @@ ${d ? containmentHtml(d.containment, zone) : ""}${sumHtml(f, d, g)}<button type=
 <li>Hotspots: VIIRS S-NPP, NOAA-20, NOAA-21: ${hs ? `${num(hs.length)} detections in the 12 h to view time` : "none downloaded for this time"}</li>
 ${fc ? `<li>Forecast: ELMFIRE + fire-history growth model · ${esc(fc.source || fc.model)}</li>` : ""}${d && d.containment ? "<li>Containment: NIFC WFIGS incident records</li>" : ""}<li id="nav-src"${nav.sourceText() ? "" : " hidden"}>${esc(nav.sourceText())}</li><li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
   $("#detail").hidden = false; $("#sources").hidden = false;
+  weekLine(f).then((h) => { const p = $("#detail-name"); if (h && p && p.textContent === label(f) && !$("#weekline")) p.nextElementSibling.insertAdjacentHTML("afterend", h); }).catch(() => {});
   if (d) legendForecast(fc, d);
   $("#back").onclick = overview;
 }

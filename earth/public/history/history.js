@@ -242,6 +242,41 @@ function initMap() {
   map.obj.on("load", () => { map.ready = true; if (map.pending) { map.pending(); map.pending = null; } });
 }
 
+// ---- Trends 2003-2025 (scripts/fire_trends.py -> /data/trends/REGION.json) ----
+const tcache = {};
+function trendChart(svg, T, key, unit) {
+  const W = 520, Hh = 220, m = {l: 52, r: 10, t: 10, b: 24}, yrs = T.years, M = T.metrics[key];
+  svg.setAttribute("viewBox", `0 0 ${W} ${Hh}`); svg.replaceChildren();
+  const all = [...M.raw.values, ...M.harm.values], lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * 0.08 || 1;
+  const a = Math.max(0, lo - pad), b = hi + pad;
+  const X = (y) => m.l + (y - yrs[0]) / (yrs[yrs.length - 1] - yrs[0]) * (W - m.l - m.r), Y = (v) => Hh - m.b - (v - a) / (b - a) * (Hh - m.t - m.b);
+  for (let i = 0; i <= 4; i++) { const v = a + (b - a) * i / 4; svg.append(el("line", {x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "#2c3d36"}), el("text", {x: m.l - 6, y: Y(v) + 4, "text-anchor": "end"}, fmt(v))); }
+  for (let y = 2005; y <= 2025; y += 5) svg.append(el("text", {x: X(y), y: Hh - 6, "text-anchor": "middle"}, y));
+  svg.append(el("line", {x1: X(2011.5), x2: X(2011.5), y1: m.t, y2: Hh - m.b, stroke: "#8a968f", "stroke-dasharray": "2 3"}), el("text", {x: m.l + 4, y: m.t + 10}, unit));
+  for (const [mode, color] of [["raw", "#FFB020"], ["harm", "#5AC8FA"]]) {
+    const s = M[mode];
+    line(svg, yrs.map((y, i) => [X(y), Y(s.values[i])]), color);
+    line(svg, [yrs[0], yrs[yrs.length - 1]].map((y) => [X(y), Y(s.intercept + s.slope * y)]), color, null, "5 4");
+  }
+}
+async function drawTrends() {
+  const r = state.region;
+  if (!tcache[r]) tcache[r] = await (await fetch(`/data/trends/${r}.json`)).json();
+  const T = tcache[r]; if (state.region !== r) return;
+  $("#tr-sub").textContent = T.name;
+  trendChart($("#tr-act"), T, "activity", "annual cell-days");
+  trendChart($("#tr-len"), T, "length", "season length, days (10% to 90% of activity)");
+  const M = T.metrics, f1 = (v) => (v >= 0 ? "+" : "") + v.toFixed(1), pv = (p) => p < 0.001 ? "<0.001" : p.toFixed(3);
+  const row = (lab, k, big) => ["raw", "harm"].map((mo) => { const s = M[k][mo]; const slope = big ? (s.slope >= 0 ? "+" : "") + fmt(s.slope) : f1(s.slope); return `<td>${slope}/yr (p ${pv(s.p)})</td>`; });
+  const mean = (k, mo, y0, y1) => { const v = M[k][mo].values.filter((_, i) => T.years[i] >= y0 && T.years[i] <= y1); return v.reduce((x, y) => x + y, 0) / v.length; };
+  const rows = [["Annual activity (cell-days)", "activity", true, fmt], ["Season start (day of year)", "start", false, (v) => v.toFixed(0)], ["Season end (day of year)", "end", false, (v) => v.toFixed(0)], ["Season length (days)", "length", false, (v) => v.toFixed(0)]];
+  $("#tr-table").innerHTML = `<tr><th></th><th>Raw trend</th><th>Harmonized trend</th><th>Harmonized mean 2003-11 / 2012-25</th></tr>` +
+    rows.map(([lab, k, big, ff]) => `<tr><td>${lab}</td>${row(lab, k, big).join("")}<td>${ff(mean(k, "harm", 2003, 2011))} / ${ff(mean(k, "harm", 2012, 2025))}</td></tr>`).join("");
+  const a = M.activity.raw, h = M.activity.harm, sig = (s) => s.step_p < 0.05 ? "significant" : "not significant";
+  $("#tr-note").textContent = `2012 step in annual activity (2012-2025 mean minus 2003-2011 mean): raw ${a.step_2012 >= 0 ? "+" : ""}${fmt(a.step_2012)} (permutation p ${pv(a.step_p)}, ${sig(a)}), harmonized ${h.step_2012 >= 0 ? "+" : ""}${fmt(h.step_2012)} (p ${pv(h.step_p)}, ${sig(h)}). ` +
+    "Trend: Theil-Sen slope, Mann-Kendall p. Season = 10% to 90% of the year's cumulative activity. Regions are boxes, so edges are approximate.";
+}
+
 // ---- Wiring ----
 async function render() {
   state.data = await load(state.region);
@@ -249,7 +284,7 @@ async function render() {
   $("#mode-note").textContent = state.mode === "harm"
     ? "Harmonized: before 2012 this is the expected number of cells VIIRS would have flagged, so the 2012 step is gone. 2000-2002 are blank (no Aqua to train on)."
     : "Raw: MODIS Terra and Aqua cells before 2012, VIIRS S-NPP after. The jump in 2012 is the sensor change. White outline: week of Aug 2, 2026.";
-  drawHeat(); drawAnnual(); drawThisYear();
+  drawHeat(); drawAnnual(); drawThisYear(); drawTrends().catch(() => {});
 }
 async function main() {
   const regions = await (await fetch("/data/calendar/regions.json")).json();
