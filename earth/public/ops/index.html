@@ -63,12 +63,18 @@
 </div>
 <main class="mapwrap" aria-label="Map">
   <section class="navpanel" id="navpanel" role="dialog" aria-labelledby="nav-h" hidden><header class="nav-head"><h2 id="nav-h">Navigate to the fire</h2><button type="button" id="nav-close" class="nav-x" aria-label="Close navigation">×</button></header>
-<div class="navfield"><label for="nav-from-in">From</label><div class="combo"><input id="nav-from-in" role="combobox" aria-expanded="false" aria-controls="nav-from-menu" autocomplete="off" spellcheck="false" placeholder="Type lat, lon">
-<ul id="nav-from-menu" class="combo-menu" role="listbox" hidden><li><button type="button" data-from="gps">Current location</button></li><li><button type="button" data-from="map">Set on map</button></li></ul></div></div>
-<div class="navfield"><label for="nav-to-in">To</label><div class="combo"><input id="nav-to-in" role="combobox" aria-expanded="false" aria-controls="nav-to-menu" autocomplete="off" spellcheck="false" placeholder="Type lat, lon">
-<ul id="nav-to-menu" class="combo-menu" role="listbox" hidden><li><button type="button" data-to="rec" title="Quickest point to reach 0.5–2.5 km outside the perimeter and the +6 h forecast">Recommended spot</button></li><li><button type="button" data-to="map">Set on map</button></li></ul></div></div>
+<div class="navpts">
+<div class="np-icons" aria-hidden="true"><span class="np-start"></span><span class="np-dots"></span><svg class="np-pin" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="currentColor"/></svg></div>
+<div class="np-fields">
+<div class="combo"><label class="sr-only" for="nav-from-in">From</label><input id="nav-from-in" role="combobox" aria-expanded="false" aria-controls="nav-from-menu" autocomplete="off" spellcheck="false" placeholder="Choose a start: type lat, lon or pick">
+<ul id="nav-from-menu" class="combo-menu" role="listbox" hidden><li><button type="button" data-from="gps">Current location</button></li><li><button type="button" data-from="map">Set on map</button></li></ul></div>
+<div class="combo"><label class="sr-only" for="nav-to-in">To</label><input id="nav-to-in" role="combobox" aria-expanded="false" aria-controls="nav-to-menu" autocomplete="off" spellcheck="false" placeholder="Choose a destination: type lat, lon or pick">
+<ul id="nav-to-menu" class="combo-menu" role="listbox" hidden><li><button type="button" data-to="rec" title="Quickest point to reach 0.5–2.5 km outside the perimeter and the +6 h forecast">Recommended spot</button></li><li><button type="button" data-to="map">Set on map</button></li></ul></div>
+</div>
+<button type="button" id="nav-swap" class="np-swap" aria-label="Swap start and destination" title="Swap start and destination"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v13M3.5 13.5 7 17l3.5-3.5M17 20V7m-3.5 3.5L17 7l3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
 <div class="navopts"><div class="navseg" role="group" aria-label="Travel mode"><button type="button" data-navmode="both">Drive + walk</button><button type="button" data-navmode="drive">Drive</button><button type="button" data-navmode="walk">Walk</button></div>
-<label class="chk"><input type="checkbox" id="nav-4x4"> Rough 4×4 tracks</label></div>
+<label class="chk"><input type="checkbox" id="nav-4x4" checked> Rough 4×4 tracks</label></div>
 <div class="navopts"><button type="button" id="nav-add-rptr" aria-pressed="false">Add repeater</button><label class="upload">Load dispatch route<input id="route-file" type="file" accept=".geojson,.json,application/geo+json,application/json"></label></div>
 <div id="nav-rform" class="nav-rform" hidden><p>Tap the map where the repeater stands.</p>
 <label>Type <select id="nav-preset"><option value="vhf">NIRSC portable VHF repeater</option><option value="uhf">NIRSC UHF repeater</option><option value="vehicle">Vehicle repeater</option><option value="custom">Custom</option></select></label>
@@ -80,7 +86,7 @@
 <button type="button" id="nav-start" class="nav-go nav-startbtn" hidden>Start navigation</button>
 <p id="nav-note" class="nav-note" role="status"></p>
 <p class="nav-foot"><span id="saved" role="status"></span> <a href="/ops/storage.html">Offline maps</a></p></section>
-  <div id="navbar" class="navbar" hidden><div class="nb-txt"><b id="nb-left"></b><span id="nb-next"></span></div><button type="button" id="nb-reroute">Reroute</button><button type="button" id="nb-end">End</button></div>
+  <div id="navbar" class="navbar" hidden><div class="nb-txt"><b id="nb-left"></b><span id="nb-leg"></span><span id="nb-next"></span></div><button type="button" id="nb-reroute">Reroute</button><button type="button" id="nb-end">End</button></div>
   <div id="navalert" class="navalert" role="alert" hidden></div>
   <div id="map" class="map"></div><div class="controls">
       <label for="filter" class="sr-only">Filter fires</label>

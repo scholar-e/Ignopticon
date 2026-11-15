@@ -40,7 +40,7 @@ const metres = (lon0, lat0, lon1, lat1) => {
 };
 const tobler = (slope) => 6000 * Math.exp(-3.5 * Math.abs(Math.max(-1, Math.min(1, slope)) + 0.05)) / 3600;  // m/s, slope capped at 45 degrees
 const fmtMin = (s) => s < 3600 ? `${Math.max(1, Math.round(s / 60))} min` : `${Math.floor(s / 3600)} h ${Math.round(s % 3600 / 60)} min`;
-const fmtMi = (m) => { const v = m / 1609.344; return v < 10 ? v.toFixed(1) + " mi" : Math.round(v) + " mi"; };
+const fmtMi = (m) => { const v = m / 1609.344; if (m < 160) return `${Math.max(10, Math.round(m * 3.28084 / 10) * 10)} ft`; return v < 10 ? v.toFixed(1) + " mi" : Math.round(v) + " mi"; };
 
 // Binary min-heap of (key, value) on typed arrays.
 class Heap {
@@ -70,7 +70,7 @@ export function createNav(ctx) {
   const {$, esc, say} = ctx;
   let pkg = null, pkgFor = null, hz = null, view = null;
   let start = null, startAcc = null, startManual = false, dest = null, destSuggested = false;
-  let mode = "both", allow4x4 = false, picking = null, routes = [], chosen = null;
+  let mode = "both", allow4x4 = true, picking = null, routes = [], chosen = null;
   let navigating = null, offSince = 0, repeaters = [], dispatch = null, refreshTimer = null, longCache = new Map();
 
   // ---------- Package ----------
@@ -300,16 +300,19 @@ export function createNav(ctx) {
     }
     steps.reverse();
     const first = s >= 0 ? s >> 1 : null, last = res.bestS >> 1;
-    const add = (mode, coords) => { const L = legs[legs.length - 1]; if (L && L.mode === mode) L.coords.push(...coords.slice(1)); else legs.push({mode, coords}); };
+    const add = (mode, coords, t, d) => {
+      const L = legs[legs.length - 1];
+      if (L && L.mode === mode) { L.coords.push(...coords.slice(1)); L.time += t; L.dist += d; } else legs.push({mode, coords, time: t, dist: d});
+    };
     let road = null;
     if (first !== null && long) {  // the online road route up to the junction where the search took over
       const j = long.joins.get(first);
       road = {dist: long.cum[j.vi] + j.d, time: j.t, provider: long.provider};
-      add("road", long.coords.slice(0, j.vi + 1).concat([[pkg.lon[first], pkg.lat[first]]]));
+      add("road", long.coords.slice(0, j.vi + 1).concat([[pkg.lon[first], pkg.lat[first]]]), j.t, road.dist);
       time += j.t; dist += road.dist;
     } else if (first !== null) {
       const t = xcTime(from[0], from[1], pkg.lon[first], pkg.lat[first]), d = metres(from[0], from[1], pkg.lon[first], pkg.lat[first]);
-      if (d > 15) add("xc", [from, [pkg.lon[first], pkg.lat[first]]]);
+      if (d > 15) add("xc", [from, [pkg.lon[first], pkg.lat[first]]], t, d);
       time += t; dist += d;
     }
     for (const {e, dir, drive} of steps) {
@@ -321,11 +324,11 @@ export function createNav(ctx) {
       if (f & F_PRIVATE && drive) restricted++;
       if (f & F_4X4 && drive) rough++;
       if (f & F_TRAIL && !drive) trail += pkg.len[e];
-      add(drive ? "drive" : "walk", pts(e, dir));
+      add(drive ? "drive" : "walk", pts(e, dir), t, pkg.len[e]);
     }
-    const dEnd = metres(pkg.lon[last], pkg.lat[last], to[0], to[1]);
-    if (dEnd > 15) add("xc", [[pkg.lon[last], pkg.lat[last]], to]);
-    time += xcTime(pkg.lon[last], pkg.lat[last], to[0], to[1]); dist += dEnd;
+    const dEnd = metres(pkg.lon[last], pkg.lat[last], to[0], to[1]), tEnd = xcTime(pkg.lon[last], pkg.lat[last], to[0], to[1]);
+    if (dEnd > 15) add("xc", [[pkg.lon[last], pkg.lat[last]], to], tEnd, dEnd);
+    time += tEnd; dist += dEnd;
     const xc = legs.filter((L) => L.mode === "xc").reduce((s2, L) => s2 + metres(...L.coords[0], ...L.coords[L.coords.length - 1]), 0);
     return {legs, time, dist, none, marg, noneAll, gates, restricted, rough, trail, xc, band, road,
       keyCost: none + 0.5 * marg, coords: legs.flatMap((L, i) => i ? L.coords.slice(1) : L.coords)};
@@ -581,6 +584,24 @@ export function createNav(ctx) {
   let sourceText = "";
   const status = (msg) => { sourceText = msg; const el = $("#nav-src"); if (el) { el.textContent = msg; el.hidden = !msg; } };
   function note(msg, html) { const el = $("#nav-note"); if (!el) return; if (html) el.innerHTML = msg; else el.textContent = msg; }
+  /** The route as stages: Drive / Walk / Off-trail (the online road part counts as Drive). */
+  const KIND = {road: "Drive", drive: "Drive", walk: "Walk", xc: "Off-trail"};
+  function stages(r) {
+    const out = [];
+    for (const L of r.legs) {
+      const kind = KIND[L.mode]; if (!kind) continue;
+      const S = out[out.length - 1];
+      if (S && S.kind === kind) { S.time += L.time; S.dist += L.dist; S.n += L.coords.length - 1; } else out.push({kind, time: L.time, dist: L.dist, n: L.coords.length - 1});
+    }
+    // A few metres on foot to reach the road is not a stage of its own: fold it into its neighbour.
+    for (let i = out.length - 1; i >= 0 && out.length > 1; i--) {
+      if (out[i].dist >= 50) continue;
+      const nb = out[i + 1] || out[i - 1]; nb.time += out[i].time; nb.dist += out[i].dist; nb.n += out[i].n;
+      out.splice(i, 1);
+    }
+    return out;
+  }
+  const stagesHtml = (r) => r.estimated ? "" : `<span class="rt-legs">${stages(r).map((S) => `<b>${S.kind}</b> ${fmtMi(S.dist)} <i>(${fmtMin(S.time)})</i>`).join(" → ")}</span>`;
   function render() {
     const p = $("#navpanel"); if (!p) return;
     const fromIn = $("#nav-from-in"), toIn = $("#nav-to-in");
@@ -594,10 +615,11 @@ export function createNav(ctx) {
     $("#nav-repeaters").innerHTML = repeaters.map((r) => `<li><span>${esc(r.name)} · ${r.mast} m · ${r.freq} MHz · ${r.watts} W <small>(${esc(r.source || "")})</small></span><button type="button" data-delrptr="${r.id}" aria-label="Remove ${esc(r.name)}">Remove</button></li>`).join("");
     $("#nav-routes").innerHTML = routes.map((r) => {
       const warn = [r.gates && `${r.gates} gate${r.gates > 1 ? "s" : ""} (may be locked)`, r.restricted && "private or restricted road", r.rough && "rough 4×4 track",
-        r.xc > 15 && `${fmtMi(r.xc)} off-trail`, r.band && "crosses the +6 h forecast area", r.blocked && "passes near the active fire edge", r.estimated && "time estimated at 30 km/h",
+        r.xc >= 50 && `${fmtMi(r.xc)} off-trail`, r.band && "crosses the +6 h forecast area", r.blocked && "passes near the active fire edge", r.estimated && "time estimated at 30 km/h",
         r.same && "same route as Fastest", r.road && `first ${fmtMi(r.road.dist)} on a ${r.road.provider} road route (no fire or coverage check there)`].filter(Boolean);
       return `<li><button type="button" class="rt rt-${r.id}" data-route="${r.id}" aria-pressed="${r === chosen}">
 <span class="rt-head"><b>${r.label}</b><span>${fmtMin(r.time)} · ${fmtMi(r.dist)}</span></span>
+${stagesHtml(r)}
 <span class="rt-cov">${fmtMin(r.none + r.marg)} without coverage near the fire${r.marg >= 30 ? ` (${fmtMin(r.marg)} marginal)` : ""} · ${fmtMin(r.noneAll)} ${r.road ? "in the fire area" : "on the whole trip"}</span>
 ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</button></li>`;
     }).join("");
@@ -609,7 +631,7 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
   function startNav() {
     if (!chosen) return;
     alertBox(ADVISORY, [["OK", () => { alertBox(); }]]);
-    navigating = {route: chosen, startedAt: Date.now(), cum: cumulative(chosen.coords)};
+    navigating = {route: chosen, startedAt: Date.now(), cum: cumulative(chosen.coords), stages: stageEnds(chosen)};
     showCoverage(true); $("#navbar").hidden = false; render(); updateNav();
     clearInterval(refreshTimer); refreshTimer = setInterval(checkFireData, 10 * 60e3);
     say(`Navigating: ${chosen.label}, ${fmtMin(chosen.time)}`);
@@ -617,6 +639,16 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
   function endNav() {
     navigating = null; clearInterval(refreshTimer); $("#navbar").hidden = true; alertBox(); offSince = 0;
     showCoverage($("#nav-cov-toggle").getAttribute("aria-pressed") === "true"); render();
+  }
+  function stageEnds(r) {  // each stage with the distance along the route where it ends
+    const cum = cumulative(r.coords); let i = 0;
+    return stages(r).map((S) => { i += S.n; return {...S, end: cum[Math.min(i, cum.length - 1)]}; });
+  }
+  function stageText(st, at) {  // "Driving · park and walk in 2.3 mi"
+    const k = st.findIndex((S) => at < S.end - 5); if (k < 0) return "";
+    const S = st[k], N = st[k + 1], verb = {Drive: "Driving", Walk: "Walking", "Off-trail": "Off-trail on foot"}[S.kind];
+    const next = N && {Drive: "drive", Walk: S.kind === "Drive" ? "park and walk" : "walk on the trail", "Off-trail": "leave the trail"}[N.kind];
+    return N ? `${verb} · ${next} in ${fmtMi(S.end - at)}` : `${verb} · ${fmtMi(S.end - at)} to the destination`;
   }
   function cumulative(cs) { const out = [0]; for (let i = 1; i < cs.length; i++) out.push(out[i - 1] + metres(...cs[i - 1], ...cs[i])); return out; }
   function updateNav() {
@@ -638,11 +670,12 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
       if (k >= 0 && hz.toFire[k] <= NEAR_FIRE_M && hz.cls[k] === 0) { next = `No coverage in ${fmtMi(cum[i] - at)}`; break; }
     }
     $("#nb-left").textContent = `${fmtMin(route.time * frac)} · ${fmtMi(left)} left`;
+    $("#nb-leg").textContent = left < 30 ? "" : stageText(navigating.stages, at);
     $("#nb-next").textContent = left < 30 ? "Arrived" : next || "Coverage ahead near the fire";
     if (best > 50) { offSince = offSince || Date.now(); if (Date.now() - offSince > 20000 && !$("#navalert").dataset.kind) alertBox("You're off route.", [["Reroute", reroute], ["Dismiss", () => alertBox()]], "off"); }
     else { offSince = 0; if ($("#navalert").dataset.kind === "off") alertBox(); }
   }
-  async function reroute() { alertBox(); const keep = chosen && chosen.id; await findRoutes(true); chosen = routes.find((r) => r.id === keep) || routes[0]; if (navigating && chosen) navigating = {...navigating, route: chosen, cum: cumulative(chosen.coords)}; render(); updateNav(); }
+  async function reroute() { alertBox(); const keep = chosen && chosen.id; await findRoutes(true); chosen = routes.find((r) => r.id === keep) || routes[0]; if (navigating && chosen) navigating = {...navigating, route: chosen, cum: cumulative(chosen.coords), stages: stageEnds(chosen)}; render(); updateNav(); }
   async function checkFireData() {
     const f = ctx.getFire(); if (!navigating || !f) return;
     try {
@@ -667,6 +700,7 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
     if (b.dataset.navmode) { mode = b.dataset.navmode; render(); if (routes.length) findRoutes(true); }
     else if (b.dataset.from) { menu("from", false); if (b.dataset.from === "gps") { startManual = false; picking = null; ctx.requestGps(); } else picking = "start"; render(); }
     else if (b.dataset.to) { menu("to", false); if (b.dataset.to === "rec") { dest = null; destSuggested = true; picking = null; ctx.saveAccessPoint(null); } else picking = "dest"; render(); }
+    else if (b.id === "nav-swap") swap();
     else if (b.id === "nav-add-rptr") { picking = picking === "repeater" ? null : "repeater"; render(); }
     else if (b.id === "nav-go") findRoutes(false);
     else if (b.id === "nav-start") startNav();
@@ -674,6 +708,12 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
     else if (b.dataset.route) { chosen = routes.find((r) => r.id === b.dataset.route); render(); }
     else if (b.dataset.delrptr) { repeaters = repeaters.filter((r) => String(r.id) !== b.dataset.delrptr); saveRepeaters(); applyCoverage(); render(); }
   });
+  function swap() {  // a recommended spot swaps as its point (set by the last route search)
+    const s = start;
+    start = dest; startManual = !!dest; dest = s; destSuggested = false; picking = null;
+    ctx.saveAccessPoint(dest);
+    routes = []; chosen = null; note(""); render();
+  }
   $("#nav-4x4").addEventListener("change", (e) => { allow4x4 = e.target.checked; if (routes.length) findRoutes(true); });
   $("#nav-preset").addEventListener("change", (e) => { const p = PRESETS[e.target.value]; $("#nav-mast").value = p.mast; $("#nav-freq").value = p.freq; $("#nav-watts").value = p.watts; });
   // From / To: type "lat, lon", or pick from the menu that opens on focus.

@@ -361,19 +361,17 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 body:not(.selected) .fires .list:empty{display:none}
 
 /* Navigation From / To: a text field with a menu (Current location / Recommended, Set on map) */
-.navfield label{color:var(--muted);font-size:.85rem}
-.combo{position:relative}
-.combo input{width:100%;min-height:40px;padding:0 34px 0 12px;background:var(--raise) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m7 10 5 5 5-5' fill='none' stroke='%23B4BEC9' stroke-width='2'/%3E%3C/svg%3E") right 10px center/16px no-repeat;
-  border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:.92rem;caret-color:var(--red)}
-.combo input:focus{border-color:#cfd8d3;outline:none;box-shadow:0 0 0 2px #5AB0FF55}
-.combo-menu{position:absolute;z-index:3;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;background:var(--panel);
-  border:1px solid var(--line);border-radius:8px;box-shadow:var(--pill-shadow)}
-.navpanel .combo-menu button{display:block;width:100%;min-height:38px;padding:0 10px;text-align:left;background:none;border:0;border-radius:6px;font-size:.9rem}
-.navpanel .combo-menu button:hover,.navpanel .combo-menu button:focus{background:var(--raise)}
-
-/* Navigation From / To: a text field with a menu (Current location / Recommended, Set on map) */
-.navfield{display:grid;grid-template-columns:44px 1fr;align-items:center;gap:8px;margin:10px 0 0}
-.navfield label{color:var(--muted);font-size:.85rem}
+.navpts{display:grid;grid-template-columns:20px 1fr 36px;align-items:center;gap:8px;margin:10px 0 0}
+.np-icons{display:flex;flex-direction:column;align-items:center;gap:5px}
+.np-start{width:12px;height:12px;border:2.5px solid #4FA3FF;border-radius:50%}
+.np-dots{width:3px;height:16px;background:radial-gradient(circle,var(--muted) 1.3px,transparent 1.6px) 0 0/3px 5.5px repeat-y}
+.np-pin{width:18px;height:18px;color:#3DDC84}
+.np-fields{display:grid;gap:8px;min-width:0}
+.navpanel .np-swap{width:36px;min-height:36px;padding:0;display:grid;place-items:center;background:none;border:0;border-radius:50%;color:var(--text)}
+.navpanel .np-swap:hover{background:var(--raise)}
+.np-swap svg{width:22px;height:22px}
+.rt-legs{display:block;margin-top:2px;font-size:.82rem}
+.rt-legs i{font-style:normal;color:var(--muted)}
 .combo{position:relative}
 .combo input{width:100%;min-height:40px;padding:0 34px 0 12px;background:var(--raise) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m7 10 5 5 5-5' fill='none' stroke='%23B4BEC9' stroke-width='2'/%3E%3C/svg%3E") right 10px center/16px no-repeat;
   border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:.92rem;caret-color:var(--red)}
