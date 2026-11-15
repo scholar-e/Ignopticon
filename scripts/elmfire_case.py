@@ -52,6 +52,11 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            seen hot in the ACTIVE_HOURS before ISSUE ("detections"), or the whole band if no recent detection is
            near the edge ("whole_edge"). Recent hot cells farther outside the perimeter (growth after it was drawn)
            also burn, as 375 m cells. Without a FEDS perimeter at ISSUE it falls back to hotcells. case.json "init".
+           Front rules for INIT=feds (default unchanged: detections within one state cell, else whole edge):
+           FRONT_KM=D: an edge cell burns if a cell hot in the ACTIVE_HOURS before ISSUE lies within D km of it (distance
+           on the fuel grid from the hot 375 m squares); FRONT_RFILE=path FRONT_R=R: edge cells where that raster (on
+           the landscape grid, e.g. selfcal_adj.py's adj_selfcal.tif) is >= R also burn (union with detections);
+           FRONT=whole: the whole edge band burns. If a rule selects no edge cell the whole band burns (as before).
            DT_METEOROLOGY is WXDIR/wx.json "dt_s" (3600 if absent; 900 for hrrr_weather.py --subhourly); WXSTART
            counts weather bands.
        elmfire_case.py outputs CASE [NAME]
@@ -220,6 +225,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     min_start, min_start_info = 0, None
     init_mode, edge_cells, init_info = "hotcells", 2, None
     adj_file = None
+    front_km, front_rfile, front_r, front_whole = None, None, None, False
     for item in overrides:
         key, value = item.split("=", 1)
         if key.upper() == "ADJ":
@@ -254,6 +260,18 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         if key.upper() == "INIT":
             init_mode = value.lower()
+            continue
+        if key.upper() == "FRONT_KM":
+            front_km = float(value)
+            continue
+        if key.upper() == "FRONT_RFILE":
+            front_rfile = value
+            continue
+        if key.upper() == "FRONT_R":
+            front_r = float(value)
+            continue
+        if key.upper() == "FRONT":
+            front_whole = value.lower() == "whole"
             continue
         if key.upper() == "EDGE_CELLS":
             edge_cells = int(value)
@@ -312,9 +330,25 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         if init_mode == "feds" and feds_fine is not None and feds_fine.any():
             from scipy.ndimage import binary_erosion
             band = feds_fine & ~binary_erosion(feds_fine, iterations=edge_cells)
-            near_hot_fine = fine(binary_dilation(hot)) if hot.any() else np.zeros_like(band)
+            if front_km is not None:
+                from scipy.ndimage import distance_transform_edt
+                near_hot_fine = (distance_transform_edt(~fine(hot), sampling=abs(transform.a)) <= front_km * 1000
+                                 if hot.any() else np.zeros_like(band))
+            else:
+                near_hot_fine = fine(binary_dilation(hot)) if hot.any() else np.zeros_like(band)
             active = band & near_hot_fine
             active_mode = "detections"
+            front_info = {"front_km": front_km, "active_hours": active_hours, "detection_edge_cells": int(active.sum())}
+            if front_rfile and front_r is not None:
+                with rasterio.open(front_rfile) as src:
+                    rfield = src.read(1)
+                if rfield.shape != band.shape:
+                    raise ValueError("FRONT_RFILE %s is %s, landscape grid is %s" % (front_rfile, rfield.shape, band.shape))
+                active = active | (band & (rfield >= front_r))
+                active_mode = "detections+r"
+                front_info.update(front_r=front_r, r_edge_cells=int((band & (rfield >= front_r)).sum()))
+            if front_whole:
+                active, active_mode = band, "front_whole"
             if not active.any():
                 active, active_mode = band, "whole_edge"
             # Recent heat clearly outside the perimeter (beyond one state cell): growth since it was drawn.
@@ -334,7 +368,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
                          "edge_band_cells": int(band.sum()), "active_edge_cells": int(active.sum()),
                          "burning_cells": int(burning.sum()), "burning_burnable_cells": int((burning & ~nb).sum()),
                          "outside_hot_cells_375m": int(outside.sum()), "hot_cells_375m": int(hot.sum()),
-                         "fine_cell_m": abs(transform.a)}
+                         "fine_cell_m": abs(transform.a), "front": front_info}
             log.info("INIT=feds: %s", init_info)
         elif min_start > 0:
             # Minimum initial footprint: a few detections over non-burnable cells (roads, fields, water) cannot

@@ -554,3 +554,27 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
 - Caveats: one fire, one issue time; the hindcast start (whole edge) differs from the forecast start (active
   edges), inflating the overshoot; FEDS/VIIRS 375 m observations; constants (EPS, decay, sectors) untuned.
   Details: data/perimeter_batch/SELFCAL_NOTES.md.
+
+### 18. Active front calibrated on burning-edge hotspots (4 fires) (2026-11-14)
+- User-approved follow-up to entry 17 (the hindcast's direction was right but the detection-limited start could not
+  grow from the edges that broke out). elmfire_case.py INIT=feds front rules (default unchanged): FRONT_KM=D
+  (detections in the last ACTIVE_HOURS within D km of the edge), FRONT_RFILE+FRONT_R (edge cells with hindcast
+  correction r >= R also burn), FRONT=whole. New scripts/front_calibrate.py: 10 rules (physics3 default d6_375m;
+  H in {6,12,24} h x D in {0.75,1.5} km; d6_0.75 with r >= 0.8 / 1.0; whole edge). Per fire, past only: hindcast
+  each rule T-12 h -> T from the FEDS perimeter at T-12 h with the forecast's start mode, score = CSI vs VIIRS
+  cells in (T-12, T] outside the start perimeter (one 375 m cell tolerance, no cloud mask) + growth IoU vs FEDS T;
+  r-rules use r from a (T-24, T-12] whole-edge hindcast (not eligible without FEDS at T-24 h). Then forecast 12 h.
+- Fires: Widemouth 66510 (UT, 2026-08-02 12Z, physics3 inputs) and pilot fires with FEDS every 12 h and real growth:
+  2021-038 AZ grass/timber, 2021-031 CA shrub, 2020-008 CA grass/shrub (older hourly HRRR inputs, not physics3).
+- Chosen (past-only) / oracle (in-sample): Widemouth d6_375m (tie, every non-d24 rule falls back to whole edge at
+  00Z) / d6_1.5; 2021-038 d6_0.75+r0.8 / d6_1.5; 2021-031 d6_0.75+r1.0 / d6_0.75+r0.8 (equal scores); 2020-008
+  whole / whole.
+- +12 h vs FEDS, mean of 4 fires, growth IoU / whole IoU / area ratio / boundary mean m: chosen 0.115 / 0.658 /
+  1.95 / 2,237; physics3 front 0.066 / 0.659 / 1.37 / 2,270; whole edge 0.140 / 0.629 / 2.53 / 2,340; no growth
+  0 / 0.778 / 0 / 770; oracle (in-sample) 0.145 / 0.663 / 2.08 / 2,245; fixed d6_1.5 0.129 / 0.660. Chosen beats
+  the physics3 front on growth IoU on 3 fires (tie on Widemouth) at equal whole IoU; nothing beats no growth on
+  whole IoU; 2020-008 overshoots (area ratio 3.4-5.4) with any front. Per-fire table: FRONT_NOTES.md.
+- Not adopted as the default yet: a fixed wider front (d6_1.5) does as well as the calibration here.
+- Caveats: 4 fires, one issue time each; few hotspot targets on Widemouth (4 / 29); on 2020-008 they are dominated
+  by a separate complex outside the FEDS polygon; pilot weather differs from physics3; score weights untuned.
+  Details: data/perimeter_batch/FRONT_NOTES.md; figures data/perimeter_batch/figures/front_*.png.
