@@ -5,14 +5,14 @@
 #
 # Usage: scripts/run_member.sh MEMBER_DIR
 # Environment: RUN_PY, how to run the Python scripts: default python3, with their dependencies installed as in the
-#              container; on a machine with uv, "uv run -q --script" fetches them. ELMFIRE, the ELMFIRE executable
+#              container (PY is used if RUN_PY is unset); on a machine with uv, "uv run -q --script" fetches them. ELMFIRE, the ELMFIRE executable
 #              (default elmfire).
 set -euo pipefail
 
 member=$(realpath "$1")
 repo=$(cd "$(dirname "$0")/.." && pwd)
 python=python3  # for reading member.json; the standard library is enough
-read -ra run_py <<< "${RUN_PY:-python3}"
+read -ra run_py <<< "${RUN_PY:-${PY:-python3}}"
 elmfire=${ELMFIRE:-elmfire}
 
 if [[ -e "$member/done" ]]; then

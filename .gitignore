@@ -11,3 +11,5 @@ tools/
 data/elmfire/
 __pycache__/
 data/harmonize/
+hyak/chunks/
+hyak/logs/

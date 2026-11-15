@@ -1,37 +1,45 @@
-# Ignopticon modelling image: ELMFIRE (gfortran + Open MPI), GDAL's command line tools (ELMFIRE converts its BIL
-# outputs to GeoTIFF with gdal_translate unless CONVERT_TO_GEOTIFF = .FALSE.), and the Python packages the
-# scripts/ use, so array tasks need no network. The same image runs locally (podman) and on Hyak (Apptainer).
+# Ignopticon modelling image: ELMFIRE (gfortran + Open MPI), GDAL's command-line tools, and a Python venv with
+# every package scripts/ needs (the ELMFIRE pipeline and the training stage), plus uv so the scripts' own
+# `uv run --script` shebangs also work. The scripts are NOT baked in: bind-mount the repo at run time.
+# The same image runs here (podman) and on Tillicum (Apptainer).
 #
-# Build (here, where podman is installed):  podman build -t ignopticon-model -f hyak/Containerfile hyak
-# For Hyak:  podman save -o ignopticon-model.tar ignopticon-model, copy it over, and on a compute node:
-#            apptainer build ignopticon-model.sif docker-archive://ignopticon-model.tar
-# See hyak/README.md. Pin ELMFIRE_REF to a commit once a build is checked, so every member runs the same code.
+# Build (here):  podman build -t ignopticon-model -f hyak/Containerfile hyak
+# Export:        podman save --format docker-archive -o hyak/ignopticon-model.tar ignopticon-model
+# On Tillicum:   see hyak/README.md (apptainer build ... docker-archive://hyak/ignopticon-model.tar)
+# Run here:      podman run --rm -v "$PWD:$PWD" -w "$PWD" ignopticon-model scripts/elmfire_forecast.sh ...
+FROM ghcr.io/astral-sh/uv:0.9 AS uv
 FROM docker.io/library/ubuntu:24.04
 
-ARG ELMFIRE_REF=main
+# ELMFIRE commit tested here (tools/elmfire, 2026-11-14). Its Makefile builds with -march=native; the image
+# replaces that with ELMFIRE_MARCH so a binary built on this Ryzen also runs on Tillicum's Intel nodes.
+ARG ELMFIRE_REF=f4927b7
+ARG ELMFIRE_MARCH=x86-64-v3
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gfortran openmpi-bin libopenmpi-dev make git ca-certificates \
-        gdal-bin python3 python3-pip python3-venv \
+        gdal-bin python3 python3-venv libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# The Python scripts' dependencies (their "# dependencies" lines), in a venv on the PATH.
+# Union of the scripts' "# dependencies" lines, plus pandas/pyarrow for the training stage.
 RUN python3 -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir \
-        numpy scipy h5py pyproj rasterio "shapely>=2.1" netCDF4 pillow
+        numpy scipy h5py pyproj rasterio "shapely>=2.1" netCDF4 pillow pygrib pyhdf \
+        lightgbm scikit-learn pandas pyarrow
 ENV PATH=/opt/venv/bin:$PATH
 
-# ELMFIRE, built with its GNU build script; its executables go on the PATH, with "elmfire" for the main one.
+COPY --from=uv /uv /uvx /usr/local/bin/
+
+# ELMFIRE's fast build (main executable only): bin/elmfire_1.1 with an "elmfire" symlink.
 RUN git clone https://github.com/lautenberger/elmfire.git /opt/elmfire \
     && cd /opt/elmfire && git checkout "$ELMFIRE_REF" \
-    && cd build/linux && ./make_gnu.sh \
-    && find /opt/elmfire/build/linux -maxdepth 2 -type f -perm -u+x -name 'elmfire*' \
-         -exec cp {} /usr/local/bin/ \; \
-    && main=$(ls /usr/local/bin/elmfire* | grep -v post | head -1) \
-    && ln -sf "$main" /usr/local/bin/elmfire \
-    && elmfire --help >/dev/null 2>&1 || true
-ENV ELMFIRE_BASE_DIR=/opt/elmfire
+    && cd build/linux && sed -i "s/-march=native/-march=$ELMFIRE_MARCH/" Makefile_elmfire \
+    && mkdir -p bin && ./make_gnu.sh fast \
+    && ls -l bin && test -x bin/elmfire \
+    && ln -sf /opt/elmfire/build/linux/bin/elmfire /usr/local/bin/elmfire
 
-# OpenMPI refuses to run as root in a container unless told it may (podman runs as root inside).
+# Defaults the repo's scripts read: the ELMFIRE binary, and run Python scripts with the venv's python3
+# instead of their uv shebangs (scripts/elmfire_forecast.sh: PY; scripts/run_member.sh: RUN_PY).
+ENV ELMFIRE_BASE_DIR=/opt/elmfire ELMFIRE=/opt/elmfire/build/linux/bin/elmfire PY=python3 RUN_PY=python3
+# Open MPI refuses to run as root in a container unless told it may (podman runs as root inside).
 ENV OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 WORKDIR /work
