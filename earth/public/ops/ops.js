@@ -225,14 +225,21 @@ function legendForecast(fc, d) {
   $("#fc-legend").textContent = bounded(d) ? "Most likely: ELMFIRE cut to the growth predicted from 2003-2024 fire history (hatched)" : fc || !cur ? "Predicted growth since now, at the chosen forecast hour (hatched)" : "No forecast for this fire";
   $("#fc-legend").closest("li").classList.toggle("none", !fc);
 }
+function containmentHtml(c, zone) {
+  if (!c) return "";
+  const txt = c.status === "contained" ? `contained since ${c.contained_since ? when(c.contained_since, zone) : "before the forecast"}`
+    : c.status === "uncontained" ? "not contained" : "no incident match";
+  return `<p class="muted" title="From WFIGS dates at the forecast issue time${c.percent_contained_latest != null ? `; latest reported ${c.percent_contained_latest}% contained, not as of issue` : ""}">Containment as of forecast: ${txt}${c.status === "unmatched" ? "" : " (WFIGS)"}</p>`;
+}
 function renderDetail(f, d) {
   const zone = zoneOf(f), g = growthText(f), fc = d && d.forecast;
   const fcHtml = !d ? `<p class="muted">Loading forecast…</p>` : fc ? `<div class="fc"><h3>Spread forecast</h3>${d.forecast_upper ? boundsHtml(d) : ""}${summary(fc, zone)}<p>Model: ${esc(fc.model)}</p><p>Issued ${when(fc.issued, zone)}</p>
+<p class="muted">Unsuppressed spread potential — firefighting not modelled</p>
 <p class="disclaimer">Experimental research forecast, not an official forecast. Do not use it alone for safety decisions.</p></div>` : `<div class="nofc"><h3>No spread forecast</h3><p>This fire has no forecast. The map shows observed perimeters only.</p></div>`;
   const hs = d && d.hotspots;
   $("#detail").innerHTML = `<button type="button" class="back" id="back">← All fires (Esc)</button>
 <h2 id="detail-name">${esc(label(f))}</h2><p class="muted">${esc(f.place || "")} · FEDS fire ${f.id}</p>
-<dl class="stats"><div><dt>Mapped area</dt><dd class="big">${num(f.acres)} <small>ac</small></dd></div><div><dt>Burning</dt><dd class="big">${num(f.days)} <small>days</small></dd></div>
+${d ? containmentHtml(d.containment, zone) : ""}<dl class="stats"><div><dt>Mapped area</dt><dd class="big">${num(f.acres)} <small>ac</small></dd></div><div><dt>Burning</dt><dd class="big">${num(f.days)} <small>days</small></dd></div>
 <div class="growth"><dd class="${g.cls}">${/^[+−]/.test(g.text) ? g.text.replace(/ \([^)]*\)/, "").replace(/ in 12 h$/, " growth in 12h") : g.text}</dd></div></dl>${fcHtml}
 `;
   $("#sources").innerHTML = `<details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(f.perimeter_time, zone)}</li>

@@ -800,6 +800,19 @@ function boundsFor(id, forecast) {
     return lower && upper ? {lower: lower, upper: upper} : null;
 }
 
+/** @returns {Object} the fire's containment at the forecast's issue time from WFIGS dates (data/containment/*_containment.json,
+ * scripts/containment_aug2.py), else null. Display only; the percent is the latest value, not as of issue. */
+function containmentFor(id, forecast, at) {
+    var dir = path.join(DATA, "containment"), day = (forecast ? forecast.issued : at.time).slice(0, 10), found = null;
+    var names = []; try { names = fs.readdirSync(dir); } catch (e) {}
+    names.filter(function(n) { return /_containment\.json$/.test(n); }).forEach(function(n) {
+        var c = readJson(path.join(dir, n));
+        if (c && c.issue && c.issue.slice(0, 10) === day && c.fires && c.fires[id]) found = Object.assign({issue: c.issue}, c.fires[id]);
+    });
+    return found && {issue: found.issue, status: found.status, contained_since: found.contained_since || null, incident: found.incident || null,
+        percent_contained_latest: found.percent_contained_latest == null ? null : found.percent_contained_latest, source: "WFIGS"};
+}
+
 var apiFire = apiHandler(function(req, res, at, time) {
     var id = +req.params.id, fire = at.fires.filter(function(f) { return f.id === id; })[0];
     if (!fire) return apiError(res, 404, "No fire " + req.params.id + " in the FEDS snapshot of " + at.snapshot);
@@ -811,6 +824,7 @@ var apiFire = apiHandler(function(req, res, at, time) {
         // With bounds, forecast is the most likely (lower) case; the unconstrained physics run moves to forecast_physics.
         forecast: bounds ? bounds.lower : forecast, forecast_upper: bounds ? bounds.upper : null,
         forecast_physics: bounds ? forecast : null, observed_after: forecast ? observedAfter(index, id, forecast, at._i) : [],
+        containment: containmentFor(id, forecast, at),
         access_route: readJson(path.join(DATA, "fires", "access-routes", at.snapshot.slice(0, 10), id + ".geojson")),
         hotspots: hotspotsFor(fire, time)
     });
