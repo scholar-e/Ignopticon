@@ -1,0 +1,39 @@
+<div id="ignopticon-phone-preview">
+  <style>
+    #ignopticon-phone-preview{font-family:system-ui,"Segoe UI",sans-serif;color:#f2f4f7}
+    #ignopticon-phone-preview .stage{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding:24px;background:radial-gradient(#56615c55 1px,transparent 1px);background-size:12px 12px}
+    #ignopticon-phone-preview .phone{width:300px;height:600px;overflow:hidden;border:8px solid #0b0d10;border-radius:32px;background:#162c25;box-shadow:0 12px 30px #0005}
+    #ignopticon-phone-preview .fresh{height:28px;padding:7px 12px;background:#162c25;color:#e2efe5;font-size:10px;font-weight:700;letter-spacing:.12em}
+    #ignopticon-phone-preview .map{position:relative;height:318px;background:linear-gradient(145deg,#233d35 0 34%,#315343 35% 46%,#203a34 47% 68%,#3a5748 69%);overflow:hidden}
+    #ignopticon-phone-preview .map:before{content:"";position:absolute;inset:-25px;background:repeating-linear-gradient(153deg,transparent 0 24px,#86a28b35 25px 27px,transparent 28px 52px),repeating-linear-gradient(35deg,transparent 0 42px,#122a2555 43px 45px,transparent 46px 78px)}
+    #ignopticon-phone-preview .maplabel{position:absolute;left:14px;top:14px;padding:8px 11px;border:1px solid #93a397;border-radius:11px;background:#15231ff2;font-size:12px}
+    #ignopticon-phone-preview .fireline{position:absolute;left:92px;top:119px;width:132px;height:92px;border:4px solid #ff453a;border-radius:53% 41% 58% 43%;transform:rotate(-11deg);box-shadow:0 0 0 3px #0b0d10}
+    #ignopticon-phone-preview .key{position:absolute;bottom:14px;left:14px;min-height:38px;padding:0 13px;border:1px solid #93a397;border-radius:7px;background:#21332cf2;color:#fff;font:600 13px system-ui}
+    #ignopticon-phone-preview .sheet{min-height:254px;padding:15px 16px;background:#15231f;border-top:3px solid #98ab94}
+    #ignopticon-phone-preview .sheet h2{margin:0 0 4px;font-size:20px}#ignopticon-phone-preview .sheet p{margin:0;color:#b4bec9;font-size:12px}
+    #ignopticon-phone-preview .firelist{margin-top:15px;border-top:1px solid #45564d}#ignopticon-phone-preview .firelist div{padding:11px 0;border-bottom:1px solid #45564d;font-size:13px}#ignopticon-phone-preview .firelist strong{display:block;font-size:15px}
+    #ignopticon-phone-preview .popup-key{display:inline-flex;align-items:center;gap:6px;min-height:32px;margin:0 0 11px;padding:0 10px;border:1px solid #6b7686;border-radius:6px;background:#21332c;color:#fff;font:600 12px system-ui}
+    #ignopticon-phone-preview .dot{width:9px;height:9px;border-radius:50%;background:#ff45c6;box-shadow:12px 0 #c75af5,24px 0 #9464ff;margin-right:20px}
+    #ignopticon-phone-preview .forecast{margin-top:14px;padding:11px;border-left:3px solid #d06bef;background:#271e2d}#ignopticon-phone-preview .forecast b{font-size:14px}#ignopticon-phone-preview .forecast span{display:block;margin-top:4px;color:#eea3ff;font-size:12px}
+    #ignopticon-phone-preview .caption{max-width:300px;margin:9px auto 0;color:var(--muted-foreground);font-size:13px;text-align:center}
+    @media(max-width:360px){#ignopticon-phone-preview .phone{transform:scale(.9);margin:-28px}#ignopticon-phone-preview .stage{gap:0}}
+  </style>
+  <div class="stage" aria-label="Phone layouts for the compact map key">
+    <section aria-label="Fire picker state">
+      <div class="phone">
+        <div class="fresh">IGNOPTICON / OPS</div>
+        <div class="map"><span class="maplabel">Search fire name or location</span><span class="fireline" aria-hidden="true"></span><button class="key" type="button">Key</button></div>
+        <div class="sheet"><h2>Wildfires</h2><p>Choose a fire to see its forecast.</p><div class="firelist"><div><strong>Widemouth Fire</strong>8,140 acres · Forecast available</div><div><strong>Juniper Ridge Fire</strong>1,862 acres · Observed perimeter</div></div></div>
+      </div>
+      <p class="caption">Before choosing a fire: one compact map control.</p>
+    </section>
+    <section aria-label="Selected fire state">
+      <div class="phone">
+        <div class="fresh">IGNOPTICON / OPS</div>
+        <div class="map"><span class="maplabel">⌂ Home &nbsp; ← Back</span><span class="fireline" aria-hidden="true"></span></div>
+        <div class="sheet"><button class="popup-key" type="button"><span class="dot" aria-hidden="true"></span>Key</button><h2>Widemouth Fire</h2><p>8,140 acres · Active incident</p><div class="forecast"><b>Spread forecast</b><span>Predicted front growth +6 / +12 / +24 h</span></div></div>
+      </div>
+      <p class="caption">After selection: Key sits at the top of the incident sheet.</p>
+    </section>
+  </div>
+</div>

@@ -636,10 +636,13 @@ document.querySelector(".legend").addEventListener("click", (e) => {
   b.setAttribute("aria-pressed", state.layers[b.dataset.layer]);
   applyView();
   if (cur && cur.detail && /interior|detached/.test(b.dataset.layer)) renderDetail(cur.fire, cur.detail);
+  // On a phone the expanded key is a temporary menu, not a map overlay.
+  if (window.matchMedia("(max-width: 1099px)").matches) setLegend(false);
 });
 function setLegend(open) {
   $("#legend").classList.toggle("open", open);
   $("#legend-toggle").setAttribute("aria-expanded", open);
+  $("#legend-toggle").setAttribute("aria-label", open ? "Hide map key" : "Show map key");
   $("#legend-toggle").textContent = open ? "Key ▾" : "Key";
   try { localStorage.setItem("ops.legend", open ? "open" : ""); } catch {}
 }
