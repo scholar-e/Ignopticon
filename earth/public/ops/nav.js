@@ -400,7 +400,10 @@ export function createNav(ctx) {
         .then((r) => r.ok ? r.json() : r.json().then((d) => { throw new Error(d.error || r.statusText); }))
         .catch((e) => { longCache.delete(key); console.warn("long route:", e.message); return null; }));
     }
-    const r = await longCache.get(key);
+    let r = await longCache.get(key);
+    const saveKey = "ops.longroute." + pkgFor;
+    if (r) { try { localStorage.setItem(saveKey, JSON.stringify(r)); } catch {} }
+    else r = rejoinSaved(saveKey);
     if (!r || !hz) return null;
     const joins = new Map(), cum = cumulative(r.coords);
     r.coords.forEach(([x, y], vi) => {
@@ -411,6 +414,17 @@ export function createNav(ctx) {
       if (!old || t < old.t) joins.set(hit[0], {vi, t, d: hit[1]});
     });
     return joins.size ? {...r, cum, joins} : null;
+  }
+  /** Offline: the last long route for this fire (kept across reloads), from its point nearest the start, if the
+   *  start is within 2 km of it. */
+  function rejoinSaved(saveKey) {
+    let r; try { r = JSON.parse(localStorage.getItem(saveKey)); } catch {}
+    if (!r || !r.coords) return null;
+    let best = Infinity, vi = -1;
+    r.coords.forEach(([x, y], i) => { const d = metres(start[0], start[1], x, y); if (d < best) { best = d; vi = i; } });
+    if (best > 2000) return null;
+    const t0 = best / (30 / 3.6) - r.t[vi];
+    return {...r, provider: r.provider + " (saved)", coords: [start, ...r.coords.slice(vi)], t: [0, ...r.t.slice(vi).map((v) => v + t0)]};
   }
   const bboxOf = (cs) => cs.reduce((b, [x, y]) => [Math.min(b[0], x), Math.min(b[1], y), Math.max(b[2], x), Math.max(b[3], y)], [Infinity, Infinity, -Infinity, -Infinity]);
   function handOff() {
