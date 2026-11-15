@@ -1,4 +1,4 @@
-import {registerOffline, saveArea, listAreas} from "./offline.js";
+import {registerOffline, applyUpdate, saveArea, listAreas} from "./offline.js";
 // Ignopticon Ops: fire list, map, forecast and timeline from /api/fires (dev-server.js).
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -21,7 +21,13 @@ let connected = navigator.onLine;
 function freshness() {
   $("#fresh").textContent = "Updated every 12 hours" + (connected ? "" : " · OFFLINE");
 }
-registerOffline({onStatus: status => { connected = status.online; freshness(); }}).catch(() => {});
+// A new version of the page waits in the service worker until told to take over. Switch at once (one reload) when it
+// is found as the page opens; one found later waits for the next open, so the page never reloads under someone.
+const opened = Date.now();
+registerOffline({onStatus: status => {
+  connected = status.online; freshness();
+  if (status.updateAvailable && Date.now() - opened < 15000) applyUpdate();
+}}).catch(() => {});
 freshness();
 function matchesFire(f) {
   const q = state.filter.trim().toLowerCase();
