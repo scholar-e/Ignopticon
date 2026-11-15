@@ -8,21 +8,21 @@
    "issued": "2026-08-02T12:00:00Z",
    "current": 4162,
    "likely": 4162,
-   "worst": 4162
+   "worst": 4338
   },
   "18872": {
    "name": "Berkeley Co., SC",
    "issued": "2026-08-02T12:00:00Z",
    "current": 8,
    "likely": 8,
-   "worst": 8
+   "worst": 9
   },
   "19": {
    "name": "Lake Co., IN",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 1174,
+   "current": 1333,
    "likely": 1174,
-   "worst": 1174
+   "worst": 1468
   },
   "20036": {
    "name": "Box Elder Co., UT",
@@ -34,9 +34,9 @@
   "2143": {
    "name": "Cuyahoga Co., OH",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 1488,
+   "current": 1833,
    "likely": 1488,
-   "worst": 1488
+   "worst": 13312
   },
   "31094": {
    "name": "Divide Co., ND",
@@ -48,79 +48,79 @@
   "331": {
    "name": "Galveston Co., TX",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 861,
+   "current": 902,
    "likely": 861,
-   "worst": 900
+   "worst": 13657
   },
   "340": {
    "name": "FEDS 340",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 990,
+   "current": 1008,
    "likely": 990,
-   "worst": 990
+   "worst": 1008
   },
   "48632": {
    "name": "Riverside Co., CA",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 0,
+   "current": 5,
    "likely": 0,
-   "worst": 0
+   "worst": 679
   },
   "49109": {
    "name": "Nueces Co., TX",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 160,
+   "current": 191,
    "likely": 160,
-   "worst": 160
+   "worst": 979
   },
   "51849": {
    "name": "Rogers Co., OK",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 7,
+   "current": 8,
    "likely": 12,
-   "worst": 12
+   "worst": 20
   },
   "52611": {
    "name": "McKenzie Co., ND",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 1,
+   "current": 2,
    "likely": 1,
-   "worst": 3
+   "worst": 5
   },
   "53095": {
    "name": "Lowndes Co., MS",
    "issued": "2026-08-02T12:00:00Z",
    "current": 3,
    "likely": 3,
-   "worst": 3
+   "worst": 28
   },
   "53363": {
    "name": "Mobile Co., AL",
    "issued": "2026-08-02T12:00:00Z",
    "current": 4,
    "likely": 4,
-   "worst": 4
+   "worst": 34
   },
   "53763": {
    "name": "Reagan Co., TX",
    "issued": "2026-08-02T12:00:00Z",
    "current": 0,
    "likely": 0,
-   "worst": 0
+   "worst": 3
   },
   "5450": {
    "name": "Porter Co., IN",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 41,
+   "current": 42,
    "likely": 41,
-   "worst": 42
+   "worst": 703
   },
   "57204": {
    "name": "Upton Co., TX",
    "issued": "2026-08-02T12:00:00Z",
    "current": 1,
    "likely": 1,
-   "worst": 1
+   "worst": 3
   },
   "57585": {
    "name": "Ascension Par., LA",
@@ -139,23 +139,23 @@
   "60791": {
    "name": "Jefferson Co., TX",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 16,
+   "current": 30,
    "likely": 16,
-   "worst": 16
+   "worst": 180
   },
   "61855": {
    "name": "Boundary Co., ID",
    "issued": "2026-08-02T12:00:00Z",
    "current": 0,
    "likely": 0,
-   "worst": 0
+   "worst": 6
   },
   "62041": {
    "name": "St. Louis Co., MN",
    "issued": "2026-08-02T12:00:00Z",
    "current": 0,
    "likely": 0,
-   "worst": 0
+   "worst": 1
   },
   "62590": {
    "name": "Lassen Co., CA",
@@ -169,7 +169,7 @@
    "issued": "2026-08-02T12:00:00Z",
    "current": 1,
    "likely": 1,
-   "worst": 2
+   "worst": 5
   },
   "63215": {
    "name": "Ward Co., TX",
@@ -181,16 +181,16 @@
   "63363": {
    "name": "Brazoria Co., TX",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 29,
+   "current": 34,
    "likely": 29,
-   "worst": 29
+   "worst": 107
   },
   "63369": {
    "name": "Chelan Co., WA",
    "issued": "2026-08-02T12:00:00Z",
    "current": 1,
    "likely": 1,
-   "worst": 1
+   "worst": 11
   },
   "63372": {
    "name": "Harney Co., OR",
@@ -202,16 +202,16 @@
   "63374": {
    "name": "Crook Co., OR",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 89,
+   "current": 95,
    "likely": 92,
-   "worst": 93
+   "worst": 310
   },
   "63568": {
    "name": "Okanogan Co., WA",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 879,
+   "current": 898,
    "likely": 879,
-   "worst": 879
+   "worst": 1509
   },
   "63588": {
    "name": "Columbia Co., WA",
@@ -223,16 +223,16 @@
   "63683": {
    "name": "Ferry Co., WA",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 317,
+   "current": 335,
    "likely": 320,
-   "worst": 338
+   "worst": 1153
   },
   "63715": {
    "name": "Umatilla Co., OR",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 31,
+   "current": 33,
    "likely": 31,
-   "worst": 31
+   "worst": 156
   },
   "63960": {
    "name": "Flathead Co., MT",
@@ -253,7 +253,7 @@
    "issued": "2026-08-02T12:00:00Z",
    "current": 0,
    "likely": 0,
-   "worst": 0
+   "worst": 1
   },
   "64600": {
    "name": "Pecos Co., TX",
@@ -286,30 +286,30 @@
   "65395": {
    "name": "Malheur Co., OR",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 24,
+   "current": 25,
    "likely": 24,
-   "worst": 24
+   "worst": 60
   },
   "65401": {
    "name": "Wheeler Co., OR",
    "issued": "2026-08-02T12:00:00Z",
    "current": 20,
    "likely": 20,
-   "worst": 20
+   "worst": 37
   },
   "65486": {
    "name": "Baker Co., OR",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 420,
+   "current": 434,
    "likely": 420,
-   "worst": 430
+   "worst": 1534
   },
   "65489": {
    "name": "Wasco Co., OR",
    "issued": "2026-08-02T12:00:00Z",
    "current": 2,
    "likely": 2,
-   "worst": 2
+   "worst": 382
   },
   "65680": {
    "name": "Missoula Co., MT",
@@ -337,14 +337,14 @@
    "issued": "2026-08-02T12:00:00Z",
    "current": 6,
    "likely": 6,
-   "worst": 6
+   "worst": 46
   },
   "65727": {
    "name": "Harney Co., OR",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 32,
+   "current": 34,
    "likely": 32,
-   "worst": 32
+   "worst": 237
   },
   "65995": {
    "name": "Custer Co., ID",
@@ -356,9 +356,9 @@
   "66055": {
    "name": "Churchill Co., NV",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 0,
+   "current": 1,
    "likely": 0,
-   "worst": 1
+   "worst": 2
   },
   "66204": {
    "name": "Granite Co., MT",
@@ -377,16 +377,16 @@
   "66433": {
    "name": "Okanogan Co., WA",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 1299,
+   "current": 1330,
    "likely": 1325,
-   "worst": 1425
+   "worst": 3123
   },
   "66510": {
    "name": "Widemouth 2",
    "issued": "2026-08-02T12:00:00Z",
    "current": 27,
    "likely": 33,
-   "worst": 31
+   "worst": 96
   },
   "66555": {
    "name": "Nye Co., NV",
@@ -398,16 +398,16 @@
   "66737": {
    "name": "Archuleta Co., CO",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 7,
+   "current": 8,
    "likely": 18,
-   "worst": 18
+   "worst": 63
   },
   "66834": {
    "name": "Midland Co., TX",
    "issued": "2026-08-02T12:00:00Z",
    "current": 0,
    "likely": 0,
-   "worst": 0
+   "worst": 1
   },
   "67083": {
    "name": "Clearwater Co., ID",
@@ -428,14 +428,14 @@
    "issued": "2026-08-02T12:00:00Z",
    "current": 17,
    "likely": 17,
-   "worst": 17
+   "worst": 33
   },
   "67569": {
    "name": "White Pine Co., NV",
    "issued": "2026-08-02T12:00:00Z",
    "current": 0,
    "likely": 2,
-   "worst": 2
+   "worst": 0
   },
   "67572": {
    "name": "Beaverhead Co., MT",
@@ -447,9 +447,9 @@
   "67610": {
    "name": "Jefferson Co., ID",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 19,
+   "current": 20,
    "likely": 42,
-   "worst": 42
+   "worst": 125
   },
   "67614": {
    "name": "Emery Co., UT",
@@ -468,9 +468,9 @@
   "67758": {
    "name": "Spokane Co., WA",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 8409,
+   "current": 8511,
    "likely": 8876,
-   "worst": 8876
+   "worst": 11537
   },
   "67765": {
    "name": "Beaverhead Co., MT",
@@ -482,23 +482,23 @@
   "67766": {
    "name": "Spokane Co., WA",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 347,
+   "current": 368,
    "likely": 481,
-   "worst": 481
+   "worst": 1604
   },
   "67815": {
    "name": "Stevens Co., WA",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 1728,
+   "current": 1838,
    "likely": 1913,
-   "worst": 1913
+   "worst": 3309
   },
   "67816": {
    "name": "Stevens Co., WA",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 84,
+   "current": 85,
    "likely": 125,
-   "worst": 125
+   "worst": 219
   },
   "67885": {
    "name": "Ravalli Co., MT",
@@ -510,9 +510,9 @@
   "800": {
    "name": "Lake Co., IN",
    "issued": "2026-08-02T12:00:00Z",
-   "current": 105,
+   "current": 113,
    "likely": 105,
-   "worst": 105
+   "worst": 597
   }
  }
 }

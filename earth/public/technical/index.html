@@ -64,7 +64,7 @@
   <li><b>Weather.</b> HRRR 15-minute wind (10 m wind scaled by 0.87 to 20 ft). Dead fuel moisture is an equilibrium estimate from 2 m temperature and humidity (Simard 1968), with the 10-h and 100-h classes set 1 and 2 points above the 1-h class; live moisture is a constant [2, 23]. These are crude and untuned.</li>
   <li><b>Calibration.</b> Raw ELMFIRE over-predicts area: on the 12 held-out fires the median forecast area was 2.7 times the observed area [24].</li>
   <li><b>Most likely case.</b> A growth model decides how much. LightGBM trained on the harmonized 2003-2011 and VIIRS 2012-2019 record predicts next-day new fire cells per event, converted to km2 (45.7 km2 per cell, fitted on 8 fires), and ELMFIRE's arrival-time map is cut at the isochrone that gives that area [24].</li>
-  <li><b>Worst case.</b> The 90th percentile of next-day growth among the 100 most similar past fire-days (size, recent growth, season, location, weather, fuels), with ELMFIRE's footprint cut at that area [25].</li>
+  <li><b>Worst case.</b> An envelope grown outward from the active perimeter, sized by fire size (separate calibration for small, medium and large fires) to capture about 80% of observed next-day growth; on 7 held-out uncontained fires it captured 89%, at the cost of much more false-alarm area [31].</li>
   <li><b>Unsuppressed potential.</b> Firefighting is not modelled. Containment from WFIGS is shown as a label and used to split scores, never as an input [27].</li>
   </ul>
 </section>
