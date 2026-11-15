@@ -398,3 +398,24 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
 - Verified PNG round trips for all five arms (590×260); 82,757 clear land
   cells and 155 observed fire cells. Metadata records model hashes,
   thresholds, input/target dates, grid and the perfect-weather caveat.
+
+### 12c. Completed U-Net comparison (2026-11-14)
+- All 15 seed runs succeeded; final six were Slurm job 472421, 8m22s–9m24s
+  each. Total recorded Hyak usage $2.25 including earlier setup/pilot jobs.
+- Three-seed averaged predictions evaluated on 2021–2024, clear S-NPP land
+  cell-days (168,343 positives):
+
+| Arm | AP | AUC | CSI at 2020 threshold |
+|---|---|---|---|
+| raw-pre | 0.1343 | 0.9137 | 0.1045 |
+| harm-pre | 0.0939 | 0.8703 | 0.0871 |
+| raw-all | 0.1391 | 0.9181 | 0.1112 |
+| harm-all | 0.1376 | 0.9179 | 0.1098 |
+| viirs-only | 0.1396 | 0.9175 | 0.1123 |
+
+- This experiment does not show a benefit from harmonization. The pre-only
+  harmonized arm scores lower; combined arms and VIIRS-only are close.
+  No significance claim: uncertainty across fires/seeds is not estimated.
+- Full results and 14-fire visual comparisons: data/compare/results/unet.*
+  and data/compare/figures/unet/. Earlier entry 12 caveats apply, especially
+  exploratory test inspection and observed target-day weather.

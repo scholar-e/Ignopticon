@@ -18,3 +18,17 @@ data/training/*
 !data/training/catalog.csv
 !data/training/NOTES.md
 !data/training/scores.csv
+
+# Comparison experiment bulk outputs (docs/COMPARISON.md)
+data/compare/tensors/*
+!data/compare/tensors/README.md
+data/compare/preds/
+data/compare/samples/
+data/compare/models/
+data/compare/ui/
+data/compare/logs/
+# Intermediate daily exports and archived training checkpoints
+# Publish curated daily layers under data/samples/predictions/.
+data/compare/daily/
+data/compare/unet_round1/
+data/compare/unet_round2/
