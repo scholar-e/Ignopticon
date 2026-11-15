@@ -18,7 +18,7 @@ const state = {
   base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") !== "off",
   filter: "", sort: ["closest", "size", "growth", "newest", "name"].includes(params.get("sort")) ? params.get("sort") : "closest",
   mode: "progression", step: 0, fc: null, compare: false,  // fc: forecast hour shown, or null (off)
-  layers: {current: true, previous: true, forecast: true, hotspots: false, interior: false, detached: false, activity: false},
+  layers: {current: true, previous: true, forecast: true, worst: true, physics: false, hotspots: false, interior: false, detached: false, activity: false},
   arm: params.get("arm") || "harm-all",
   wind: params.get("wind") || "surface",  // wind particle height (wind.js): off, surface, or hPa  // which next-day prediction model (data/samples/predictions)
 };
@@ -200,6 +200,10 @@ function renderList() {
 const where = (x) => x.properties.where || "front";  // files without classes are all front
 const bandAcres = (fc, h, w) => fc.features.filter((x) => x.properties.kind === "band" && (h == null || x.properties.hours === h) && where(x) === w)
   .reduce((s, x) => s + (x.properties.acres || 0), 0);
+function boundsHtml(d) {
+  const lo = d.forecast.bound, up = d.forecast_upper.bound, ac = (b) => num(Math.round(b.area_km2 * 247.105));
+  return `<p>Growth by +${d.forecast.hours[d.forecast.hours.length - 1]} h: most likely <b>${ac(lo)} ac</b>, worst case <b>${ac(up)} ac</b></p>`;
+}
 function summary(fc, zone) {
   let total = 0;
   const rows = fc.hours.map((h) => {
@@ -214,13 +218,16 @@ function summary(fc, zone) {
     (bandAcres(fc, null, "interior") + bandAcres(fc, null, "detached") ? `<p>Also predicted: ${num(bandAcres(fc, null, "interior"))} ac interior burnout${state.layers.interior ? "" : " (hidden)"}, ` +
       `${num(bandAcres(fc, null, "detached"))} ac on detached hotspots${state.layers.detached ? "" : " (hidden)"}</p>` : "");
 }
-function legendForecast(fc) {
-  $("#fc-legend").textContent = fc || !cur ? "Predicted growth since now, at the chosen forecast hour (hatched)" : "No forecast for this fire";
+const bounded = (d) => !!(d && d.forecast_upper);
+function legendForecast(fc, d) {
+  document.querySelectorAll(".legend .bnd").forEach((li) => { li.hidden = !bounded(d); });
+  $("#fc-name").textContent = bounded(d) ? "Most likely" : "Forecast";
+  $("#fc-legend").textContent = bounded(d) ? "Most likely: ELMFIRE cut to the growth predicted from 2003-2024 fire history (hatched)" : fc || !cur ? "Predicted growth since now, at the chosen forecast hour (hatched)" : "No forecast for this fire";
   $("#fc-legend").closest("li").classList.toggle("none", !fc);
 }
 function renderDetail(f, d) {
   const zone = zoneOf(f), g = growthText(f), fc = d && d.forecast;
-  const fcHtml = !d ? `<p class="muted">Loading forecast…</p>` : fc ? `<div class="fc"><h3>Spread forecast</h3>${summary(fc, zone)}<p>Model: ${esc(fc.model)}</p><p>Issued ${when(fc.issued, zone)}</p>
+  const fcHtml = !d ? `<p class="muted">Loading forecast…</p>` : fc ? `<div class="fc"><h3>Spread forecast</h3>${d.forecast_upper ? boundsHtml(d) : ""}${summary(fc, zone)}<p>Model: ${esc(fc.model)}</p><p>Issued ${when(fc.issued, zone)}</p>
 <p class="disclaimer">Experimental research forecast, not an official forecast. Do not use it alone for safety decisions.</p></div>` : `<div class="nofc"><h3>No spread forecast</h3><p>This fire has no forecast. The map shows observed perimeters only.</p></div>`;
   const hs = d && d.hotspots;
   $("#detail").innerHTML = `<button type="button" class="back" id="back">← All fires (Esc)</button>
@@ -232,7 +239,7 @@ function renderDetail(f, d) {
 <li>Hotspots: VIIRS S-NPP, NOAA-20, NOAA-21: ${hs ? `${num(hs.length)} detections in the 12 h to view time` : "none downloaded for this time"}</li>
 ${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
   $("#detail").hidden = false; $("#sources").hidden = false;
-  if (d) legendForecast(fc);
+  if (d) legendForecast(fc, d);
   $("#back").onclick = overview;
 }
 
@@ -323,7 +330,7 @@ function style() {
     sources: {"base-low": baseSource(state.base, 8), base: baseSource(state.base),
       labels: {type: "geojson", data: new URL("../data/labels/na-labels.json", import.meta.url).href, attribution: "Natural Earth"},
       borders: {type: "geojson", data: new URL("../data/labels/na-borders.json", import.meta.url).href},
-      fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo(), access: geo()},
+      fires: geo(), points: geo(), hist: geo(), fc: geo(), fcu: geo(), fcp: geo(), heads: geo(), hot: geo(), obs: geo(), access: geo()},
     layers: [
       // Sentinel-2 has no gaps, so the fallback would only take request slots from the real tiles.
       L("base-low", "raster", "base-low", {}, {visibility: lowVisible(state.base) ? "visible" : "none"}),
@@ -333,8 +340,11 @@ function style() {
       L("sel-fill", "fill", "fires", {"fill-color": RED, "fill-opacity": 0.12}),
       L("fc-fill", "fill", "fc", {"fill-color": byRank(BANDS), "fill-opacity": ["case", front, byRank(BAND_OPACITY), 0.15]}),
       L("fc-hatch", "fill", "fc", {"fill-pattern": "hatch", "fill-opacity": ["case", front, 1, 0.35]}),
+      L("fcu-fill", "fill", "fcu", {"fill-color": BANDS[0], "fill-opacity": 0.08}),
       ...cased("hist", "hist", 2.5, 4.5, {"line-color": pastColor, "line-dasharray": [3, 1.5]}),
       ...cased("fc", "fc", 2, 4.5, {"line-color": byRank(BANDS), "line-opacity": ["case", front, 1, 0.5]}),
+      L("fcu-line", "line", "fcu", {"line-color": "#FFB3E8", "line-width": 2, "line-dasharray": [4, 2]}),
+      L("fcp-line", "line", "fcp", {"line-color": "#B8C0CC", "line-width": 2, "line-dasharray": [1, 2]}),
       ...cased("fires", "fires", 2, 4, {"line-color": RED}),
       ...cased("sel", "fires", 3.5, 7, {"line-color": RED}),
       ...cased("obs", "obs", 2.5, 5, {"line-color": OBSERVED, "line-dasharray": [0.5, 1.5]}, {"line-cap": "round"}),
@@ -398,6 +408,9 @@ function setDetail(d) {
   const fcFeatures = fc ? fc.features.filter((x) => !["start", "arrow"].includes(x.properties.kind) && x.geometry).map((x) => ft(x.geometry,
     {...x.properties, where: where(x), rank: rank(x.properties.hours), label: x.properties.kind === "band" ? `+${x.properties.hours} h` : ""})) : [];
   map.getSource("fc").setData(collection(fcFeatures));
+  const extents = (f) => collection(f ? f.features.filter((x) => x.properties.kind === "extent" && x.geometry).map((x) => ft(x.geometry, x.properties)) : []);
+  map.getSource("fcu").setData(extents(d.forecast_upper));
+  map.getSource("fcp").setData(extents(d.forecast_physics));
   const heads = [];
   // One label per band, on the outer edge of its largest piece (labelling every piece is noise).
   const area = (r) => Math.abs(r.reduce((a, p, i) => { const q = r[(i + 1) % r.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0));
@@ -413,7 +426,7 @@ function setDetail(d) {
   applyView();
 }
 function clearDetail() {
-  for (const s of ["hist", "fc", "heads", "hot", "obs", "access"]) map.getSource(s).setData(EMPTY);
+  for (const s of ["hist", "fc", "fcu", "fcp", "heads", "hot", "obs", "access"]) map.getSource(s).setData(EMPTY);
 }
 
 // What the map shows. Observed strip: one past perimeter, Now (the current one), or Show all (every perimeter).
@@ -439,12 +452,15 @@ function applyView() {
   map.setPaintProperty("fc-fill", "fill-opacity", ["case", front, BAND_OPACITY[r], 0.15]);
   filter(["fc-case", "fc-line"], ["all", kind("extent"), atHour]);
   filter(["fc-label"], ["all", kind("label"), atHour]);
+  filter(["fcu-fill", "fcu-line", "fcp-line"], ["all", kind("extent"), atHour]);
   filter(["fire-label"], ["!=", ["get", "id"], sel]);
   filter(["obs-case", "obs-line", "obs-label"], atHour);
   vis(["fires-fill", "fires-case", "fires-line", "points", "fire-label"], L.current);
   vis(["sel-fill", "sel-case", "sel-line"], L.current && !past);
   vis(["hist-case", "hist-line", "hist-label"], L.previous);
   vis(["fc-fill", "fc-hatch", "fc-case", "fc-line", "fc-label"], L.forecast);
+  vis(["fcu-fill", "fcu-line"], L.worst && L.forecast && !!(d && d.forecast_upper));
+  vis(["fcp-line"], L.physics && !!(d && d.forecast_physics));
   vis(["hot"], L.hotspots && !past);
   vis(["obs-case", "obs-line", "obs-label"], state.compare && h >= 0);
   updateActivity();

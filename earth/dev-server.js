@@ -566,6 +566,7 @@ function fuelIdentify(req, res) {
 var DATA = path.join(__dirname, "public/data");
 var FORECASTS = process.env.OPS_FORECASTS || path.join(DATA, "forecasts");  // env var only to test with a fixture
 var DEFAULT_TIME = "2026-08-02T12:00:00Z";  // the demo moment
+var BOUNDS = process.env.OPS_BOUNDS || path.join(DATA, "forecasts_bounds");  // lower/upper cases, scripts/growth_bounds.py
 var FORECAST_VALID_HOURS = 24;  // shortcut: assumes every forecast runs 24 h; read its "hours" once horizons differ
 var ACRES_PER_KM2 = 247.105;
 var jsonFiles = {};
@@ -789,14 +790,27 @@ function observedAfter(index, id, forecast, i) {
     }).filter(Boolean);
 }
 
+/** @returns {Object} the lower and upper bound forecasts issued with the fire's physics forecast, else null. */
+function boundsFor(id, forecast) {
+    if (!forecast) return null;
+    var index = readJson(path.join(BOUNDS, "index.json")), entry = ((index && index.forecasts) || []).filter(function(f) {
+        return f.fire_id === id && new Date(f.issued).getTime() === new Date(forecast.issued).getTime();
+    })[0];
+    var lower = entry && readJson(path.join(BOUNDS, entry.path_lower)), upper = entry && readJson(path.join(BOUNDS, entry.path_upper));
+    return lower && upper ? {lower: lower, upper: upper} : null;
+}
+
 var apiFire = apiHandler(function(req, res, at, time) {
     var id = +req.params.id, fire = at.fires.filter(function(f) { return f.id === id; })[0];
     if (!fire) return apiError(res, 404, "No fire " + req.params.id + " in the FEDS snapshot of " + at.snapshot);
     var index = fedsIndex(), forecast = fire.forecast ? readJson(path.join(FORECASTS, fire.forecast.path)) : null;
+    var bounds = boundsFor(id, forecast);
     res.json({
         time: at.time, snapshot: at.snapshot, fire: withoutPrivate(fire), previous: fire._previous,
         history: historyOf(index, id, 0, at._i),
-        forecast: forecast, observed_after: forecast ? observedAfter(index, id, forecast, at._i) : [],
+        // With bounds, forecast is the most likely (lower) case; the unconstrained physics run moves to forecast_physics.
+        forecast: bounds ? bounds.lower : forecast, forecast_upper: bounds ? bounds.upper : null,
+        forecast_physics: bounds ? forecast : null, observed_after: forecast ? observedAfter(index, id, forecast, at._i) : [],
         access_route: readJson(path.join(DATA, "fires", "access-routes", at.snapshot.slice(0, 10), id + ".geojson")),
         hotspots: hotspotsFor(fire, time)
     });
