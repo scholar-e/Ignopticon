@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 remote=elinzi@tillicum.hyak.uw.edu
 cm=${CM:-$HOME/.ssh/cm-%r@%h:%p}
 rsync -a -e "ssh -o ControlPath=$cm -o BatchMode=yes" \
-  --include='map*/' --include='status.json' --include='scores.json' --include='envelopes.geojson' --exclude='*' \
+  --include='map*/' --include='status*.json' --include='scores*.json' --include='envelopes*.geojson' --exclude='*' \
   "$remote:/gpfs/projects/stf/elinzi/ignopticon/data/perimeter_batch/" data/perimeter_batch/
 node <<'JS'
 const fs=require('fs'); const base='data/perimeter_batch';

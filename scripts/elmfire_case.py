@@ -44,6 +44,14 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            ADJ_WIND_REF, default 10 mph) ** b, clipped to x0.1-x10.
            MIN_START_CELLS=n (OBSERVED only, default 0 = off): if fewer than n burnable fuel cells start burning,
            grow the hot cells by one state (375 m VIIRS) cell, up to twice, so tiny or non-burnable starts can spread.
+           INIT=feds (OBSERVED only; default INIT=hotcells, the above): start from the latest FEDS perimeter known at
+           ISSUE, rasterised on the fuel grid (not 375 m blocks). Its interior is non-burnable; the burning front is
+           the inner edge band EDGE_CELLS (default 2) fuel cells wide, where it lies within one state cell of a cell
+           seen hot in the ACTIVE_HOURS before ISSUE ("detections"), or the whole band if no recent detection is
+           near the edge ("whole_edge"). Recent hot cells farther outside the perimeter (growth after it was drawn)
+           also burn, as 375 m cells. Without a FEDS perimeter at ISSUE it falls back to hotcells. case.json "init".
+           DT_METEOROLOGY is WXDIR/wx.json "dt_s" (3600 if absent; 900 for hrrr_weather.py --subhourly); WXSTART
+           counts weather bands.
        elmfire_case.py outputs CASE [NAME]
            after ELMFIRE has run in CASE: its .bil outputs to GeoTIFF (with the case's CRS, which ELMFIRE leaves out)
            and CASE/outputs/run.json naming the run, for heat_frames.py CASE/outputs.
@@ -190,6 +198,9 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         crs, transform, bands = src.crs, src.transform, src.read()
     landscape = dict(zip(LANDSCAPE_BANDS, bands))
     weather = {}
+    import json as _json
+    wx_info = os.path.join(wxdir, "wx.json")
+    dt_met = float(_json.load(open(wx_info)).get("dt_s", 3600)) if os.path.exists(wx_info) else 3600.0
     for name in ("ws", "wd", "m1", "m10", "m100"):
         with rasterio.open(os.path.join(wxdir, name + ".tif")) as src:
             weather[name] = src.read()
@@ -205,6 +216,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     ws_mult, moist_add, wx_start, active_buffer = 1.0, 0.0, 0, 2
     adj_group, adj_wind_exp, adj_wind_ref = {}, 0.0, 10.0
     min_start, min_start_info = 0, None
+    init_mode, edge_cells, init_info = "hotcells", 2, None
     for item in overrides:
         key, value = item.split("=", 1)
         if key.upper() == "ADJ":
@@ -233,6 +245,12 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         if key.upper() == "WXSTART":
             wx_start = int(value)
+            continue
+        if key.upper() == "INIT":
+            init_mode = value.lower()
+            continue
+        if key.upper() == "EDGE_CELLS":
+            edge_cells = int(value)
             continue
         if key.upper() == "OBSERVED":
             observed = value
@@ -270,16 +288,49 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
                         hot[row, col] = True
         known = [p for p in obs["perimeters"]
                  if (datetime.datetime.fromisoformat(p["time"].replace("Z", "")) - reference).total_seconds() <= issue_s]
+        feds_fine = None
         if known:
             geom = shapely.transform(shape(known[-1]["geometry"]),
                                      lambda xy: np.column_stack(to_grid.transform(xy[:, 0], xy[:, 1])))
             burned |= rasterize([(mapping(geom), 1)], out_shape=burned.shape, transform=st, dtype="uint8").astype(bool)
             log.info("latest FEDS perimeter known at issue: %s", known[-1]["time"])
+            if init_mode == "feds":
+                feds_fine = rasterize([(mapping(geom), 1)], out_shape=bands.shape[1:], transform=transform,
+                                      dtype="uint8").astype(bool)
+                feds_poly_m2 = float(geom.area)
+                feds_time = known[-1]["time"]
         burned_fine = np.kron(burned, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
         from scipy.ndimage import binary_dilation
         fine = lambda a: np.kron(a, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
         burnable = lambda h: int((fine(h) & ~np.isin(landscape["fbfm40"], list(range(91, 100)))).sum())
-        if min_start > 0:
+        if init_mode == "feds" and feds_fine is not None and feds_fine.any():
+            from scipy.ndimage import binary_erosion
+            band = feds_fine & ~binary_erosion(feds_fine, iterations=edge_cells)
+            near_hot_fine = fine(binary_dilation(hot)) if hot.any() else np.zeros_like(band)
+            active = band & near_hot_fine
+            active_mode = "detections"
+            if not active.any():
+                active, active_mode = band, "whole_edge"
+            # Recent heat clearly outside the perimeter (beyond one state cell): growth since it was drawn.
+            feds_coarse = np.zeros_like(hot)
+            fr, fc = np.nonzero(feds_fine)
+            feds_coarse[np.minimum(fr // refine, hot.shape[0] - 1), np.minimum(fc // refine, hot.shape[1] - 1)] = True
+            outside = hot & ~binary_dilation(feds_coarse)
+            burning = active | fine(outside)
+            phi = np.where(burning, -1.0, 1.0)
+            interior = feds_fine & ~burning
+            landscape["fbfm40"] = np.where(interior, 99, landscape["fbfm40"]).astype("int16")
+            cell_m2 = abs(transform.a * transform.e)
+            nb = np.isin(landscape["fbfm40"], list(range(91, 100)))
+            init_info = {"mode": "feds", "perimeter_time": feds_time, "edge_cells": edge_cells,
+                         "active_mode": active_mode, "feds_polygon_acres": feds_poly_m2 / 4046.8564224,
+                         "feds_raster_acres": float(feds_fine.sum() * cell_m2 / 4046.8564224),
+                         "edge_band_cells": int(band.sum()), "active_edge_cells": int(active.sum()),
+                         "burning_cells": int(burning.sum()), "burning_burnable_cells": int((burning & ~nb).sum()),
+                         "outside_hot_cells_375m": int(outside.sum()), "hot_cells_375m": int(hot.sum()),
+                         "fine_cell_m": abs(transform.a)}
+            log.info("INIT=feds: %s", init_info)
+        elif min_start > 0:
             # Minimum initial footprint: a few detections over non-burnable cells (roads, fields, water) cannot
             # spread; grow them by one 375 m VIIRS cell at a time (at most two) until n burnable cells burn.
             before, dilations = burnable(hot), 0
@@ -289,16 +340,21 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             min_start_info = {"threshold_cells": min_start, "burnable_start_cells_before": before,
                               "burnable_start_cells_after": burnable(hot), "dilations_375m": dilations}
             log.info("minimum initial footprint: %s", min_start_info)
-        hot_fine = fine(hot)
-        phi = np.where(hot_fine, -1.0, 1.0)
-        # Burned cells far from recent heat are burned out (non-burnable). Cells within ACTIVE_BUFFER state cells of
-        # a hot cell keep their fuel: FEDS perimeters are drawn around the detection footprints, so the zone the
-        # fire is consuming lies inside them.
-        near_hot = binary_dilation(hot, iterations=active_buffer) if active_buffer > 0 else hot
-        out = burned & ~near_hot
-        out_fine = np.kron(out, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
-        landscape["fbfm40"] = np.where(out_fine, 99, landscape["fbfm40"]).astype("int16")
-        log.info("%d cells hot in the %g h before issue start burning; %d burned cells more than %d cells from them "
+        if init_info is None:
+          if init_mode == "feds":
+            init_info = {"mode": "hotcells_fallback", "reason": "no FEDS perimeter known at issue"}
+          else:
+            init_info = {"mode": "hotcells"}
+          hot_fine = fine(hot)
+          phi = np.where(hot_fine, -1.0, 1.0)
+          # Burned cells far from recent heat are burned out (non-burnable). Cells within ACTIVE_BUFFER state cells of
+          # a hot cell keep their fuel: FEDS perimeters are drawn around the detection footprints, so the zone the
+          # fire is consuming lies inside them.
+          near_hot = binary_dilation(hot, iterations=active_buffer) if active_buffer > 0 else hot
+          out = burned & ~near_hot
+          out_fine = np.kron(out, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
+          landscape["fbfm40"] = np.where(out_fine, 99, landscape["fbfm40"]).astype("int16")
+          log.info("%d cells hot in the %g h before issue start burning; %d burned cells more than %d cells from them "
                  "made non-burnable", hot.sum(), active_hours, out.sum(), active_buffer)
     else:
         phi = np.where(burned_fine, -1.0, 1.0)
@@ -314,7 +370,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     if adj_wind_exp:
         # Wind term: ADJ x (cell's mean 20-ft wind over the run / ADJ_WIND_REF mph) ** ADJ_WIND_EXP, factor clipped
         # to [0.1, 10]. ELMFIRE's adj raster is static, so the run's mean wind stands for the cell's wind.
-        ws_mean = weather["ws"][: int(float(hours)) + 1].mean(0)
+        ws_mean = weather["ws"][: int(float(hours) * 3600 / dt_met) + 1].mean(0)
         k = int(round(wx_transform.a / transform.a))
         ws_fine = np.kron(ws_mean, np.ones((k, k)))[:phi.shape[0], :phi.shape[1]]
         factor = np.clip((np.maximum(ws_fine, 0.1) / adj_wind_ref) ** adj_wind_exp, 0.1, 10.0)
@@ -325,7 +381,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     # Keys given without a group go to the group write_case already uses them in, else SIMULATOR.
     loose = extra.pop("?", {})
     hours = float(hours)
-    write_case(case, transform, crs, landscape, {}, adj, phi, 3600.0, hours * 3600, extra=extra)
+    write_case(case, transform, crs, landscape, {}, adj, phi, dt_met, hours * 3600, extra=extra)
     # Weather on its own (coarser) grid; ELMFIRE interpolates it onto the fuel grid.
     for name, data in weather.items():
         write_bsq(os.path.join(case, "scratch", name), data, wx_transform, crs, "float32")
@@ -341,7 +397,8 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         import json
         json.dump({"landscape": landscape_tif, "weather": wxdir, "state": state_tif, "issue": issue, "hours": hours,
                    "burned_at_issue_cells_375m": int(burned.sum()), "hot_cells_375m": int(hot.sum()),
-                   "overrides": list(overrides), "min_start": min_start_info}, f, indent=1)
+                   "overrides": list(overrides), "min_start": min_start_info,
+                   "init": init_info, "dt_meteorology_s": dt_met}, f, indent=1)
     log.info("%d state cells burned at %s; weather %d bands", burned.sum(), issue, weather["ws"].shape[0])
 
 
