@@ -32,3 +32,13 @@ data/compare/logs/
 data/compare/daily/
 data/compare/unet_round1/
 data/compare/unet_round2/
+
+# Server-specific settings written by earth/deploy/ec2/deploy.sh
+earth/deploy/ec2/.env
+
+# Private keys and secrets never go in the repo (the EC2 key lives in ~/.ssh)
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.env

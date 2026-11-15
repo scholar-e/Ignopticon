@@ -73,7 +73,8 @@ var TILE_SOURCES = {
     terrain: "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",  // AWS Terrain Tiles, to z15
     fuel: LANDFIRE_FBFM40 + "/exportImage?bbox={bbox}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&f=image"
 };
-var TILE_CACHE = path.join(__dirname, "tile-cache");  // tiles are kept here, so viewed areas also work offline
+// Tiles are kept here, so viewed areas also work offline. TILE_CACHE points it at a persistent volume when deployed.
+var TILE_CACHE = process.env.TILE_CACHE || path.join(__dirname, "tile-cache");
 var MISSING = ".missing";                             // marks a tile the upstream service does not have
 
 function tileBbox(z, x, y) {
@@ -196,9 +197,22 @@ function tileRange(bbox, z) {
     return tiles;
 }
 
+/**
+ * Background warming fetches thousands of upstream tiles per job. On a public server anyone can start a job (one per
+ * heat-layer date asked for), so WARM_MAX_JOBS caps the jobs per process; 0 turns warming off. Unset: no cap.
+ */
+var WARM_MAX_JOBS = process.env.WARM_MAX_JOBS === undefined ? Infinity : +process.env.WARM_MAX_JOBS, warmJobs = 0;
+
+function mayWarm() {
+    if (warmJobs >= WARM_MAX_JOBS) return false;
+    warmJobs++;
+    return true;
+}
+
 function warmS2() {
     if (s2Warming) return;
     s2Warming = true;
+    if (!mayWarm()) return;
     var seen = new Set(), queue = [];
     function add(tiles) {
         tiles.forEach(function(t) {
@@ -293,6 +307,7 @@ function warmThermal(pass, date) {
     var key = pass + "/" + date;
     if (warmed[key]) return;
     warmed[key] = true;
+    if (!mayWarm()) return;
     var queue = [];
     for (var z = 0; z <= WARM_ZOOM; z++) {
         var n = Math.pow(2, z), lat = function(φ) {
@@ -814,14 +829,17 @@ var apiWeather = apiHandler(function(req, res, at, time) {
     }).catch(function() { apiError(res, 502, "Weather unavailable"); });
 });
 
-var port = process.argv[2];
+var port = process.argv[2] || process.env.PORT || 8080;
+var production = process.env.NODE_ENV === "production";
 var express = require("express");
 var app = express();
 
 app.set("json spaces", 0);
+if (production) app.enable("trust proxy");  // behind the host's TLS proxy: remote-addr is the client's
 app.use(cacheControl());
 app.use(express.compress({filter: compressionFilter}));
-app.use(logger());
+// The full logger prints every request's headers; in production one line per request is enough.
+app.use(production ? express.logger("short") : logger());
 app.get("/tiles/:source/:z/:x/:y", tileProxy);
 app.get("/identify/fuel", fuelIdentify);
 app.get("/tiles/thermal/:pass/:date/:z/:x/:y", thermalTileProxy);
@@ -832,7 +850,7 @@ app.get("/api/fires/:id", apiFire);
 app.get("/api/fires/:id/weather", apiWeather);
 app.all("/api/*", function(req, res) { apiError(res, 404, "No API endpoint " + req.path); });
 app.use(i4Tile);
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.listen(port);
 console.log("Listening on port " + port + "...");

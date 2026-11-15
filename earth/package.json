@@ -12,7 +12,12 @@
         "type": "git",
         "url": "git://github.com/cambecc/earth.git"
     },
-    "engine": "node >= 0.10.21",
+    "engines": {
+        "node": ">=18"
+    },
+    "scripts": {
+        "start": "node dev-server.js"
+    },
     "dependencies": {
         "when": "2.6.0",
         "swig": "1.2.2",

@@ -1,0 +1,37 @@
+# Deploys the web app (earth/) to the EC2 server on every push to main that changes it, using
+# earth/deploy/ec2/deploy.sh. Also runnable by hand: Actions -> Deploy web app -> Run workflow.
+# Setup (repository Settings -> Secrets and variables -> Actions): see docs/DEPLOY.md, "Deploying on git push".
+name: Deploy web app
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "earth/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ec2
+  cancel-in-progress: false   # let a running deploy finish; the next one follows
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the SSH key
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/ignopticon-ec2.pem
+          chmod 600 ~/.ssh/ignopticon-ec2.pem
+
+      - name: Deploy
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          SITE_ADDRESS: ${{ vars.SITE_ADDRESS }}
+        run: earth/deploy/ec2/deploy.sh "$EC2_HOST" $SITE_ADDRESS

@@ -1,0 +1,30 @@
+# Runs on the EC2 instance: the app behind Caddy, which gets and renews the HTTPS certificate.
+# deploy.sh copies earth/ to the instance and runs `docker compose up -d --build` here.
+services:
+  app:
+    build: ../..                  # earth/, with its Dockerfile
+    restart: unless-stopped
+    volumes:
+      - tiles:/data               # proxied map tiles, kept across deploys
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2.8
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data          # certificates
+      - caddy_config:/config
+
+volumes:
+  tiles:
+  caddy_data:
+  caddy_config:
