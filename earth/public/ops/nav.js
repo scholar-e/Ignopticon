@@ -380,11 +380,12 @@ export function createNav(ctx) {
     if (!results.length) { routes = []; chosen = null; render(); return note("No route found within the routing area. Try Drive + walk, allow 4×4 roads, or move the destination."); }
     const fastest = results[0], cap = fastest.time * 1.5;
     const best = results.filter((r) => r.time <= cap).reduce((p, q) => q.keyCost < p.keyCost - 1e-6 ? q : p, fastest);
-    routes = [{...fastest, id: "fast", label: "Fastest"}];
-    if (fastest.keyCost - best.keyCost >= 60 && best !== fastest) routes.push({...best, id: "cover", label: "Best coverage"});
+    // Best coverage is always listed; when it can't beat the fastest by a minute it is the fastest route itself.
+    const same = fastest.keyCost - best.keyCost < 60;
+    routes = [{...fastest, id: "fast", label: "Fastest"}, {...(same ? fastest : best), id: "cover", label: "Best coverage", same}];
     const dr = evaluateDispatch(); if (dr) routes.push(dr);
     chosen = chosen && routes.find((r) => r.id === chosen.id) || routes[0];
-    note(routes.length === 1 + (dr ? 1 : 0) && !quiet ? "The fastest route already has the best coverage available (within 1 min)." : "");
+    note(same && !quiet ? "No route within 1.5× the fastest time has at least 1 min less without coverage, so Best coverage is the same route." : "");
     performance.mark("nav-routed"); console.log(`routes in ${Math.round(performance.now() - t0)} ms`);
     render();
     if (!quiet) { const f = ctx.getFire(), b = bboxOf(chosen.coords.concat([start, dest])); ctx.fit(f ? [Math.min(b[0], f.bbox[0]), Math.min(b[1], f.bbox[1]), Math.max(b[2], f.bbox[2]), Math.max(b[3], f.bbox[3])] : b); }
@@ -493,24 +494,30 @@ export function createNav(ctx) {
   }
 
   // ---------- Map ----------
-  function hatch(lines, color) {
+  function hatch(lines, alpha) {  // light lines with a dark edge, so the hatch reads on dark imagery and light maps
     const size = 16, c = document.createElement("canvas"); c.width = c.height = size;
-    const g = c.getContext("2d"); g.strokeStyle = color; g.lineWidth = 1.6;
-    for (const dir of lines) for (let o = -size; o <= size * 2; o += 8) {
-      g.beginPath();
-      if (dir > 0) { g.moveTo(o, size); g.lineTo(o + size, 0); } else { g.moveTo(o, 0); g.lineTo(o + size, size); }
-      g.stroke();
+    const g = c.getContext("2d");
+    for (const [color, w] of [[`rgba(0,0,0,${0.75 * alpha})`, 3.4], [`rgba(232,235,240,${alpha})`, 1.6]]) {
+      g.strokeStyle = color; g.lineWidth = w;
+      for (const dir of lines) for (let o = -size; o <= size * 2; o += 8) {
+        g.beginPath();
+        if (dir > 0) { g.moveTo(o, size); g.lineTo(o + size, 0); } else { g.moveTo(o, 0); g.lineTo(o + size, size); }
+        g.stroke();
+      }
     }
     return g.getImageData(0, 0, size, size);
   }
   function styleLoaded() {
     const map = ctx.getMap();
-    if (!map.hasImage("nav-none")) map.addImage("nav-none", hatch([1, -1], "rgba(20,22,26,0.85)"), {pixelRatio: 2});
-    if (!map.hasImage("nav-marg")) map.addImage("nav-marg", hatch([1], "rgba(40,44,52,0.6)"), {pixelRatio: 2});
+    if (!map.hasImage("nav-none")) map.addImage("nav-none", hatch([1, -1], 0.95), {pixelRatio: 2});
+    if (!map.hasImage("nav-marg")) map.addImage("nav-marg", hatch([1], 0.7), {pixelRatio: 2});
     const empty = {type: "FeatureCollection", features: []};
     for (const id of ["nav-cov", "nav-routes", "nav-pts", "nav-rptr"]) if (!map.getSource(id)) map.addSource(id, {type: "geojson", data: empty});
     const add = (layer, before) => { if (!map.getLayer(layer.id)) map.addLayer(layer, before); };
-    add({id: "nav-cov-fill", type: "fill", source: "nav-cov", paint: {"fill-pattern": ["match", ["get", "c"], 0, "nav-none", "nav-marg"]}, layout: {visibility: "none"}}, "fires-fill");
+    // Dead zones sit above the fire and forecast shading (they are mostly near the fire), under the outlines and routes.
+    const under = map.getLayer("hist-case") ? "hist-case" : undefined;
+    add({id: "nav-cov-tint", type: "fill", source: "nav-cov", paint: {"fill-color": "#3a3f47", "fill-opacity": ["match", ["get", "c"], 0, 0.25, 0.12]}, layout: {visibility: "none"}}, under);
+    add({id: "nav-cov-fill", type: "fill", source: "nav-cov", paint: {"fill-pattern": ["match", ["get", "c"], 0, "nav-none", "nav-marg"], "fill-opacity": 0.75}, layout: {visibility: "none"}}, under);
     add({id: "nav-route-case", type: "line", source: "nav-routes", layout: {"line-join": "round", "line-cap": "round"},
       paint: {"line-color": "#0B0D10", "line-width": ["case", ["get", "on"], 9, 6], "line-opacity": ["case", ["get", "on"], 0.9, 0.5]}});
     add({id: "nav-route-line", type: "line", source: "nav-routes", layout: {"line-join": "round", "line-cap": "round"},
@@ -550,7 +557,8 @@ export function createNav(ctx) {
     showCoverage(navigating || $("#nav-cov-toggle")?.getAttribute("aria-pressed") === "true");
   }
   function showCoverage(on) {
-    const map = ctx.getMap(); if (map && map.getLayer("nav-cov-fill")) map.setLayoutProperty("nav-cov-fill", "visibility", on ? "visible" : "none");
+    const map = ctx.getMap();
+    for (const id of ["nav-cov-tint", "nav-cov-fill"]) if (map && map.getLayer(id)) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
     $("#nav-cov-toggle")?.setAttribute("aria-pressed", on);
   }
   function drawRoutes() {
@@ -587,7 +595,7 @@ export function createNav(ctx) {
     $("#nav-routes").innerHTML = routes.map((r) => {
       const warn = [r.gates && `${r.gates} gate${r.gates > 1 ? "s" : ""} (may be locked)`, r.restricted && "private or restricted road", r.rough && "rough 4×4 track",
         r.xc > 15 && `${fmtMi(r.xc)} off-trail`, r.band && "crosses the +6 h forecast area", r.blocked && "passes near the active fire edge", r.estimated && "time estimated at 30 km/h",
-        r.road && `first ${fmtMi(r.road.dist)} on a ${r.road.provider} road route (no fire or coverage check there)`].filter(Boolean);
+        r.same && "same route as Fastest", r.road && `first ${fmtMi(r.road.dist)} on a ${r.road.provider} road route (no fire or coverage check there)`].filter(Boolean);
       return `<li><button type="button" class="rt rt-${r.id}" data-route="${r.id}" aria-pressed="${r === chosen}">
 <span class="rt-head"><b>${r.label}</b><span>${fmtMin(r.time)} · ${fmtMi(r.dist)}</span></span>
 <span class="rt-cov">${fmtMin(r.none + r.marg)} without coverage near the fire${r.marg >= 30 ? ` (${fmtMin(r.marg)} marginal)` : ""} · ${fmtMin(r.noneAll)} ${r.road ? "in the fire area" : "on the whole trip"}</span>
