@@ -42,6 +42,8 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            ADJ_GR=, ADJ_SH=, ADJ_TIMBER= set the spread multiplier of grass + grass-shrub, shrub and timber fuels
            (other cells keep ADJ); ADJ_WIND_EXP=b then multiplies it by (the cell's mean 20-ft wind over the run /
            ADJ_WIND_REF, default 10 mph) ** b, clipped to x0.1-x10.
+           MIN_START_CELLS=n (OBSERVED only, default 0 = off): if fewer than n burnable fuel cells start burning,
+           grow the hot cells by one state (375 m VIIRS) cell, up to twice, so tiny or non-burnable starts can spread.
        elmfire_case.py outputs CASE [NAME]
            after ELMFIRE has run in CASE: its .bil outputs to GeoTIFF (with the case's CRS, which ELMFIRE leaves out)
            and CASE/outputs/run.json naming the run, for heat_frames.py CASE/outputs.
@@ -202,6 +204,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     adj_value, observed, active_hours, extra = 1.0, None, 6.0, {"SIMULATOR": {"NUM_IGNITIONS": 0}}
     ws_mult, moist_add, wx_start, active_buffer = 1.0, 0.0, 0, 2
     adj_group, adj_wind_exp, adj_wind_ref = {}, 0.0, 10.0
+    min_start, min_start_info = 0, None
     for item in overrides:
         key, value = item.split("=", 1)
         if key.upper() == "ADJ":
@@ -215,6 +218,9 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         if key.upper() == "ADJ_WIND_REF":
             adj_wind_ref = float(value)
+            continue
+        if key.upper() == "MIN_START_CELLS":
+            min_start = int(value)
             continue
         if key.upper() == "WSMULT":
             ws_mult = float(value)
@@ -270,12 +276,24 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             burned |= rasterize([(mapping(geom), 1)], out_shape=burned.shape, transform=st, dtype="uint8").astype(bool)
             log.info("latest FEDS perimeter known at issue: %s", known[-1]["time"])
         burned_fine = np.kron(burned, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
-        hot_fine = np.kron(hot, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
+        from scipy.ndimage import binary_dilation
+        fine = lambda a: np.kron(a, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
+        burnable = lambda h: int((fine(h) & ~np.isin(landscape["fbfm40"], list(range(91, 100)))).sum())
+        if min_start > 0:
+            # Minimum initial footprint: a few detections over non-burnable cells (roads, fields, water) cannot
+            # spread; grow them by one 375 m VIIRS cell at a time (at most two) until n burnable cells burn.
+            before, dilations = burnable(hot), 0
+            while burnable(hot) < min_start and dilations < 2 and hot.any():
+                hot = binary_dilation(hot)
+                dilations += 1
+            min_start_info = {"threshold_cells": min_start, "burnable_start_cells_before": before,
+                              "burnable_start_cells_after": burnable(hot), "dilations_375m": dilations}
+            log.info("minimum initial footprint: %s", min_start_info)
+        hot_fine = fine(hot)
         phi = np.where(hot_fine, -1.0, 1.0)
         # Burned cells far from recent heat are burned out (non-burnable). Cells within ACTIVE_BUFFER state cells of
         # a hot cell keep their fuel: FEDS perimeters are drawn around the detection footprints, so the zone the
         # fire is consuming lies inside them.
-        from scipy.ndimage import binary_dilation
         near_hot = binary_dilation(hot, iterations=active_buffer) if active_buffer > 0 else hot
         out = burned & ~near_hot
         out_fine = np.kron(out, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
@@ -323,7 +341,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         import json
         json.dump({"landscape": landscape_tif, "weather": wxdir, "state": state_tif, "issue": issue, "hours": hours,
                    "burned_at_issue_cells_375m": int(burned.sum()), "hot_cells_375m": int(hot.sum()),
-                   "overrides": list(overrides)}, f, indent=1)
+                   "overrides": list(overrides), "min_start": min_start_info}, f, indent=1)
     log.info("%d state cells burned at %s; weather %d bands", burned.sum(), issue, weather["ws"].shape[0])
 
 
