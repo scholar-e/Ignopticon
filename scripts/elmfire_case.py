@@ -36,7 +36,10 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            OBSERVED=OBS.json (fire_observations.py) starts the fire from its hotspots instead: cells seen hot in the
            ACTIVE_HOURS (default 6) before ISSUE burn, the rest of the area burned by ISSUE is non-burnable; the
            burned area is then rebuilt from what was known at ISSUE (hot cells, latest FEDS perimeter).
-           WSMULT=x scales wind speed, MOIST=p adds p percentage points to dead fuel moisture, WXSTART=k starts at
+           LIVE_MOISTURE=gsi sets LH/LW per case from scripts/live_moisture.py (GSI-style proxy from the 21 days
+           before ISSUE; overrides LH_MOISTURE_CONTENT/LW_MOISTURE_CONTENT; default const = those values).
+           WIND_20FT=f rescales the 20-ft wind factor from the weather files' 0.87 to f (ELMFIRE applies its own canopy
+           WAF on top: midflame = 20-ft wind x WAF, so this is not a double count). WSMULT=x scales wind speed, MOIST=p adds p percentage points to dead fuel moisture, WXSTART=k starts at
            the weather's band k (for an ISSUE k hours after the weather run). ACTIVE_BUFFER=n (default 2): burned
            cells within n state cells of a hot cell keep their fuel; only the rest become non-burnable.
            ADJ_GR=, ADJ_SH=, ADJ_TIMBER= set the spread multiplier of grass + grass-shrub, shrub and timber fuels
@@ -317,6 +320,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     min_start, min_start_info = 0, None
     init_mode, edge_cells, init_info = "hotcells", 2, None
     adj_file = None
+    live_moisture, live_info, wind_20ft = "const", None, None
     front_pfile, front_pthresh, front_pmode = None, None, None
     front_weight = None
     band_pfile, band_m, band_pref, band_floor, band_cap, band_weight = None, None, None, 0.25, 2.0, None
@@ -346,6 +350,14 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         if key.upper() == "MOIST":
             moist_add = float(value)
+            continue
+        if key.upper() == "LIVE_MOISTURE":
+            live_moisture = value.lower()
+            if live_moisture not in ("const", "gsi"):
+                raise ValueError("LIVE_MOISTURE must be const or gsi")
+            continue
+        if key.upper() == "WIND_20FT":
+            wind_20ft = float(value)
             continue
         if key.upper() == "ACTIVE_BUFFER":
             active_buffer = int(value)
@@ -400,6 +412,20 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         group, _, key = key.rpartition(":")
         extra.setdefault(group or "?", {})[key] = parse_value(value)
+    if wind_20ft is not None:
+        # The weather files were written with hrrr_weather.WIND_20FT (0.87) x the HRRR 10 m speed; rescale to f.
+        # ELMFIRE then applies its own canopy/fuel wind adjustment factor (WAF) to this 20-ft wind to get the
+        # midflame wind (elmfire_subs.f90 WSMF = WS20 * WAF), so the two factors do not overlap.
+        ws_mult *= wind_20ft / 0.87
+        log.info("WIND_20FT %g: wind speed x %.3f vs the 0.87 files", wind_20ft, wind_20ft / 0.87)
+    if live_moisture == "gsi":
+        from live_moisture import gsi_live_moisture
+        from pyproj import Transformer
+        h, w = bands.shape[1:]
+        lon, lat = Transformer.from_crs(crs, 4326, always_xy=True).transform(*(transform * (w / 2, h / 2)))
+        lh, lw, live_info = gsi_live_moisture(lon, lat, datetime.datetime.fromisoformat(issue))
+        extra.setdefault("INPUTS", {}).update({"LH_MOISTURE_CONTENT": round(lh, 1), "LW_MOISTURE_CONTENT": round(lw, 1)})
+        log.info("LIVE_MOISTURE=gsi: GSI %.2f -> LH %.1f LW %.1f", live_info["gsi"], lh, lw)
     front_probability = None
     if front_pmode not in (None, "binary", "weighted"):
         raise ValueError("FRONT_PMODE must be binary or weighted")
@@ -622,6 +648,9 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         weather[k] = weather[k] + moist_add
     # Keys given without a group go to the group write_case already uses them in, else SIMULATOR.
     loose = extra.pop("?", {})
+    if live_info is not None:  # LIVE_MOISTURE=gsi wins over LH/LW_MOISTURE_CONTENT given as plain KEY=VALUE
+        loose.pop("LH_MOISTURE_CONTENT", None)
+        loose.pop("LW_MOISTURE_CONTENT", None)
     hours = float(hours)
     write_case(case, transform, crs, landscape, {}, adj, phi, dt_met, hours * 3600, extra=extra)
     # Weather on its own (coarser) grid; ELMFIRE interpolates it onto the fuel grid.
@@ -639,7 +668,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         import json
         json.dump({"landscape": landscape_tif, "weather": wxdir, "state": state_tif, "issue": issue, "hours": hours,
                    "burned_at_issue_cells_375m": int(burned.sum()), "hot_cells_375m": int(hot.sum()),
-                   "overrides": list(overrides), "min_start": min_start_info,
+                   "overrides": list(overrides), "min_start": min_start_info, "live_moisture": live_info,
                    "init": init_info, "dt_meteorology_s": dt_met}, f, indent=1)
     log.info("%d state cells burned at %s; weather %d bands", burned.sum(), issue, weather["ws"].shape[0])
 

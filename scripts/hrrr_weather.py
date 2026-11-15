@@ -51,7 +51,7 @@ log = logging.getLogger(__name__)
 
 BUCKET = "https://noaa-hrrr-bdp-pds.s3.amazonaws.com"
 FIELDS = ["UGRD:10 m above ground", "VGRD:10 m above ground", "TMP:2 m above ground", "RH:2 m above ground"]
-WIND_20FT = 0.87
+WIND_20FT = float(os.environ.get("WIND_20FT", 0.87))  # 10 m -> 20 ft; ELMFIRE adds its own canopy WAF
 MS_TO_MPH = 2.23694
 
 

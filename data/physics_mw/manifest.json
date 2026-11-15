@@ -1,0 +1,119 @@
+{
+ "purpose": "frozen physics choice (live fuel moisture, 20-ft wind factor) before any held-out run",
+ "dev_fires": [
+  "2021-038",
+  "2021-031",
+  "2020-008",
+  "map20260802-66510"
+ ],
+ "grid": {
+  "live-const_w0.87": {
+   "live": "const",
+   "wind": 0.87,
+   "n": 4,
+   "mean_growth_iou": 0.0664416504670921,
+   "mean_abs_log_area_ratio": 0.9037391115996566,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "area_ratio": 0.5896491081148982
+    },
+    "2021-031": {
+     "growth_iou": 0.07933712383857995,
+     "area_ratio": 0.19948525898870345
+    },
+    "2020-008": {
+     "growth_iou": 0.060472618346603856,
+     "area_ratio": 3.395500610176686
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "area_ratio": 1.2869340124835604
+    }
+   }
+  },
+  "live-const_w0.6": {
+   "live": "const",
+   "wind": 0.6,
+   "n": 4,
+   "mean_growth_iou": 0.06296856004582535,
+   "mean_abs_log_area_ratio": 1.0202912192052402,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04021739130434782,
+     "area_ratio": 0.3624487061385144
+    },
+    "2021-031": {
+     "growth_iou": 0.06844803390898416,
+     "area_ratio": 0.14990676098448072
+    },
+    "2020-008": {
+     "growth_iou": 0.057984706681231735,
+     "area_ratio": 2.8027272244919614
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08522410828873768,
+     "area_ratio": 0.8711354194935599
+    }
+   }
+  },
+  "live-gsi_w0.87": {
+   "live": "gsi",
+   "wind": 0.87,
+   "n": 4,
+   "mean_growth_iou": 0.0931713204978522,
+   "mean_abs_log_area_ratio": 0.9167342011662875,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.08771399972387132,
+     "area_ratio": 1.6390796415710578
+    },
+    "2021-031": {
+     "growth_iou": 0.12103526142087893,
+     "area_ratio": 0.49193212816126497
+    },
+    "2020-008": {
+     "growth_iou": 0.07264691187209348,
+     "area_ratio": 6.404149201464424
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.0912891089745651,
+     "area_ratio": 1.833893493100641
+    }
+   }
+  },
+  "live-gsi_w0.6": {
+   "live": "gsi",
+   "wind": 0.6,
+   "n": 4,
+   "mean_growth_iou": 0.08489408655493896,
+   "mean_abs_log_area_ratio": 0.7652527982792456,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.07721751612096432,
+     "area_ratio": 1.0739887781592832
+    },
+    "2021-031": {
+     "growth_iou": 0.1100661390832282,
+     "area_ratio": 0.34245688658745205
+    },
+    "2020-008": {
+     "growth_iou": 0.06409511637814182,
+     "area_ratio": 4.831378999310235
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08819757463742149,
+     "area_ratio": 1.4090140492244745
+    }
+   }
+  }
+ },
+ "rule": "best mean growth IoU over the 4 fires; ties within 0.002 go to\nthe mean |log area ratio| nearest 1. The 12 held-out fires are not read before the manifest is frozen.",
+ "chosen": "live-gsi_w0.87",
+ "live_moisture": "gsi",
+ "wind_20ft": 0.87,
+ "overrides": [
+  "LIVE_MOISTURE=gsi"
+ ],
+ "default_for_comparison": "live-const_w0.87"
+}

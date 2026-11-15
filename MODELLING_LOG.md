@@ -761,3 +761,24 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
   `uv run scripts/edge_pilot_score.py data/edge_causal/front_weighted/heldout --manifest data/edge_causal/front_weighted/manifest.json --arms control,binary,binary_pos,weighted,band750,band2000`
   (and `.../dev`); `uv run scripts/edge_heldout_table.py data/edge_causal/front_weighted/heldout data/edge_causal/front_weighted/dev`
   -> data/edge_causal/front_weighted/{heldout_table.md,heldout_table.json,growth_iou_vs_control.png}.
+
+### 23. 2026-11-15 — Seasonal live fuel moisture (GSI proxy) and 20-ft wind factor options
+- Before: LH_MOISTURE_CONTENT=90 everywhere (LW ELMFIRE default). Added, both opt-in (defaults unchanged):
+  `LIVE_MOISTURE=gsi` (scripts/live_moisture.py; per-case LH/LW constants, ELMFIRE's rasters not used): Jolly-style
+  GSI = photoperiod x VPD ramp (0.9-4.1 kPa) x fm100 ramp (5-15 %, stand-in for Tmin, absent from our gridMET
+  files), 21-day mean of the days before the issue day; LH = 30 + 90 GSI, LW = 60 + 90 GSI. Ramps are literature
+  values, not fitted. Western-summer cases give GSI 0-0.1 (LH 30-39, i.e. cured), far below the old 90.
+  `WIND_20FT=f` (elmfire_case.py rescales the weather's 0.87; hrrr_weather.py reads env WIND_20FT). Source check
+  (tools/elmfire/build/source): ELMFIRE computes its own canopy/fuel WAF raster (elmfire_init.f90) and midflame wind
+  = WS20 x WAF (elmfire_subs.f90), so 0.87 (10 m -> 20 ft) is a separate step and not double counted.
+- Choice made on development data only (data/physics_mw/manifest.json, frozen before any held-out run): 4 fires
+  (2021-038, 2021-031, 2020-008, Widemouth 66510) x live {const90, gsi} x wind {0.87, 0.6}, control physics. In-sample:
+  mean growth IoU const/0.87 .0664, const/0.6 .0630, gsi/0.87 .0932, gsi/0.6 .0849 (area-ratio |log| .90/1.02/.92/.77).
+  Chosen gsi + 0.87 (best growth IoU; 0.6 does not help). Dev area ratios still large (0-008 6.4x).
+- Held-out (12 frozen 2026-08-02T12 fires, +12 h FEDS, data/physics_mw/heldout_table.md): growth IoU control .0580 ->
+  physics_mw .0522 (2 better / 6 worse of 8 with truth growth; mean diff -0.006), whole IoU .760 -> .748, area ratio mean
+  37 -> 64 (median 2.7 both), hotspot hits 19 -> 20 of 23. No held-out gain: the dev improvement (4 fires, in-sample,
+  driven by cured fuels spreading faster) did not transfer; GSI-lowered LH raises spread and over-predicts area.
+  Keep the old constant as default. Caveats: one issue date, 12 fires, per-case (not per-cell) moisture.
+- Reproduce: `scripts/physics_mw.py {grid,select,heldout}`; `uv run scripts/edge_pilot_score.py data/physics_mw/heldout
+  --manifest data/edge_causal/front_weighted/manifest.json --arms control,physics_mw`; `uv run scripts/edge_heldout_table.py data/physics_mw/heldout`.

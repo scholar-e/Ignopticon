@@ -1,0 +1,294 @@
+{
+ "heldout": {
+  "arms": [
+   "no_growth",
+   "control",
+   "physics_mw"
+  ],
+  "coverage": {
+   "map20260802-66433": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-65395": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-65682": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-65080": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-20036": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-66055": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-64816": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-340": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-19": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-62041": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-53363": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   },
+   "map20260802-53095": {
+    "edge_coverage": null,
+    "band750_coverage": null,
+    "covered_fuel_cells": null
+   }
+  },
+  "subsets": {
+   "all": [
+    "map20260802-66433",
+    "map20260802-65395",
+    "map20260802-65682",
+    "map20260802-65080",
+    "map20260802-20036",
+    "map20260802-66055",
+    "map20260802-64816",
+    "map20260802-340",
+    "map20260802-19",
+    "map20260802-62041",
+    "map20260802-53363",
+    "map20260802-53095"
+   ],
+   "covered": [],
+   "uncovered": [
+    "map20260802-66433",
+    "map20260802-65395",
+    "map20260802-65682",
+    "map20260802-65080",
+    "map20260802-20036",
+    "map20260802-66055",
+    "map20260802-64816",
+    "map20260802-340",
+    "map20260802-19",
+    "map20260802-62041",
+    "map20260802-53363",
+    "map20260802-53095"
+   ]
+  },
+  "summary": {
+   "all": {
+    "no_growth": {
+     "growth_iou": {
+      "mean": 0.0,
+      "median": 0.0,
+      "n": 10
+     },
+     "iou": {
+      "mean": 0.9097922433245267,
+      "median": 0.9761293930415287,
+      "n": 12
+     },
+     "area_ratio": {
+      "mean": 0.0,
+      "median": 0.0,
+      "n": 10
+     },
+     "boundary_mean_m": {
+      "mean": 155.65403008282507,
+      "median": 20.83439856094293,
+      "n": 12
+     },
+     "false_growth_fraction": null,
+     "hotspot_hits": 0,
+     "hotspot_targets": 23,
+     "growth_iou_vs_control": {
+      "better": 0,
+      "worse": 8,
+      "mean_diff": -0.05803215601889391
+     }
+    },
+    "control": {
+     "growth_iou": {
+      "mean": 0.05803215601889391,
+      "median": 0.023791519443504296,
+      "n": 12
+     },
+     "iou": {
+      "mean": 0.7601116374096506,
+      "median": 0.8965190921593583,
+      "n": 12
+     },
+     "area_ratio": {
+      "mean": 36.96700813425474,
+      "median": 2.7110333187338194,
+      "n": 10
+     },
+     "boundary_mean_m": {
+      "mean": 1306.6843832505126,
+      "median": 417.6695531221964,
+      "n": 12
+     },
+     "false_growth_fraction": {
+      "mean": 0.9110823232724428,
+      "median": 0.9600331674958541,
+      "n": 11
+     },
+     "hotspot_hits": 19,
+     "hotspot_targets": 23
+    },
+    "physics_mw": {
+     "growth_iou": {
+      "mean": 0.05219456254125815,
+      "median": 0.014663570880237797,
+      "n": 12
+     },
+     "iou": {
+      "mean": 0.7483286974792017,
+      "median": 0.8894411384184064,
+      "n": 12
+     },
+     "area_ratio": {
+      "mean": 64.13144988587973,
+      "median": 2.743468593663146,
+      "n": 10
+     },
+     "boundary_mean_m": {
+      "mean": 1415.005782923283,
+      "median": 385.52775519127465,
+      "n": 12
+     },
+     "false_growth_fraction": {
+      "mean": 0.8785643597179802,
+      "median": 0.9762608838508297,
+      "n": 11
+     },
+     "hotspot_hits": 20,
+     "hotspot_targets": 23,
+     "growth_iou_vs_control": {
+      "better": 2,
+      "worse": 6,
+      "mean_diff": -0.005837593477635745
+     }
+    }
+   },
+   "uncovered": {
+    "no_growth": {
+     "growth_iou": {
+      "mean": 0.0,
+      "median": 0.0,
+      "n": 10
+     },
+     "iou": {
+      "mean": 0.9097922433245267,
+      "median": 0.9761293930415287,
+      "n": 12
+     },
+     "area_ratio": {
+      "mean": 0.0,
+      "median": 0.0,
+      "n": 10
+     },
+     "boundary_mean_m": {
+      "mean": 155.65403008282507,
+      "median": 20.83439856094293,
+      "n": 12
+     },
+     "false_growth_fraction": null,
+     "hotspot_hits": 0,
+     "hotspot_targets": 23,
+     "growth_iou_vs_control": {
+      "better": 0,
+      "worse": 8,
+      "mean_diff": -0.05803215601889391
+     }
+    },
+    "control": {
+     "growth_iou": {
+      "mean": 0.05803215601889391,
+      "median": 0.023791519443504296,
+      "n": 12
+     },
+     "iou": {
+      "mean": 0.7601116374096506,
+      "median": 0.8965190921593583,
+      "n": 12
+     },
+     "area_ratio": {
+      "mean": 36.96700813425474,
+      "median": 2.7110333187338194,
+      "n": 10
+     },
+     "boundary_mean_m": {
+      "mean": 1306.6843832505126,
+      "median": 417.6695531221964,
+      "n": 12
+     },
+     "false_growth_fraction": {
+      "mean": 0.9110823232724428,
+      "median": 0.9600331674958541,
+      "n": 11
+     },
+     "hotspot_hits": 19,
+     "hotspot_targets": 23
+    },
+    "physics_mw": {
+     "growth_iou": {
+      "mean": 0.05219456254125815,
+      "median": 0.014663570880237797,
+      "n": 12
+     },
+     "iou": {
+      "mean": 0.7483286974792017,
+      "median": 0.8894411384184064,
+      "n": 12
+     },
+     "area_ratio": {
+      "mean": 64.13144988587973,
+      "median": 2.743468593663146,
+      "n": 10
+     },
+     "boundary_mean_m": {
+      "mean": 1415.005782923283,
+      "median": 385.52775519127465,
+      "n": 12
+     },
+     "false_growth_fraction": {
+      "mean": 0.8785643597179802,
+      "median": 0.9762608838508297,
+      "n": 11
+     },
+     "hotspot_hits": 20,
+     "hotspot_targets": 23,
+     "growth_iou_vs_control": {
+      "better": 2,
+      "worse": 6,
+      "mean_diff": -0.005837593477635745
+     }
+    }
+   }
+  }
+ }
+}
