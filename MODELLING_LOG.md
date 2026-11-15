@@ -420,6 +420,121 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
   and data/compare/figures/unet/. Earlier entry 12 caveats apply, especially
   exploratory test inspection and observed target-day weather.
 
+### 12d. Investigation of harmonized-only degradation (2026-11-14)
+- Saved-model/sample diagnostics, no retraining: harm-pre GBM has one tree
+  (raw-pre 406); on sampled 2020 validation data it emits six probabilities,
+  with 99.8489% of inverse-weighted cells at 0.00144317.
+- Cached 2009 harm fire_0 is fractional on 100% of weighted rows; raw 2009
+  and VIIRS 2020 inputs are binary. Representation mismatch is a leading
+  hypothesis, not yet isolated by a controlled experiment.
+- Found temporal look-ahead: harmonizer next/next3 uses MODIS t+1, so
+  harmonized p(t) training inputs are retrospective. This compromises the
+  interpretation as a causal forecasting comparison despite year holdouts.
+- U-Net label>0.5 positive centres: harm-pre 137,992 vs raw-pre 520,593 over
+  the same 246,752,966 masked cells. Inputs, targets and sampling all change.
+- Detailed evidence and proposed controlled tests: docs/COMPARISON_DIAGNOSIS.md.
+  Keep the current results exploratory; do not conclude harmonization itself
+  is ineffective from these confounded arms.
+
+### 12e. Controlled causal summer pilot started (2026-11-14)
+- scripts/compare_controlled.py isolates inputs: raw MODIS, causal harmonized
+  MODIS, and VIIRS reference; all predict the same binary next-day VIIRS
+  labels on identical sampled rows, with identical weights and downstream
+  training settings. A mismatched harm-model/VIIRS-input diagnostic is added.
+- Harmonizer fitted on 2012–2014 only, dropping next/next3. Uses LightGBM
+  binary loss, 300 trees, rate .03, 31 leaves, L2=50; this is a new diagnostic
+  harmonizer, not the original sklearn model. Predictor train years
+  2015/2017/2019, validation 2020, July–August only with 30-day history.
+  Disjoint stages avoid fitted harmonizer labels leaking into predictor
+  training. No 2021–2024 reads. Confirmed complete calendar alignment for
+  all 21 satellite input files.
+- Population: land with MODIS and VIIRS clear on t, VIIRS clear on t+1.
+  Sampling: keep near-fire/positive rows plus 1% background, weighted ×100;
+  same rows for every arm. Weather t only. No soft predictor labels or
+  arm-specific sampling. Each arm has max 600 trees; early stop on 2020
+  log loss, patience 50, saving validation AP and loss curves.
+- This narrower seasonal/common-clear population and changed harmonizer
+  cannot be directly compared numerically with the earlier national scores.
+  Results isolated under data/compare/controlled; existing models untouched.
+
+### 12f. Controlled summer pilot results (2026-11-14; validation only)
+- Finished locally, no Hyak spend. 1,469,529 shared predictor training rows;
+  505,033 shared validation rows, 6,549 positives. All arms use the same
+  inverse-sampling weights. Future-perturbation test passed: changing MODIS
+  at t+1 does not change selected causal features through t, while the
+  original next feature changes. Existing published models were untouched.
+
+| Inputs | AP | AUC | Log loss | Selected trees |
+|---|---|---|---|---|
+| raw MODIS | 0.1401 | 0.8224 | 0.009747 | 131 |
+| causal harmonized MODIS | 0.1459 | 0.8271 | 0.010314 | 122 |
+| harm model given binary VIIRS | 0.1520 | 0.8099 | 0.010621 | same harm model |
+| VIIRS reference | 0.1617 | 0.8545 | 0.009377 | 165 |
+
+- Harmonization raises AP by 0.00584 (~4.2% relative) and slightly raises
+  AUC, but worsens log loss. No uncertainty estimate or significance claim.
+  Harm no longer collapses. These are validation diagnostics on a narrower
+  population, not comparable directly to the old national test AP.
+- Contrary to the initial leading hypothesis, binary VIIRS input substitution
+  does not lower AP here; it lowers AUC and worsens log loss. Representation
+  mismatch alone is insufficient to explain the original collapse. Soft
+  targets, sampling changes, temporal look-ahead, and fitting choices remain
+  candidate causes; this pilot changed several together and cannot identify
+  the individual cause.
+- Learning curves: validation AP peaks very early (raw round 3, harm round 1,
+  VIIRS round 1), whereas log-loss selection picks rounds 131/122/165.
+  Choice of ranking versus probability-quality objective matters. Preserve
+  current selection rule; do not pick new models from these results silently.
+- Artifacts: data/compare/controlled/results.{json,md} and script
+  scripts/compare_controlled.py. No 2021–2024 evaluation was performed.
+
+### 13. Return to sub-daily ELMFIRE perimeter forecasting (2026-11-14)
+- User prioritized perimeter spread forecasts over coarse daily activity.
+  Re-ran Widemouth Aug 2 12Z for 24 h locally with existing ADJ=.02,
+  LH_MOISTURE_CONTENT=90, observed active edges, LANDFIRE and HRRR forecast
+  weather. New directory perimeter-0802/adj0.02. Arrival times reproduce
+  a3-0802/adj0.02 bit-for-bit; no new tuning or training.
+- New scripts/elmfire_perimeters.py exports cumulative polygons at +0/6/12/24 h
+  on the native 37.5 m grid, retaining disconnected components and holes.
+  Initial footprint is rebuilt from hotspots and the latest FEDS polygon
+  available at issue, not interpolated state arrival times. Fixed the existing
+  growth-band exporter to use that same reconstruction for OBSERVED runs.
+- Cumulative acres: 74,988.76 / 75,336.60 / 75,779.65 / 76,583.05;
+  growth from issue: 0 / 347.84 / 790.89 / 1,594.29. Includes disconnected
+  hotspots; these figures are not just the UI's front-only growth.
+- Checked all polygons valid, nested across horizons, and projected area
+  equal to raster cell count; fresh and old arrival rasters exactly match.
+  Public artifacts: earth/public/data/perimeters/, existing ops growth bands
+  refreshed under earth/public/data/forecasts/.
+- Caveats: deterministic case-study forecast, no uncertainty band; 37.5 m
+  computation is not 37.5 m accuracy. Coarser satellite-derived initialization,
+  large fitted spread reduction, and no suppression model limit interpretation.
+
+### 14. August 2 map-wide Hyak perimeter batch (2026-11-14)
+- User authorized parallel ELMFIRE work on Hyak and confirmed current Aug 2
+  fires first; 342 historical catalog events and older MODIS-era fires later.
+- Scope: 76 distinct FEDS IDs from the 00Z/12Z map snapshots. Fixed 12Z issue,
+  24 h forecasts. Added --issue (no future-based date selection) and explicit
+  FEDS ID matching; use locally archived FEDS snapshots for this batch.
+- New worker scripts/perimeter_batch.py and hyak/perimeter_batch.slurm build
+  inputs, run 10 sensitivity members, score later available perimeters, and
+  export +6/+12/+24 h member-agreement envelopes. Settings and data caveats in
+  data/perimeter_batch/README.md. This is an uncalibrated sensitivity study.
+- Initial detections associated within 3 km of the issue-known FEDS outline;
+  future frames do not influence initialization. No active detections or
+  incomplete/truncated domains are flagged instead of inventing predictions.
+- Corrected shared-granule download race with per-file filesystem locks.
+  Reuse available geolocation for cloud flags; not all fires have cloud masks.
+- Metric tests passed: identical perimeters IoU=1 and boundary error=0;
+  one-cell displacement yields nonzero error <=37.5 m at p95; no-growth
+  versus no-growth has undefined growth IoU rather than fabricated skill.
+- Budget: 76 tasks ×45min ×$0.90/h = $51.30 scheduled ceiling, four tasks
+  concurrently after Widemouth integration check. No automatic retries.
+- Submitted integration 473163_54 and dependent remaining array 473166
+  (`0-53,55-75%4`, afterok:473163). Integration failure cancels the dependent
+  batch. Site banner reports 55 tasks for this disjoint range; actual requested
+  range contains 75. Retain the conservative 76-task $51.30 total ceiling.
+
 ### 17. Self-calibration from the fire's recent progression (Widemouth test) (2026-11-14; single case)
 - User-approved idea: correct spread per direction from how the model did over the fire's last 12-24 h.
   New scripts/selfcal_adj.py: hindcast ELMFIRE (physics3 inputs, ADJ=1, INIT=feds) from the FEDS perimeter at
