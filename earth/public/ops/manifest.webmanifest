@@ -1,4 +1,5 @@
 {
+  "id": "/ops/",
   "name": "Ignopticon Ops",
   "short_name": "Ops",
   "description": "Wildfire perimeters and spread forecasts, usable offline for saved areas.",

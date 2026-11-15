@@ -61,6 +61,7 @@ var zlib = require("zlib");
  * {bbox} is the tile's extent in EPSG:3857 meters, for services that render an arbitrary box.
  */
 var USGS = "https://basemap.nationalmap.gov/arcgis/rest/services/";
+var USGS_IMAGERY = "https://imagery.nationalmap.gov/arcgis/rest/services/";
 var LANDFIRE_FBFM40 = "https://lfps.usgs.gov/arcgis/rest/services/Landfire_LF2025/LF2025_FBFM40_CONUS/ImageServer";
 var TILE_SOURCES = {
     relief: USGS + "USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}",
@@ -68,6 +69,8 @@ var TILE_SOURCES = {
     satellite: USGS + "USGSImageryOnly/MapServer/tile/{z}/{y}/{x}",
     // EOX Sentinel-2 cloudless 2024, 10 m, global and seamless; CC BY-NC-SA 4.0 (non-commercial), credit EOX + Copernicus.
     s2cloudless: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
+    // 1 m-or-better CONUS detail. The Sentinel-2 layer remains underneath wherever this dynamic source has no image.
+    naip: USGS_IMAGERY + "USGSNAIPPlus/ImageServer/exportImage?bbox={bbox}&bboxSR=3857&imageSR=3857&size=1024,1024&format=jpg&f=image",
     imagerytopo: USGS + "USGSImageryTopo/MapServer/tile/{z}/{y}/{x}",  // imagery with contours, names, roads
     topo: USGS + "USGSTopo/MapServer/tile/{z}/{y}/{x}",
     terrain: "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",  // AWS Terrain Tiles, to z15
@@ -832,6 +835,12 @@ app.get("/api/fires/:id", apiFire);
 app.get("/api/fires/:id/weather", apiWeather);
 app.all("/api/*", function(req, res) { apiError(res, 404, "No API endpoint " + req.path); });
 app.use(i4Tile);
+// Android browsers require a manifest JSON MIME type before offering installation. Express 3's
+// bundled mime table predates .webmanifest and otherwise serves it as application/octet-stream.
+app.use(function(req, res, next) {
+    if (/\.webmanifest$/i.test(req.path)) res.type("application/manifest+json");
+    next();
+});
 app.use(express.static("public"));
 
 app.listen(port);

@@ -29,6 +29,41 @@ registerOffline({onStatus: status => {
   if (status.updateAvailable && Date.now() - opened < 15000) applyUpdate();
 }}).catch(() => {});
 freshness();
+let refreshNotice = null;
+function offlineRefreshNotice() {
+  const button = $("#refresh-data"), note = $("#refresh-note");
+  button.classList.add("offline"); note.textContent = "OFFLINE";
+  clearTimeout(refreshNotice);
+  refreshNotice = setTimeout(() => { button.classList.remove("offline"); note.textContent = ""; }, 5000);
+}
+$("#refresh-data").addEventListener("click", () => {
+  if (!connected || !navigator.onLine) return offlineRefreshNotice();
+  $("#refresh-data").setAttribute("aria-busy", "true");
+  location.reload();
+});
+// Chrome on Android supplies this event only when this exact app can be installed.  Keeping the
+// browser's prompt preserves its consent step, while giving responders a clear in-app entry point.
+let deferredInstall = null;
+const installButton = $("#install-app");
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstall = event;
+  installButton.hidden = false;
+});
+installButton.addEventListener("click", async () => {
+  if (!deferredInstall) return;
+  installButton.disabled = true;
+  deferredInstall.prompt();
+  try { await deferredInstall.userChoice; } finally {
+    deferredInstall = null;
+    installButton.hidden = true;
+    installButton.disabled = false;
+  }
+});
+window.addEventListener("appinstalled", () => {
+  deferredInstall = null;
+  installButton.hidden = true;
+});
 function matchesFire(f) {
   const q = state.filter.trim().toLowerCase();
   return [label(f), f.place, f.state].join(" ").toLowerCase().includes(q);
@@ -233,6 +268,9 @@ const baseSource = (b, maxzoom = 16) => {
   return {type: "raster", tiles: [`${keyed(b, maxzoom) ? "keyed://" : origin + "/"}tiles/${t.src}/{z}/{x}/{y}`], tileSize: 256,
     maxzoom: Math.min(maxzoom, t.maxzoom), attribution: t.attribution};
 };
+// 1024 px images on logical 512 px tiles retain mobile detail. They are an overlay, never the only map coverage.
+const naipSource = {type: "raster", tiles: [`${origin}/tiles/naip/{z}/{x}/{y}`], tileSize: 512, minzoom: 15, maxzoom: 20,
+  attribution: "USGS NAIP Plus / The National Map"};
 async function keyedTile(params, abort) {
   const res = await fetch(params.url.replace("keyed://", origin + "/"), {signal: abort.signal});
   if (!res.ok) throw new Error(`Tile ${res.status}`);
@@ -267,12 +305,13 @@ function style() {
   return {
     version: 8, glyphs: new URL("vendor/fonts/", import.meta.url).href + "{fontstack}/{range}.pbf",
     sky: {"sky-color": "#6E9CC8", "horizon-color": "#D9E4EE", "fog-color": "#D9E4EE"},
-    sources: {"base-low": baseSource(state.base, 8), base: baseSource(state.base), hydro: {type: "raster", tiles: [`${origin}/tiles/hydro/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16},
+    sources: {"base-low": baseSource(state.base, 8), base: baseSource(state.base), naip: naipSource, hydro: {type: "raster", tiles: [`${origin}/tiles/hydro/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16},
       fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo(), access: geo()},
     layers: [
       // Sentinel-2 has no gaps, so the fallback would only take request slots from the real tiles.
       L("base-low", "raster", "base-low", {}, {visibility: state.base === "satellite" ? "none" : "visible"}),
       L("base", "raster", "base", {}),
+      L("naip", "raster", "naip", {"raster-resampling": "linear", "raster-fade-duration": 150}, {visibility: state.base === "satellite" ? "visible" : "none"}),
       L("hydro", "raster", "hydro", {}, {visibility: state.labels ? "visible" : "none"}),
       L("fires-fill", "fill", "fires", {"fill-color": RED, "fill-opacity": 0.1}),
       L("sel-fill", "fill", "fires", {"fill-color": RED, "fill-opacity": 0.12}),
@@ -627,8 +666,9 @@ function setBase(b) {
   if (!map || !map.getLayer("base")) return;
   for (const id of ["base", "base-low"]) { map.removeLayer(id); map.removeSource(id); }
   map.addSource("base-low", baseSource(b, 8)); map.addSource("base", baseSource(b));
-  map.addLayer({id: "base-low", type: "raster", source: "base-low", layout: {visibility: b === "satellite" ? "none" : "visible"}}, "hydro");
-  map.addLayer({id: "base", type: "raster", source: "base"}, "hydro");
+  map.addLayer({id: "base-low", type: "raster", source: "base-low", layout: {visibility: b === "satellite" ? "none" : "visible"}}, "naip");
+  map.addLayer({id: "base", type: "raster", source: "base"}, "naip");
+  map.setLayoutProperty("naip", "visibility", b === "satellite" ? "visible" : "none");
 }
 function setLabels(on) {
   state.labels = on; writeUrl();
@@ -639,7 +679,7 @@ function setLabels(on) {
 function initMap() {
   if (!window.maplibregl) { showError("Map library failed to load"); return; }
   maplibregl.addProtocol("keyed", keyedTile);
-  map = new maplibregl.Map({container: "map", style: style(), bounds: [[-125, 24], [-66, 50]], fitBoundsOptions: {padding: 40},
+  map = new maplibregl.Map({container: "map", style: style(), bounds: [[-125, 24], [-66, 50]], fitBoundsOptions: {padding: 40}, maxZoom: 20,
     attributionControl: {compact: true}, maxPitch: 70, fadeDuration: reduced ? 0 : 300});
   window.opsMap = map; showPosition();
   if (at) fit(state.fire && byId.has(state.fire) ? fireBounds(byId.get(state.fire)) : allBounds());
