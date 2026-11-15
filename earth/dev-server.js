@@ -120,8 +120,15 @@ function sendTile(res, body) {
  * @returns {Promise} the tile from the cache file, fetched from url the first time, or null if upstream has none.
  *          Unless transient is set, a tile upstream does not have is remembered as missing.
  */
+// USGS answers 200 with this solid-white JPEG where it has no imagery (outside the US at zooms 9-11). Treated as
+// missing (404), so the map draws nothing there instead of white squares.
+var USGS_BLANK_MD5 = "5a2a693b2622558ab8514f95f63d7ebd";
+function isBlank(body) {
+    return body.length === 2419 && require("crypto").createHash("md5").update(body).digest("hex") === USGS_BLANK_MD5;
+}
+
 function cachedTile(file, url, transient) {
-    if (fs.existsSync(file)) return Promise.resolve(fs.readFileSync(file));
+    if (fs.existsSync(file)) { var kept = fs.readFileSync(file); return Promise.resolve(isBlank(kept) ? null : kept); }
     if (fs.existsSync(file + MISSING)) return Promise.resolve(null);
     return fetch(url).then(function(upstream) {
         return upstream.arrayBuffer().then(function(buffer) {
@@ -135,6 +142,10 @@ function cachedTile(file, url, transient) {
                 return null;
             }
             var body = Buffer.from(buffer);
+            if (isBlank(body)) {
+                fs.writeFileSync(file + MISSING, "");
+                return null;
+            }
             fs.writeFileSync(file, body);
             return body;
         });
