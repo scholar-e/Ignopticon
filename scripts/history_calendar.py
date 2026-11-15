@@ -88,6 +88,14 @@ def main():
             fire = np.logical_or.reduce([p[0] for p in parts]); clear = np.logical_or.reduce([p[1] for p in parts])
         else:
             fire, clear = load("VNP14A1", y, nd)
+            # Days S-NPP has no data (outages, granules not archived) are filled from NOAA-20 (VJ114A1, the same VIIRS
+            # instrument on the same orbit, ~50 min apart), so the record stays on the VIIRS scale.
+            j1 = load("VJ114A1", y, nd)
+            if j1:
+                gap = ~clear.reshape(nd, -1).any(1) & j1[1].reshape(nd, -1).any(1)
+                fire[gap], clear[gap] = j1[0][gap], j1[1][gap]
+                if gap.any():
+                    print("%d: %d days filled from NOAA-20" % (y, int(gap.sum())))
         have = clear.reshape(nd, -1).any(1)  # days with any data (2026 stops mid-November)
         raw = fire.reshape(nd, -1).astype("float32") @ mat
         clr = clear.reshape(nd, -1).astype("float32") @ mat / area * 100
