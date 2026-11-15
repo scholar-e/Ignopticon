@@ -201,7 +201,6 @@ ${days.map((d) => { const v = daily.get(d) || 0, c = v ? ramp(SEQ, Math.log1p(v)
   }
 
   // ---- Wiring ----
-  $("#hist-open").addEventListener("click", open);
   $("#hist-close").addEventListener("click", () => { $("#hist").hidden = true; hideDay(); const m = ctx.getMap(); if (m?.getLayer("hist-box")) m.setLayoutProperty("hist-box", "visibility", "none"); });
   $("#hist-product").addEventListener("change", (e) => { product = e.target.value; daily = null; load(); if (layerDate) showDay(layerDate); });
   $("#hist-view").addEventListener("click", useView);

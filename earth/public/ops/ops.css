@@ -290,10 +290,6 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .selected .controls{display:none}
 
 /* ---- Fire history (history.js): calendar panel over the map, daily layer ---- */
-.hist-open{display:grid;gap:2px;width:calc(100% - 32px);margin:10px 16px 0;padding:10px 12px;text-align:left;font-weight:700;
-  background:var(--raise);border:1px solid var(--line);border-radius:8px;color:var(--text)}
-.hist-open small{font-weight:400;color:var(--muted);font-size:.8rem}
-.hist-open:hover{border-color:#cfd8d3}
 .hist{position:absolute;z-index:5;top:12px;left:12px;max-height:calc(100% - 24px);width:min(620px,calc(100% - 24px));display:flex;flex-direction:column;gap:8px;
   padding:12px 14px;background:var(--overlay);border:1px solid var(--line);border-radius:12px;box-shadow:var(--pill-shadow)}
 .hist-head{display:flex;align-items:center;justify-content:space-between}
