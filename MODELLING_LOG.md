@@ -801,7 +801,7 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
   harm MAE 0.556, Spearman 0.399, zero-growth AUC 0.760; raw 0.560 / 0.414 / 0.767; viirs-only 0.571 / 0.395 / 0.757 (t0 variant: 0.394-0.410,
   almost the same). Predicting zero has MAE 0.519, i.e. no arm beats it on MAE (zero-inflated target); the signal is in ranking (single-feature
   Spearman: g0 0.26, n_t 0.26). Extra history helps (both pre-2012 arms beat viirs-only by ~0.015 MAE), but raw >= harm on rank
-  and AUC by 0.003-0.015 (seed sd 0.002-0.004): no benefit of harmonization here, unlike nothing to claim. Exploratory: test years were scored once but the grid was small.
+  and AUC by 0.003-0.015 (seed sd 0.002-0.004): no benefit of harmonization here. Exploratory: test years were scored once but the grid was small.
 - Area conversion (`data/growth/area_conversion.json`, in-sample, 8 FEDS-archive fires, 6 matched, 82 event-days): FEDS daily growth km2 / observed new cells =
   45.7 km2 per cell (r2 through the origin 0.22, Spearman 0.58). Forecast area = 45.7 x predicted cells x 0.5 (12 h of the day; uniform-growth assumption).
 - Held-out (12 frozen fires, issue 2026-08-02T12, truth FEDS +12 h; features from Aug 1 VIIRS history and gridMET; t1 uses Aug 2 gridMET, a
