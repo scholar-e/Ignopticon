@@ -204,7 +204,8 @@ def members(fire):
     pb = Path("data/perimeter_batch")
     mem = sorted(p.parent for p in list((pb / fire / "runs" / "fuelwind16").glob("*/outputs/run.json")) +
                  list((pb / fire / "runs" / "physics3").glob("*/outputs/run.json")) +
-                 list((pb / fire / "runs" / "physics3").glob("outputs/run.json")))
+                 list((pb / fire / "runs" / "physics3").glob("outputs/run.json")) +
+                 list((pb / fire / "runs" / "worstcase").glob("*/outputs/run.json")))
     return mem
 
 

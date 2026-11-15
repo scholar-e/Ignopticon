@@ -39,9 +39,19 @@ def _fuelwind16():
             for g in (.4,1.) for h in (.4,1.) for t in (.2,.6) for e in (-1,0)}
 def _physics3():
     return {'adj1':{'ADJ':1.},'adj0.5':{'ADJ':.5},'adj1-wind0.7':{'ADJ':1.,'WSMULT':.7}}
-MEMBER_SETS={'uniform10':_uniform10,'fuelwind16':_fuelwind16,'physics3':_physics3}
+def _worstcase():
+    # Worst-case ensemble around the physics3 control adj1: wind direction -20/0/+20 deg x wind speed x0.75/1/1.25
+    # (the 0 / x1 cell is the control itself), plus dead fuel moisture -2/+2 points on the control. 11 members.
+    m={'adj1':{'ADJ':1.}}
+    for d in (-20,0,20):
+        for w in (.75,1,1.25):
+            if d==0 and w==1: continue
+            m[f'wd{d:+d}-ws{w:g}']={'ADJ':1.,'WDROT':d,'WSMULT':w}
+    for p in (-2,2): m[f'moist{p:+d}']={'ADJ':1.,'MOIST':p}
+    return m
+MEMBER_SETS={'uniform10':_uniform10,'fuelwind16':_fuelwind16,'physics3':_physics3,'worstcase':_worstcase}
 MEMBER_SET=os.environ.get('PERIMETER_MEMBERS','fuelwind16')
-PHYS=MEMBER_SET=='physics3'
+PHYS=MEMBER_SET in ('physics3','worstcase')
 HOURS=int(os.environ.get('HOURS','12' if PHYS else '24'))
 INIT=os.environ.get('INIT','feds' if PHYS else 'hotcells')
 WX=os.environ.get('WX','subhourly' if PHYS else 'hourly')

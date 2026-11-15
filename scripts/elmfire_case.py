@@ -39,7 +39,7 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            LIVE_MOISTURE=gsi sets LH/LW per case from scripts/live_moisture.py (GSI-style proxy from the 21 days
            before ISSUE; overrides LH_MOISTURE_CONTENT/LW_MOISTURE_CONTENT; default const = those values).
            WIND_20FT=f rescales the 20-ft wind factor from the weather files' 0.87 to f (ELMFIRE applies its own canopy
-           WAF on top: midflame = 20-ft wind x WAF, so this is not a double count). WSMULT=x scales wind speed, MOIST=p adds p percentage points to dead fuel moisture, WXSTART=k starts at
+           WAF on top: midflame = 20-ft wind x WAF, so this is not a double count). WSMULT=x scales wind speed, WDROT=d rotates the wind direction by d degrees, MOIST=p adds p percentage points to dead fuel moisture, WXSTART=k starts at
            the weather's band k (for an ISSUE k hours after the weather run). ACTIVE_BUFFER=n (default 2): burned
            cells within n state cells of a hot cell keep their fuel; only the rest become non-burnable.
            ADJ_GR=, ADJ_SH=, ADJ_TIMBER= set the spread multiplier of grass + grass-shrub, shrub and timber fuels
@@ -353,6 +353,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     burned_fine = np.kron(burned, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
     adj_value, observed, active_hours, extra = 1.0, None, 6.0, {"SIMULATOR": {"NUM_IGNITIONS": 0}}
     ws_mult, moist_add, wx_start, active_buffer = 1.0, 0.0, 0, 2
+    wd_rot = 0.0
     adj_group, adj_wind_exp, adj_wind_ref = {}, 0.0, 10.0
     min_start, min_start_info = 0, None
     init_mode, edge_cells, init_info = "hotcells", 2, None
@@ -391,6 +392,9 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         if key.upper() == "MOIST":
             moist_add = float(value)
+            continue
+        if key.upper() == "WDROT":  # degrees added to the wind-from direction (positive = clockwise)
+            wd_rot = float(value)
             continue
         if key.upper() == "LIVE_MOISTURE":
             live_moisture = value.lower()
@@ -644,6 +648,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     # add MOIST (percentage points) to the dead fuel moisture.
     weather = {k: v[wx_start:] for k, v in weather.items()}
     weather["ws"] = weather["ws"] * ws_mult
+    weather["wd"] = np.mod(weather["wd"] + wd_rot, 360.0)
     if adj_wind_exp:
         # Wind term: ADJ x (cell's mean 20-ft wind over the run / ADJ_WIND_REF mph) ** ADJ_WIND_EXP, factor clipped
         # to [0.1, 10]. ELMFIRE's adj raster is static, so the run's mean wind stands for the cell's wind.
@@ -709,7 +714,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             "base_adj_mean": float(base[zone].mean()) if zone.any() else None}
         log.info("ADJ_BAND outward band: %s", init_info["front"]["outward_band"])
     for k in ("m1", "m10", "m100"):
-        weather[k] = weather[k] + moist_add
+        weather[k] = weather[k] + moist_add if not moist_add else np.maximum(weather[k] + moist_add, 1.0)
     # Keys given without a group go to the group write_case already uses them in, else SIMULATOR.
     loose = extra.pop("?", {})
     if live_info is not None:  # LIVE_MOISTURE=gsi wins over LH/LW_MOISTURE_CONTENT given as plain KEY=VALUE
