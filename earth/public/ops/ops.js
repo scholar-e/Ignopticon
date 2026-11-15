@@ -890,7 +890,30 @@ function noOutlines(data) {
   $("#count").innerHTML = `<span class="hint">No fire outlines for ${esc(day)} yet: perimeters start in ${firstFeds ? firstFeds.slice(0, 4) : "2026"}, and outlines for earlier years are being prepared. The map shows the satellite fire detections for that day.</span>`;
   if (!data) { $("#list").innerHTML = ""; listSources && listSources(); }
   const show = () => fireHistory.showDay(day);
+  firmsArchive(day);
   if (map && map.isStyleLoaded()) show(); else (function wait() { map ? map.once("idle", show) : setTimeout(wait, 300); })();
+}
+// FIRMS archive points (/data/history/firms/SENSOR/daily/DAY.json) for the UTC day and the day before: MODIS 1 km and VIIRS
+// 375 m, coloured by FRP. Sensors or days that are missing (404) are skipped.
+async function firmsArchive(day) {
+  const prev = new Date(Date.parse(day) - 864e5).toISOString().slice(0, 10), feats = [], n = {};
+  const js = await Promise.all(["modis", "viirs-snpp", "viirs-noaa20", "viirs-noaa21"].flatMap((s) => [day, prev].map((x) =>
+    fetch(`/data/history/firms/${s}/daily/${x}.json`).then((r) => r.ok ? r.json() : null).catch(() => null))));
+  for (const j of js) {
+    if (!j || !j.rows) continue;
+    const i = (c) => j.columns.indexOf(c), fam = j.sensor === "modis" ? "MODIS" : "VIIRS";
+    n[fam] = (n[fam] || 0) + j.rows.length;
+    for (const r of j.rows) feats.push({type: "Feature", geometry: {type: "Point", coordinates: [r[i("longitude")], r[i("latitude")]]}, properties: {frp: +r[i("frp")] || 0}});
+  }
+  const note = feats.length ? `FIRMS archive (MODIS/VIIRS): ${Object.entries(n).map(([k, v]) => `${num(v)} ${k}`).join(", ")} detections, ${esc(prev)} to ${esc(day)} UTC. Colour = FRP: yellow under 10, orange 10-50, red 50-200, magenta over 200 MW.` : `No FIRMS archive data for ${esc(day)}.`;
+  $("#count").insertAdjacentHTML("beforeend", `<span class="hint"><br>${note}</span>`);
+  if (!feats.length) return;
+  while (!(map && map.getLayer("fires-fill"))) await new Promise((r) => setTimeout(r, 300));   // wait for the map's own layers
+  const data = {type: "FeatureCollection", features: feats};
+  if (map.getSource("firms")) return map.getSource("firms").setData(data);
+  map.addSource("firms", {type: "geojson", data});
+  map.addLayer({id: "firms", type: "circle", source: "firms", paint: {"circle-color": ["step", ["get", "frp"], "#FFE08A", 10, "#FFA230", 50, "#FF4A2A", 200, "#C2185B"],
+    "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 1.2, 9, 2.5, 15, 7], "circle-opacity": 0.8}}, map.getLayer("fires-fill") ? "fires-fill" : undefined);
 }
 // The map library is a deferred script after this module; start the map once it has run.
 if (window.maplibregl) initMap(); else $('script[src$="maplibre-gl.js"]').addEventListener("load", initMap);
