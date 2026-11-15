@@ -152,7 +152,45 @@ var products = function() {
             return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hour));
         }
         var parts = attr.date.split("/");
-        return new Date(Date.UTC(+parts[0], parts[1] - 1, +parts[2], +attr.hour.substr(0, 2)));
+        return new Date(Date.UTC(+parts[0], parts[1] - 1, +parts[2], +attr.hour.substr(0, 2), +attr.hour.substr(2, 2) || 0));
+    }
+
+    /**
+     * HRRR 10 m wind frames (scripts/hrrr_live_wind.py): for days that have them, surface wind comes from the newest
+     * HRRR run available at each 15-minute time instead of GFS. Frames are regional (lower 48, 0.1 deg); outside them
+     * the field is undefined. Only whole-hour frames are in git; if a 15-minute frame is missing, its hour's frame
+     * (same HRRR run) is used.
+     */
+    var HRRR_PATH = WEATHER_PATH + "/hrrr";
+    var hrrrIndexes = {};
+
+    function hrrrIndex(date) {
+        if (date === "current") return when.resolve(null);
+        return hrrrIndexes[date] || (hrrrIndexes[date] = µ.loadJson(HRRR_PATH + "/" + date + "/index.json")
+            .otherwise(function() { return null; }));
+    }
+
+    /** @returns {Object} the index's frame within 7.5 minutes of the date, or null. */
+    function hrrrFrame(index, date) {
+        if (!index || µ.dateToUTCymd(date, "-") !== index.date) return null;
+        var minute = date.getUTCHours() * 60 + date.getUTCMinutes(), best = null, bestGap = 8;
+        index.frames.forEach(function(f) {
+            var gap = Math.abs(+f.time.substr(0, 2) * 60 + +f.time.substr(2, 2) - minute);
+            if (gap < bestGap) { best = f; bestGap = gap; }
+        });
+        return best;
+    }
+
+    /** Decodes a compact record: int8 values (base64) times its scale, with its missing value as undefined. */
+    function decodeRecord(record) {
+        if (!record.b64) return record.data;
+        var bytes = atob(record.b64), n = bytes.length, data = new Array(n);
+        var scale = record.scale, missing = record.missing;
+        for (var i = 0; i < n; i++) {
+            var b = bytes.charCodeAt(i), v = b > 127 ? b - 256 : b;
+            data[i] = v === missing ? null : v * scale;
+        }
+        return data;
     }
 
     /**
@@ -219,13 +257,40 @@ var products = function() {
                     }),
                     paths: [gfs1p0degPath(attr, "wind", attr.surface, attr.level)],
                     date: gfsDate(attr),
+                    requested: gfsDate(attr),
+                    load: function(cancel) {
+                        var me = this, gfsLoad = buildProduct({}).load;
+                        if (attr.surface !== "surface") return gfsLoad.call(me, cancel);
+                        return hrrrIndex(attr.date).then(function(index) {
+                            var frame = hrrrFrame(index, me.date);
+                            if (!frame || cancel.requested) return gfsLoad.call(me, cancel);
+                            var dir = HRRR_PATH + "/" + attr.date + "/";
+                            me.hrrr = true;
+                            me.paths = [dir + frame.file];
+                            return gfsLoad.call(me, cancel).otherwise(function(err) {
+                                var hourly = frame.time.substr(0, 2) + "00" + frame.file.substr(4);
+                                if (frame.file === hourly) throw err;
+                                me.paths = [dir + hourly];
+                                return gfsLoad.call(me, cancel);
+                            });
+                        });
+                    },
+                    navigate: function(step) {
+                        if (!this.hrrr) return gfsStep(this.date, step);
+                        // HRRR frames: +-1 moves 15 minutes, +-10 moves 3 hours.
+                        // From the time asked for: a missing 15-minute frame shows its hour's frame instead.
+                        var adjusted = new Date(this.requested);
+                        adjusted.setUTCMinutes(adjusted.getUTCMinutes() + (step > 1 ? 180 : step < -1 ? -180 : step * 15));
+                        return adjusted;
+                    },
                     builder: function(file) {
-                        var uData = file[0].data, vData = file[1].data;
+                        var uData = decodeRecord(file[0]), vData = decodeRecord(file[1]);
                         return {
                             header: file[0].header,
                             interpolate: bilinearInterpolateVector,
                             data: function(i) {
-                                return [uData[i], vData[i]];
+                                var u = uData[i], v = vData[i];
+                                return u === null || v === null ? null : [u, v];
                             }
                         }
                     },

@@ -1113,7 +1113,7 @@
         if (attr.transition === "prev") {
             var now = attr.date === "current" ? Infinity :
                 Date.UTC(+attr.date.substr(0, 4), +attr.date.substr(5, 2) - 1, +attr.date.substr(8, 2),
-                    +attr.hour.substr(0, 2));
+                    +attr.hour.substr(0, 2), +attr.hour.substr(2, 2) || 0);
             var i = times.length - 1;
             while (i >= 0 && snapshotMillis(times[i]) > now) i--;
             if (i < 0 || now - snapshotMillis(times[i]) >= SNAPSHOT_INTERVAL) {
@@ -2516,7 +2516,7 @@
         var parts = configuration.get("date").split("/");  // yyyy/mm/dd or "current"
         var hhmm = configuration.get("hour");
         return parts.length > 1 ?
-            Date.UTC(+parts[0], parts[1] - 1, +parts[2], +hhmm.substring(0, 2)) :
+            Date.UTC(+parts[0], parts[1] - 1, +parts[2], +hhmm.substring(0, 2), +hhmm.substring(2, 4) || 0) :
             parts[0] === "current" ? now : null;
     }
 
@@ -2783,6 +2783,14 @@
         gridAgent.on("update", function(grids) {
             showGridDetails(grids);
             showSmokeDetails(grids);
+            if (configuration.get("param") === "wind") {
+                // HRRR wind frames step 15 minutes (+-3 hours with the double arrows); GFS steps 3 hours (+-1 day).
+                var hrrr = grids && grids.primaryGrid && grids.primaryGrid.hrrr;
+                d3.select("#nav-backward-more").attr("title", hrrr ? "-3 Hours" : "-1 Day");
+                d3.select("#nav-backward").attr("title", hrrr ? "-15 Minutes" : "-3 Hours");
+                d3.select("#nav-forward").attr("title", hrrr ? "+15 Minutes" : "+3 Hours");
+                d3.select("#nav-forward-more").attr("title", hrrr ? "+3 Hours" : "+1 Day");
+            }
         });
         configuration.on("change:flow", function() {
             showSmokeDetails(gridAgent.value());

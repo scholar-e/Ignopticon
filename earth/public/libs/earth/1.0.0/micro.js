@@ -119,14 +119,14 @@ var µ = function() {
         return date.getUTCFullYear() + "-" +
             zeroPad(date.getUTCMonth() + 1, 2) + "-" +
             zeroPad(date.getUTCDate(), 2) + " " +
-            zeroPad(date.getUTCHours(), 2) + ":00";
+            zeroPad(date.getUTCHours(), 2) + ":" + zeroPad(date.getUTCMinutes(), 2);
     }
 
     function toLocalISO(date) {
         return date.getFullYear() + "-" +
             zeroPad(date.getMonth() + 1, 2) + "-" +
             zeroPad(date.getDate(), 2) + " " +
-            zeroPad(date.getHours(), 2) + ":00";
+            zeroPad(date.getHours(), 2) + ":" + zeroPad(date.getMinutes(), 2);
     }
 
     /**
@@ -150,7 +150,7 @@ var µ = function() {
     }
 
     function dateToConfig(date) {
-        return {date: µ.dateToUTCymd(date, "/"), hour: µ.zeroPad(date.getUTCHours(), 2) + "00"};
+        return {date: µ.dateToUTCymd(date, "/"), hour: µ.zeroPad(date.getUTCHours(), 2) + µ.zeroPad(date.getUTCMinutes(), 2)};
     }
 
     /**
