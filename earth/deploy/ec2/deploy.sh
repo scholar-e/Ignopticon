@@ -7,6 +7,10 @@ set -euo pipefail
 
 IP=${1:?usage: deploy.sh IP [HOSTNAME]}
 SITE=${2:-${IP//./-}.sslip.io}
+# With a custom domain, also serve www.<domain> and the sslip.io name (fallback while DNS propagates).
+SSLIP=${IP//./-}.sslip.io
+EXTRA=""
+[[ "$SITE" != "$SSLIP" ]] && EXTRA="www.$SITE $SSLIP"
 KEY_FILE=${KEY_FILE:-$HOME/.ssh/${NAME:-ignopticon}-ec2.pem}
 EARTH=$(cd "$(dirname "$0")/../.." && pwd)
 SSH=(ssh -i "$KEY_FILE" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 "ubuntu@$IP")
@@ -43,13 +47,17 @@ echo "== Building and starting on the server, served at $SITE"
 # .env: the site address, plus the openrouteservice key (ORS_API_KEY here, else the one already on the server).
 ORS_LINE=${ORS_API_KEY:+ORS_API_KEY=$ORS_API_KEY}
 "${SSH[@]}" "cd ignopticon/earth/deploy/ec2 && old=\$(grep '^ORS_API_KEY=' .env 2>/dev/null || true) && \
-    printf '%s\n' 'SITE_ADDRESS=$SITE' \"${ORS_LINE:-\$old}\" > .env && \
+    printf '%s\n' 'SITE_ADDRESS=$SITE' 'EXTRA_ADDRESSES=$EXTRA' \"${ORS_LINE:-\$old}\" > .env && \
     docker compose up -d --build --remove-orphans && docker image prune -f >/dev/null"
 
 echo "== Checking https://$SITE/"
 for i in $(seq 1 24); do
     if curl -fsS -o /dev/null "https://$SITE/api/fires"; then
         echo "Live: https://$SITE/  (globe: https://$SITE/globe)"
+        exit 0
+    fi
+    if [[ -n "$EXTRA" ]] && curl -fsS -o /dev/null "https://$SSLIP/api/fires"; then
+        echo "Live at https://$SSLIP/ ; https://$SITE/ will follow once its DNS points at $IP (Caddy retries the certificate)."
         exit 0
     fi
     sleep 5

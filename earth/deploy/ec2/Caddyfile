@@ -1,5 +1,7 @@
 # SITE_ADDRESS is a hostname that points at this instance, e.g. 3-91-20-7.sslip.io or fire.example.org.
 # Caddy fetches a Let's Encrypt certificate for it and redirects http to https.
-{$SITE_ADDRESS} {
+# EXTRA_ADDRESSES: more names for the same site (space-separated), e.g. www.<domain> and the sslip.io fallback,
+# so the sslip.io address keeps working while a new domain's DNS propagates.
+{$SITE_ADDRESS} {$EXTRA_ADDRESSES} {
 	reverse_proxy app:8080
 }
