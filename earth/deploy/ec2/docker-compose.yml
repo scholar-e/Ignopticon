@@ -6,6 +6,9 @@ services:
     restart: unless-stopped
     volumes:
       - tiles:/data               # proxied map tiles, kept across deploys
+      # Daily MODIS/VIIRS/harmonized layers 2000-2026 (scripts/export_ui.py, ~3 GB), uploaded separately with
+      # rsync to ~/ignopticon-history on the instance (outside earth/, so deploys don't delete them).
+      - /home/ubuntu/ignopticon-history:/app/public/data/history:ro
     expose:
       - "8080"
 

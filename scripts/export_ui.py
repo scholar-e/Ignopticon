@@ -17,6 +17,7 @@ plate carree). PNG channels (RGBA, 8 bit):
 JSON per day: {"product", "date", "fires": [[col, row, fire_pixels, fire_pixels_nominal_or_high, clear, frp_mw], ...]}.
 
 Usage: export_ui.py fires GRID_DIR PRODUCT YEAR FIRST_DOY LAST_DOY OUT_DIR
+       export_ui.py harmonized HARM_DIR YEAR FIRST_DOY LAST_DOY OUT_DIR   (harmonize.py apply outputs)
        export_ui.py elevation ELEVATION.npz OUT_DIR
        export_ui.py index OUT_DIR           (writes OUT_DIR/index.json listing what is there)
 """
@@ -58,6 +59,38 @@ def fires(grid_dir, product, year, first, last, out_dir):
     print("%s %d: days %s-%s written to %s" % (product, year, first, last, d_out))
 
 
+def harmonized(harm_dir, year, first, last, out_dir):
+    """The harmonized record (harmonize.py apply): P(VIIRS S-NPP sees fire) per cell-day, VIIRS-equivalent before
+    2012. PNG: R = round(255 p); G = observed fire: 255 VIIRS S-NPP saw fire, 128 MODIS only (no VIIRS look), 0 none;
+    B = which sensor saw the cell clearly: 0 none, 85 MODIS only, 170 VIIRS; A = 255 where some sensor saw it clearly
+    (p is conditional on a clear look). JSON: cells with p >= 0.05 or observed fire, [col, row, p, viirs_fire_pixels,
+    modis_fire_pixels]."""
+    z = np.load(os.path.join(harm_dir, "harmonized_%s.npz" % year))
+    p = np.nan_to_num(z["p_viirs"].astype(np.float32), nan=0.0)
+    obs, mfire = z["observed"], z["modis_fire"]
+    vfire = z["viirs_fire"] if "viirs_fire" in z.files else np.zeros_like(mfire)
+    year = int(year)
+    days = p.shape[0]
+    d_out = os.path.join(out_dir, "harmonized")
+    os.makedirs(d_out, exist_ok=True)
+    for doy in range(int(first), min(int(last), days) + 1):
+        d = doy - 1
+        date = datetime.date(year, 1, 1) + datetime.timedelta(days=d)
+        v = vfire[d] if d < vfire.shape[0] else np.zeros((NY, NX), vfire.dtype)
+        rgba = np.zeros((NY, NX, 4), np.uint8)
+        rgba[..., 0] = np.round(255 * np.clip(p[d], 0, 1))
+        rgba[..., 1] = np.where(v > 0, 255, np.where((mfire[d] > 0) & (obs[d] < 2), 128, 0))
+        rgba[..., 2] = np.minimum(obs[d], 2) * 85
+        rgba[..., 3] = np.where(obs[d] > 0, 255, 0)
+        stem = os.path.join(d_out, date.isoformat())
+        Image.fromarray(rgba, "RGBA").save(stem + ".png", optimize=True)
+        r, c = np.nonzero((p[d] >= 0.05) | (v > 0) | (mfire[d] > 0))
+        json.dump({"product": "harmonized", "date": date.isoformat(), "fires": [
+            [int(cc), int(rr), round(float(p[d, rr, cc]), 3), int(v[rr, cc]), int(mfire[d, rr, cc])]
+            for rr, cc in zip(r, c)]}, open(stem + ".json", "w"), separators=(",", ":"))
+    print("harmonized %d: days %s-%s written to %s" % (year, first, last, d_out))
+
+
 def elevation(path, out_dir):
     z = np.load(path)
     elev, sd = z["elev"], z["elev_sd"]
@@ -89,6 +122,8 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     if a and a[0] == "fires" and len(a) == 7:
         fires(*a[1:])
+    elif a and a[0] == "harmonized" and len(a) == 6:
+        harmonized(*a[1:])
     elif a and a[0] == "elevation" and len(a) == 3:
         elevation(*a[1:])
     elif a and a[0] == "index" and len(a) == 2:

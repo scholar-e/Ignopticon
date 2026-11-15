@@ -10,8 +10,10 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const params = new URLSearchParams(location.search);
 const BASEMAPS = ["satellite"];
+// Demo day: the page opens on Aug 2, 2026 18Z, the day with ELMFIRE forecasts for its fires. ?t=now shows the latest.
+const DEMO_DAY = "2026-08-02T18:00Z";
 const state = {
-  t: params.get("t"), fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
+  t: params.get("t") || DEMO_DAY, fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
   base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") !== "off",
   filter: "", sort: ["closest", "size", "growth", "newest", "name"].includes(params.get("sort")) ? params.get("sort") : "closest",
   mode: "progression", step: 0, fc: null, compare: false,  // fc: forecast hour shown, or null (off)
