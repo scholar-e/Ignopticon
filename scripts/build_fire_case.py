@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["numpy", "rasterio"]
+# dependencies = ["numpy", "rasterio", "scipy", "pyproj", "pygrib"]
 # ///
 """Everything ELMFIRE needs for one catalog fire (scripts/fire_catalog.py), for training runs (data/training/NOTES.md).
 
@@ -27,7 +27,7 @@ Steps, each skipped when its output exists (so the script is idempotent and resu
 Per issue, an observation file cut to frames and perimeters up to issue + 24 h (obs/ISSUE-observed.json) keeps
 scoring small; it holds every frame before issue, as elmfire_case.py's leak-free start needs.
 
-Environment: PYRUN (default "uv run --script") runs the repo scripts, e.g. PYRUN=python3 in the container.
+Environment: PY (default "uv run --script") runs the repo scripts, e.g. PY=python3 in the container.
 Usage: build_fire_case.py FIRE_ID [--catalog CSV] [--geo] [--keep-raw] [--max-issues N] [--steps 1,2,...]
        e.g. build_fire_case.py 2020-035
 Writes data/training/fires/FIRE_ID/: case.json (grid, refine, issues with their overpass counts, timings, download
@@ -81,9 +81,9 @@ HRRR = "https://noaa-hrrr-bdp-pds.s3.amazonaws.com"
 ACTIVE_HOURS = 6
 MIN_HOT = 3
 MIN_AFTER = 10
-# How repo scripts are run (their PEP 723 headers name their packages); PYRUN="python3" inside a container that has
-# them installed.
-PYRUN = os.environ.get("PYRUN", "uv run --script").split()
+# How repo scripts are run (their PEP 723 headers name their packages); PY=python3 inside the container, which has
+# them installed (the same variable as elmfire_forecast.sh).
+PYRUN = (os.environ.get("PY") or "uv run --script").split()
 
 
 def run(cmd, logfile):
@@ -211,6 +211,14 @@ def hrrr_hours(run):
     return None
 
 
+def prefetch_hrrr(run, hours, rawdir):
+    """Download the run's forecast hours 8 at a time (hrrr_weather.py then finds them and fetches none)."""
+    import hrrr_weather
+    os.makedirs(rawdir, exist_ok=True)
+    with concurrent.futures.ThreadPoolExecutor(8) as pool:
+        list(pool.map(lambda h: hrrr_weather.download(run, h, rawdir), range(hours + 1)))
+
+
 def pad_weather(wxdir, hours, want=24):
     """Hold the last forecast hour to +want h (bands hours+1 .. want+1 repeat the last)."""
     for name in ("ws", "wd", "m1", "m10", "m100"):
@@ -326,6 +334,7 @@ def main():
                 continue
             t = time.time()
             rawdir = os.path.join(RAW_HRRR, a.fire)
+            prefetch_hrrr(runtime, hours, rawdir)
             run(["scripts/hrrr_weather.py", state_tif, issue[:13], str(hours), wxdir + ".part", rawdir], logfile)
             if hours < 24:
                 pad_weather(wxdir + ".part", hours)

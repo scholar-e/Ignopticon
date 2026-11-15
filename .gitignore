@@ -13,3 +13,8 @@ __pycache__/
 data/harmonize/
 hyak/chunks/
 hyak/logs/
+# Training ELMFIRE corrections: bulky inputs, runs, logs and member lists stay local
+data/training/*
+!data/training/catalog.csv
+!data/training/NOTES.md
+!data/training/scores.csv

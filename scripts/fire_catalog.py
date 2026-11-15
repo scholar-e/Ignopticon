@@ -22,7 +22,9 @@ Usage: fire_catalog.py OUT.csv [FIRST LAST]   (years, default 2014 2025)
 Writes OUT.csv, one row per event: id (YYYY-NNN, by size within the year), start/end/peak date, days with fire,
 fire cell-days, unique cells, fire pixels, peak-day pixels, summed FRP (GW, VNP14A1 MaxFRP sums: a relative size,
 not an energy), bbox (W,S,E,N degrees, cell edges), centre (cell-day weighted), cell-weighted fuel group fractions,
-dominant group and FBFM40 mode, canopy cover, and an approximate region.
+dominant group and FBFM40 mode, canopy cover, landfire_valid (share of the event's cells with LANDFIRE fuel; LF2025
+CONUS also covers a strip of Canada), in_us (centre in the lower 48 by in_us(); 0 for events in British Columbia
+or northern Mexico, which the grid reaches), and an approximate region.
 """
 import csv
 import logging
@@ -73,6 +75,13 @@ def region(lon, lat):
     if lon < -94:
         return "Plains"
     return "Southeast" if lat < 37 else "East"
+
+
+def in_us(lon, lat):
+    """Rough test that a point is in the lower 48, not Canada or Mexico (the grid reaches 50 N and 24 N): the
+    49th parallel west of Lake of the Woods, and the Sonora/Chihuahua line at 31.33 N west of El Paso. The Great
+    Lakes border and the Rio Grande are not tested (few events there)."""
+    return not ((lat >= 49.0 and lon < -95.15) or (lat < 31.33 and lon < -106.5))
 
 
 def cell_lonlat(row, col):
@@ -166,6 +175,8 @@ def main(out_csv, first="2014", last="2025"):
                 "fuel_group": GROUP_NAMES[max(burnable, key=burnable.get)],
                 "fbfm40_mode": int(np.bincount(modes).argmax()) if len(modes) else -1,
                 "cc": round(float(np.nanmean(fuel["cc"][cr, cc_])), 1),
+                "landfire_valid": round(float(np.nan_to_num(fuel["valid"][cr, cc_]).mean()), 2),
+                "in_us": int(in_us(lon, lat)),
                 "region": region(lon, lat),
             })
         events.sort(key=lambda e: -e["fire_celldays"])

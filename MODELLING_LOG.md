@@ -340,3 +340,19 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
   - The hyperparameters are not tuned.
   - Upwind fire has no measurable value at 0.1° daily. Spread across a 10 km cell boundary in a day is rare compared with new single-day fires.
 - **GPU / Tillicum:** not prepared and not recommended. The trees get most of the signal, logistic regression gets 80% of the tree's AP, and the hand-made spatial features (neighbourhood, upwind) add little. A patch CNN would mostly re-learn those same features. The remaining error is dominated by new small fires that these layers can't foresee.
+
+### 11a. Many-fire ELMFIRE pilot (in-sample; the full ensemble is shelved)
+- **Fire catalog** (`scripts/fire_catalog.py`, `data/training/catalog.csv`):
+  - Large multi-day events 2014–2025 from VIIRS S-NPP fire cell-days on the 0.1° grid: touching cells, gaps up to 2 days.
+  - Persistent industrial/agricultural heat removed first: cells burning in ≥ 20 weeks overall or ≥ 8 weeks in one year.
+  - An event needs ≥ 4 fire days, ≥ 20 cell-days, a peak day of ≥ 30 pixels, and < 50% non-burnable fuel.
+  - Result: 365 events, 342 in the US. 109 US events in 2021–2024 form the evaluation set of docs/COMPARISON.md.
+  - It finds the known large fires (Camp, Carr, August Complex, Creek, Dixie, Caldor, Bootleg, Hermits Peak, Smokehouse Creek, Park). Cameron Peak 2020 is split in two, and York 2023 is missed.
+- **Per-fire pipeline:** `scripts/build_fire_case.py` (VIIRS 375 m granules, observations, LANDFIRE, HRRR 12Z). `fire_observations.py` now falls back to the FEDS archive collection (2018–2021), else to detections only.
+- **Spatial spread multipliers:** `elmfire_case.py` gains per-fuel-group multipliers (`ADJ_GR`, `ADJ_SH`, `ADJ_TIMBER`) and a wind term (`ADJ_WIND_EXP`, `ADJ_WIND_REF`). Existing cases still build byte-identically.
+- **Pilot:** 330 runs on three fires (OR timber litter 2020-040, AZ grass 2021-038, CA shrub 2021-031), 3 issue times each, 35–41 settings per issue. In-sample, no cloud masks.
+  - **Best uniform multiplier:** 0.5–1.0 in 8 of 9 issues. Best pooled CSI 0.43 / 0.29 / 0.27. No growth scores 0.
+  - **Damping wind helps:** damping the spread in windy cells beat amplifying it on 2 of 3 fires, consistent with entry 7's suspicion that HRRR wind is too strong.
+  - **Fuel groups:** raising all groups together was best. On the shrub fire, lowering shrub or timber cost more than lowering grass.
+- **Open question:** these best multipliers are 10–50x Widemouth's 0.02–0.05. Widemouth used NOAA-21, its fire band and FEDS live perimeters; the pilot used S-NPP and NOAA-20 detections only. So the gap may come from the pipeline rather than fuel or weather. Running Widemouth through `build_fire_case.py` would settle it.
+- **Status:** the full-scale run was estimated at about 63k runs, roughly $60–120 of Tillicum time. It was not run: the user chose to use Tillicum for training on data, not for ELMFIRE prediction runs.

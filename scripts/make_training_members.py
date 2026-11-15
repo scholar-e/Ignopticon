@@ -10,12 +10,12 @@ hyak/submit_members.sh on Tillicum.
 Every run starts at a 12Z issue from the VIIRS burning edges, leak-free (OBSERVED=, elmfire_case.py), with that
 issue's HRRR run, for 24 h. Members per fire-issue (data/training/NOTES.md):
   u-*   uniform spread multiplier (today's plain ELMFIRE, the baseline): ADJ x WSMULT x MOIST
-        (ADJ 0.01 0.02 0.05 0.1 0.2 0.5, WSMULT 0.6 1.0, MOIST +0 +4 points), live herbaceous moisture 90%
-  lh30-* live herbaceous 30% at ADJ 0.02 and 0.1
-  g-*   per-fuel-group multipliers, two levels (0.02, 0.15) for each of grass/grass-shrub, shrub and timber present
-        on >= GROUP_MIN of the fire's burned cells (others at the base 0.05): up to 8 members
-  w-*   a wind term, ADJ x (cell mean wind / 10 mph) ** b, b = -1 and +1, at ADJ 0.02 and 0.05
---set pilot keeps the same design (the pilot is the design test).
+        (ADJ 0.01 0.02 0.05 0.1 0.2 0.5 1.0, WSMULT 0.6 1.0, MOIST +0 +4 points), live herbaceous moisture 90%
+  lh30-* live herbaceous 30% at ADJ 0.1
+  g-*   per-fuel-group multipliers, two levels (0.03, 0.3) for each of grass/grass-shrub, shrub and timber present
+        on >= GROUP_MIN of the fire's burned cells (other cells at the base 0.1): up to 8 members
+  w-*   a wind term, ADJ x (cell mean wind / 10 mph) ** b, b = -1 and +1, at ADJ 0.03 and 0.3
+The pilot's first fire had its best uniform ADJ at the top of 0.01-0.5, hence 1.0 and the 0.03/0.3 levels.
 
 Usage: make_training_members.py OUT.txt FIRE_ID [FIRE_ID ...]     (or --ready: every fire whose case.json is ready)
 Writes OUT.txt (case dirs data/training/runs/FIRE/YYYYMMDDTHH/MEMBER, parent dirs created) and prints counts.
@@ -31,12 +31,12 @@ import rasterio
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIRES = "data/training/fires"
 RUNS = "data/training/runs"
-ADJS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5]
+ADJS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0]
 WSMULTS = [0.6, 1.0]
 MOISTS = [0, 4]
 LH = 90
-GROUP_LEVELS = [0.02, 0.15]
-GROUP_BASE = 0.05
+GROUP_LEVELS = [0.03, 0.3]
+GROUP_BASE = 0.1
 GROUP_MIN = 0.10
 GROUPS = {"ADJ_GR": list(range(101, 110)) + list(range(121, 125)), "ADJ_SH": list(range(141, 150)),
           "ADJ_TIMBER": list(range(161, 166)) + list(range(181, 190)) + list(range(201, 205))}
@@ -66,7 +66,7 @@ def members(present):
             for m in MOISTS:
                 out.append(("u-adj%g-ws%g-m%g" % (adj, ws, m),
                             ["ADJ=%g" % adj, "WSMULT=%g" % ws, "MOIST=%g" % m, "LH_MOISTURE_CONTENT=%d" % LH]))
-    for adj in (0.02, 0.1):
+    for adj in (0.1,):
         out.append(("lh30-adj%g" % adj, ["ADJ=%g" % adj, "LH_MOISTURE_CONTENT=30"]))
     if present:
         levels = np.array(np.meshgrid(*[GROUP_LEVELS] * len(present))).reshape(len(present), -1).T
@@ -74,7 +74,7 @@ def members(present):
             name = "g-" + "-".join("%s%g" % (SHORT[g], v) for g, v in zip(present, combo))
             out.append((name, ["ADJ=%g" % GROUP_BASE, "LH_MOISTURE_CONTENT=%d" % LH]
                         + ["%s=%g" % (g, v) for g, v in zip(present, combo)]))
-    for adj in (0.02, 0.05):
+    for adj in (0.03, 0.3):
         for b in (-1, 1):
             out.append(("w-adj%g-e%+d" % (adj, b), ["ADJ=%g" % adj, "ADJ_WIND_EXP=%d" % b,
                                                    "LH_MOISTURE_CONTENT=%d" % LH]))
