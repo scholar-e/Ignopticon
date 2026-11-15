@@ -93,11 +93,9 @@ export function createHistory(ctx) {
       const tip = `${MONTHS[m]} ${y}: ${fmt(x.v)} ${data.unit}${mode === "anomaly" ? ` (median ${fmt(median[m])})` : ""}${x.n < 28 ? ` · ${x.n} days of data` : ""}`;
       return `<td><button type="button" data-ym="${ym}"${ym === openMonth ? ' aria-current="true"' : ""} style="background:${bg}" title="${esc(tip)}" aria-label="${esc(tip)}"><span>${label}</span></button></td>`;
     };
-    const total = (y) => MONTHS.reduce((s, _, m) => s + (byYm.get(`${y}-${String(m + 1).padStart(2, "0")}`)?.v || 0), 0);
-    $("#hist-body").innerHTML = `<p class="hist-sub">${esc(PRODUCTS[product].label)} · ${esc(data.unit)} ${esc(boxLabel)} · ${mode === "total" ? "monthly totals" : "% of the median for that month"}</p>
-<div class="hist-scroll"><table class="hist-cal ${mode}"><thead><tr><th></th>${MONTHS.map((m) => `<th>${m}</th>`).join("")}<th>Year</th></tr></thead><tbody>
-${years.map((y) => `<tr><th>${y}</th>${MONTHS.map((_, m) => cell(y, m)).join("")}<td class="yt">${fmt(total(y))}</td></tr>`).join("")}
-${mode === "anomaly" ? `<tr class="med"><th>Median</th>${median.map((v) => `<td>${fmt(v)}</td>`).join("")}<td></td></tr>` : ""}
+    $("#hist-body").innerHTML = `<div class="hist-scroll"><table class="hist-cal ${mode}"><thead><tr><th></th>${MONTHS.map((m) => `<th>${m}</th>`).join("")}</tr></thead><tbody>
+${years.map((y) => `<tr><th>${y}</th>${MONTHS.map((_, m) => cell(y, m)).join("")}</tr>`).join("")}
+${mode === "anomaly" ? `<tr class="med"><th>Median</th>${median.map((v) => `<td>${fmt(v)}</td>`).join("")}</tr>` : ""}
 </tbody></table></div>
 <div class="hist-legend">${mode === "total"
       ? `<span>Less</span><i style="background:linear-gradient(90deg,${SEQ.map(rgb).join(",")})"></i><span>More</span>`

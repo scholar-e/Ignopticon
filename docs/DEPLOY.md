@@ -74,6 +74,8 @@ is committed on `main`, not what is on your disk. Setup, once:
    - Secret `EC2_SSH_KEY`: the whole private key file, including the `BEGIN`/`END` lines. Copy it with
      `pbcopy < ~/.ssh/ignopticon-ec2.pem` and paste.
    - Variable (Variables tab, optional) `SITE_ADDRESS`: your own domain, if you use one instead of sslip.io.
+   - Secret (optional) `ORS_API_KEY`: an openrouteservice key (free at openrouteservice.org) for long drives in
+     navigation. Without one the server uses the public FOSSGIS Valhalla router (fair use, rate-limited).
 2. Let GitHub's machines reach SSH: in the `ignopticon-web` security group, change the port 22 rule's source to
    **Anywhere-IPv4** (`0.0.0.0/0`). Their addresses change on every run. Ubuntu on EC2 accepts key logins only (no
    passwords), so the key is what protects the server; never commit it.
@@ -107,6 +109,7 @@ Set in the Dockerfile; locally nothing changes (`cd earth && npm install && node
 | `NODE_ENV` | unset | `production` | One-line request logs; trust the proxy for client IPs |
 | `TILE_CACHE` | `earth/tile-cache` | `/data/tile-cache` | Where proxied tiles are kept (a Docker volume) |
 | `WARM_MAX_JOBS` | no cap | `6` | Background tile-warming jobs per process (each fetches 1,600-8,000 tiles); `0` turns warming off |
+| `ORS_API_KEY` | unset | from `deploy/ec2/.env` | openrouteservice key for navigation's long drives (`longroute.js`); unset uses the public Valhalla server. `deploy.sh` writes it to `.env` when `ORS_API_KEY` is set, else keeps the one already there |
 
 ## Before sharing the link
 

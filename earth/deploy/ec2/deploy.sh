@@ -40,7 +40,10 @@ rsync -az --delete -e "ssh -i $KEY_FILE" \
     "$EARTH/" "ubuntu@$IP:ignopticon/earth/"
 
 echo "== Building and starting on the server, served at $SITE"
-"${SSH[@]}" "cd ignopticon/earth/deploy/ec2 && echo SITE_ADDRESS=$SITE > .env && \
+# .env: the site address, plus the openrouteservice key (ORS_API_KEY here, else the one already on the server).
+ORS_LINE=${ORS_API_KEY:+ORS_API_KEY=$ORS_API_KEY}
+"${SSH[@]}" "cd ignopticon/earth/deploy/ec2 && old=\$(grep '^ORS_API_KEY=' .env 2>/dev/null || true) && \
+    printf '%s\n' 'SITE_ADDRESS=$SITE' \"${ORS_LINE:-\$old}\" > .env && \
     docker compose up -d --build --remove-orphans && docker image prune -f >/dev/null"
 
 echo "== Checking https://$SITE/"

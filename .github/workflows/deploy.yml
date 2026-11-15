@@ -34,4 +34,5 @@ jobs:
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           SITE_ADDRESS: ${{ vars.SITE_ADDRESS }}
+          ORS_API_KEY: ${{ secrets.ORS_API_KEY }}  # optional; empty keeps the server's own
         run: earth/deploy/ec2/deploy.sh "$EC2_HOST" $SITE_ADDRESS

@@ -305,7 +305,7 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .hist-ctl [aria-pressed="true"]{background:var(--pill-on);color:var(--pill-on-text);border-color:var(--pill-on)}
 .hist-csv{display:flex;gap:6px;margin-left:auto}
 .hist-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}
-.hist-sub,.hist-msg,.hist-note{margin:0;color:var(--muted);font-size:.82rem}
+.hist-msg,.hist-note{margin:0;color:var(--muted);font-size:.82rem}
 .hist-note:empty{display:none}
 .hist-scroll{flex:1;min-height:0;overflow:auto}
 .hist-cal{border-collapse:separate;border-spacing:2px;width:100%;font-variant-numeric:tabular-nums}
@@ -317,7 +317,6 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .hist-cal td button:hover span,.hist-cal td button:focus span,.hist-cal.anomaly td button span{opacity:1}
 .hist-cal td button:hover{outline:2px solid #fff;outline-offset:-1px}
 .hist-cal td.na{background:repeating-linear-gradient(45deg,#1b1f24 0 3px,#14181d 3px 6px);border-radius:3px}
-.hist-cal .yt{min-width:44px;padding-left:6px;color:var(--muted);font-size:.72rem;text-align:right}
 .hist-cal .med td{color:var(--muted);font-size:.66rem;text-align:center}
 .hist-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--muted);font-size:.75rem}
 .hist-legend i{width:120px;height:8px;border-radius:4px}

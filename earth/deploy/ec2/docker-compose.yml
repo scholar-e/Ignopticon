@@ -9,6 +9,8 @@ services:
       # Daily MODIS/VIIRS/harmonized layers 2000-2026 (scripts/export_ui.py, ~3 GB), uploaded separately with
       # rsync to ~/ignopticon-history on the instance (outside earth/, so deploys don't delete them).
       - /home/ubuntu/ignopticon-history:/app/public/data/history:ro
+    environment:
+      ORS_API_KEY: ${ORS_API_KEY:-}  # optional openrouteservice key for long drives (longroute.js)
     expose:
       - "8080"
 

@@ -879,6 +879,8 @@ app.get("/api/fires/:id/weather", apiWeather);
 // Radio coverage (SPLAT!) for navigation: cell towers in the fire packages and user-added repeaters (coverage.js).
 app.get("/api/coverage", require("./coverage")({sourceTile: sourceTile, cacheDir: TILE_CACHE}));
 // Daily MODIS/VIIRS/harmonized layers 2000-2026 and their regional calendars (history.js).
+// Long drives to a fire's routing area for navigation (longroute.js).
+app.get("/api/longroute", require("./longroute")());
 var fireHistory = require("./history")({cacheDir: TILE_CACHE});
 app.get("/api/history", fireHistory.api);
 if (fireHistory.root && fireHistory.root !== path.join(__dirname, "public", "data", "history")) app.use("/data/history", express.static(fireHistory.root));

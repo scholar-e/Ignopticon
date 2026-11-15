@@ -11,11 +11,14 @@
 //   (found by sweeping a time/exposure trade-off). A loaded dispatch route is a third, estimated option.
 // - Drive then walk by default (switching costs 1 min to park); up to 1 km off-trail at each end at 60% of
 //   Tobler's hiking pace; restricted roads allowed with warnings; rough 4x4 tracks only when allowed.
+// - Starts outside the routing area: an online road route toward the fire (/api/longroute) is joined to the
+//   on-device search, which may leave it at any of its junctions more than 10 km from the fire.
 
 const CELL_COVERED = 2, CELL_MARGINAL = 1, NO_DATA = 255;
 const NEAR_FIRE_M = 5000, HOT_BUFFER_M = 500, BAND_PENALTY = 4, PARK_S = 60, XC_MAX_M = 1000, XC_FACTOR = 0.6;
 const F_WALK = 1, F_PRIVATE = 2, F_GATE = 4, F_4X4 = 8, F_TRAIL = 16, F_ONEWAY = 32;
 const LAMBDAS = [0, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64];
+const JOIN_FIRE_M = 10000, JOIN_SNAP_M = 200;
 const PRESETS = {
   vhf: {name: "NIRSC portable VHF repeater", freq: 168, watts: 5, mast: 6},
   uhf: {name: "NIRSC UHF repeater", freq: 410, watts: 5, mast: 6},
@@ -68,7 +71,7 @@ export function createNav(ctx) {
   let pkg = null, pkgFor = null, hz = null, view = null;
   let start = null, startAcc = null, startManual = false, dest = null, destSuggested = false;
   let mode = "both", allow4x4 = false, picking = null, routes = [], chosen = null;
-  let navigating = null, offSince = 0, repeaters = [], dispatch = null, refreshTimer = null;
+  let navigating = null, offSince = 0, repeaters = [], dispatch = null, refreshTimer = null, longCache = new Map();
 
   // ---------- Package ----------
   async function load(fire) {
@@ -246,12 +249,15 @@ export function createNav(ctx) {
     return (f & F_WALK) !== 0;
   }
   /** Least-cost route from `from` to `to` (or, with to = null, a full search for the suggestion). */
-  function search(from, to, lambda) {
+  function search(from, to, lambda, long) {
     const {n, off, adj, a, b} = pkg, S = 2 * n;
     const cost = new Float64Array(S).fill(Infinity), prev = new Int32Array(S).fill(-1), via = new Int32Array(S).fill(-1);
     const heap = new Heap(), driveOK = mode !== "walk", walkOK = mode !== "drive";
-    const seeds = near(from[0], from[1], XC_MAX_M);
-    if (!seeds.length) return null;
+    if (long) {  // arriving by car along the long route: start driving at any of its junctions
+      for (const [i, j] of long.joins) { const s = 2 * i; cost[s] = j.t; via[s] = -3; heap.push(j.t, s); }
+    }
+    const seeds = long ? [] : near(from[0], from[1], XC_MAX_M);
+    if (!long && !seeds.length) return null;
     for (const [i, d] of seeds.slice(0, 12)) {
       const t = xcTime(from[0], from[1], pkg.lon[i], pkg.lat[i]);
       if (driveOK && pkg.drivable[i] && d <= 150) { const s = 2 * i; if (t < cost[s]) { cost[s] = t; via[s] = -3; heap.push(t, s); } }
@@ -278,7 +284,7 @@ export function createNav(ctx) {
     }
     return {cost, prev, via, bestS};
   }
-  function trace(res, from, to) {
+  function trace(res, from, to, long) {
     if (!res || res.bestS < 0) return null;
     const legs = [], pts = (e, dir) => {
       const out = [];
@@ -295,7 +301,13 @@ export function createNav(ctx) {
     steps.reverse();
     const first = s >= 0 ? s >> 1 : null, last = res.bestS >> 1;
     const add = (mode, coords) => { const L = legs[legs.length - 1]; if (L && L.mode === mode) L.coords.push(...coords.slice(1)); else legs.push({mode, coords}); };
-    if (first !== null) {
+    let road = null;
+    if (first !== null && long) {  // the online road route up to the junction where the search took over
+      const j = long.joins.get(first);
+      road = {dist: long.cum[j.vi] + j.d, time: j.t, provider: long.provider};
+      add("road", long.coords.slice(0, j.vi + 1).concat([[pkg.lon[first], pkg.lat[first]]]));
+      time += j.t; dist += road.dist;
+    } else if (first !== null) {
       const t = xcTime(from[0], from[1], pkg.lon[first], pkg.lat[first]), d = metres(from[0], from[1], pkg.lon[first], pkg.lat[first]);
       if (d > 15) add("xc", [from, [pkg.lon[first], pkg.lat[first]]]);
       time += t; dist += d;
@@ -315,12 +327,12 @@ export function createNav(ctx) {
     if (dEnd > 15) add("xc", [[pkg.lon[last], pkg.lat[last]], to]);
     time += xcTime(pkg.lon[last], pkg.lat[last], to[0], to[1]); dist += dEnd;
     const xc = legs.filter((L) => L.mode === "xc").reduce((s2, L) => s2 + metres(...L.coords[0], ...L.coords[L.coords.length - 1]), 0);
-    return {legs, time, dist, none, marg, noneAll, gates, restricted, rough, trail, xc, band,
+    return {legs, time, dist, none, marg, noneAll, gates, restricted, rough, trail, xc, band, road,
       keyCost: none + 0.5 * marg, coords: legs.flatMap((L, i) => i ? L.coords.slice(1) : L.coords)};
   }
 
-  function suggestDestination(from) {
-    const res = search(from, null, 0);
+  function suggestDestination(from, long) {
+    const res = search(from, null, 0, long);
     if (!res) return null;
     let best = Infinity, node = -1;
     for (let i = 0; i < pkg.n; i++) {
@@ -350,16 +362,21 @@ export function createNav(ctx) {
       time: dist / (30 / 3.6), dist, none, marg, noneAll, blocked, gates: 0, restricted: 0, rough: 0, trail: 0, xc: 0, band: 0};
   }
 
-  function findRoutes(quiet) {
+  async function findRoutes(quiet) {
     if (!pkg || !hz) return say && say("Route data is still loading");
     if (!start) return note("Set a start point first (your location, or Set on map).");
-    if (!inArea(...start)) return handOff();
+    let long = null;
+    if (!inArea(...start)) {
+      if (!quiet) note("Finding a road route to the fire area…");
+      long = await longRoute();
+      if (!long) return handOff();
+    }
     if (!dest) {
-      dest = suggestDestination(start); destSuggested = true;
+      dest = suggestDestination(start, long); destSuggested = true;
       if (!dest) return note("No reachable point found 0.5–2.5 km outside the fire. Pick a destination on the map.");
     }
     const t0 = performance.now(), results = [];
-    for (const lambda of LAMBDAS) { const r = trace(search(start, dest, lambda), start, dest); if (r) results.push(r); }
+    for (const lambda of LAMBDAS) { const r = trace(search(start, dest, lambda, long), start, dest, long); if (r) results.push(r); }
     if (!results.length) { routes = []; chosen = null; render(); return note("No route found within the routing area. Try Drive + walk, allow 4×4 roads, or move the destination."); }
     const fastest = results[0], cap = fastest.time * 1.5;
     const best = results.filter((r) => r.time <= cap).reduce((p, q) => q.keyCost < p.keyCost - 1e-6 ? q : p, fastest);
@@ -372,6 +389,29 @@ export function createNav(ctx) {
     render();
     if (!quiet) { const f = ctx.getFire(), b = bboxOf(chosen.coords.concat([start, dest])); ctx.fit(f ? [Math.min(b[0], f.bbox[0]), Math.min(b[1], f.bbox[1]), Math.max(b[2], f.bbox[2]), Math.max(b[3], f.bbox[3])] : b); }
   }
+  /** The online road route from the start toward the destination (or the fire), and the junctions where the
+   *  on-device search may take over: points inside the area more than 10 km from the fire, snapped to a road. */
+  async function longRoute() {
+    const f = ctx.getFire(), to = dest || (f ? [(f.bbox[0] + f.bbox[2]) / 2, (f.bbox[1] + f.bbox[3]) / 2] : null);
+    if (!to) return null;
+    const key = [...start, ...to].map((v) => v.toFixed(3)).join(",") + pkgFor;
+    if (!longCache.has(key)) {
+      longCache.set(key, fetch(`/api/longroute?from=${start.join(",")}&to=${to.join(",")}`)
+        .then((r) => r.ok ? r.json() : r.json().then((d) => { throw new Error(d.error || r.statusText); }))
+        .catch((e) => { longCache.delete(key); console.warn("long route:", e.message); return null; }));
+    }
+    const r = await longCache.get(key);
+    if (!r || !hz) return null;
+    const joins = new Map(), cum = cumulative(r.coords);
+    r.coords.forEach(([x, y], vi) => {
+      const k = cellIndex(x, y);
+      if (!inArea(x, y) || k < 0 || hz.toFire[k] < JOIN_FIRE_M) return;
+      const hit = near(x, y, JOIN_SNAP_M, (i) => pkg.drivable[i])[0]; if (!hit) return;
+      const t = r.t[vi] + hit[1] / (30 / 3.6), old = joins.get(hit[0]);
+      if (!old || t < old.t) joins.set(hit[0], {vi, t, d: hit[1]});
+    });
+    return joins.size ? {...r, cum, joins} : null;
+  }
   const bboxOf = (cs) => cs.reduce((b, [x, y]) => [Math.min(b[0], x), Math.min(b[1], y), Math.max(b[2], x), Math.max(b[3], y)], [Infinity, Infinity, -Infinity, -Infinity]);
   function handOff() {
     const entry = (() => {  // the drivable junction nearest to the start
@@ -382,7 +422,7 @@ export function createNav(ctx) {
     routes = []; chosen = null; render();
     if (!entry) return note("You are outside this fire's routing area.");
     const url = "https://www.google.com/maps/dir/?" + new URLSearchParams({api: 1, origin: `${start[1]},${start[0]}`, destination: `${entry[1]},${entry[0]}`, travelmode: "driving"});
-    note(`You are outside this fire's routing area (about 50 km around it). <a href="${url}" target="_blank" rel="noopener noreferrer">Drive to the entry point in Google Maps ↗</a>, then switch back here.`, true);
+    note(`You are outside this fire's routing area (about 50 km around it) and no online road route could be found (offline, or too far). <a href="${url}" target="_blank" rel="noopener noreferrer">Drive to the entry point in Google Maps ↗</a>, then switch back here.`, true);
   }
 
   // ---------- Repeaters ----------
@@ -532,10 +572,11 @@ export function createNav(ctx) {
     $("#nav-repeaters").innerHTML = repeaters.map((r) => `<li><span>${esc(r.name)} · ${r.mast} m · ${r.freq} MHz · ${r.watts} W <small>(${esc(r.source || "")})</small></span><button type="button" data-delrptr="${r.id}" aria-label="Remove ${esc(r.name)}">Remove</button></li>`).join("");
     $("#nav-routes").innerHTML = routes.map((r) => {
       const warn = [r.gates && `${r.gates} gate${r.gates > 1 ? "s" : ""} (may be locked)`, r.restricted && "private or restricted road", r.rough && "rough 4×4 track",
-        r.xc > 15 && `${fmtMi(r.xc)} off-trail`, r.band && "crosses the +6 h forecast area", r.blocked && "passes near the active fire edge", r.estimated && "time estimated at 30 km/h"].filter(Boolean);
+        r.xc > 15 && `${fmtMi(r.xc)} off-trail`, r.band && "crosses the +6 h forecast area", r.blocked && "passes near the active fire edge", r.estimated && "time estimated at 30 km/h",
+        r.road && `first ${fmtMi(r.road.dist)} on a ${r.road.provider} road route (no fire or coverage check there)`].filter(Boolean);
       return `<li><button type="button" class="rt rt-${r.id}" data-route="${r.id}" aria-pressed="${r === chosen}">
 <span class="rt-head"><b>${r.label}</b><span>${fmtMin(r.time)} · ${fmtMi(r.dist)}</span></span>
-<span class="rt-cov">${fmtMin(r.none + r.marg)} without coverage near the fire${r.marg >= 30 ? ` (${fmtMin(r.marg)} marginal)` : ""} · ${fmtMin(r.noneAll)} on the whole trip</span>
+<span class="rt-cov">${fmtMin(r.none + r.marg)} without coverage near the fire${r.marg >= 30 ? ` (${fmtMin(r.marg)} marginal)` : ""} · ${fmtMin(r.noneAll)} ${r.road ? "in the fire area" : "on the whole trip"}</span>
 ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</button></li>`;
     }).join("");
     $("#nav-start").hidden = !chosen || !!navigating;
@@ -579,7 +620,7 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
     if (best > 50) { offSince = offSince || Date.now(); if (Date.now() - offSince > 20000 && !$("#navalert").dataset.kind) alertBox("You're off route.", [["Reroute", reroute], ["Dismiss", () => alertBox()]], "off"); }
     else { offSince = 0; if ($("#navalert").dataset.kind === "off") alertBox(); }
   }
-  function reroute() { alertBox(); const keep = chosen && chosen.id; findRoutes(true); chosen = routes.find((r) => r.id === keep) || routes[0]; if (navigating && chosen) navigating = {...navigating, route: chosen, cum: cumulative(chosen.coords)}; render(); updateNav(); }
+  async function reroute() { alertBox(); const keep = chosen && chosen.id; await findRoutes(true); chosen = routes.find((r) => r.id === keep) || routes[0]; if (navigating && chosen) navigating = {...navigating, route: chosen, cum: cumulative(chosen.coords)}; render(); updateNav(); }
   async function checkFireData() {
     const f = ctx.getFire(); if (!navigating || !f) return;
     try {
