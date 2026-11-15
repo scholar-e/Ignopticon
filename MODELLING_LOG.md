@@ -578,3 +578,186 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
 - Caveats: 4 fires, one issue time each; few hotspot targets on Widemouth (4 / 29); on 2020-008 they are dominated
   by a separate complex outside the FEDS polygon; pilot weather differs from physics3; score weights untuned.
   Details: data/perimeter_batch/FRONT_NOTES.md; figures data/perimeter_batch/figures/front_*.png.
+
+### 19. 2026-11-15 — Direction-aware edge training on Hyak (in progress)
+
+- Continued Claude's edge-advance LightGBM experiment: raw-pre / harm-pre (2003–2011),
+  raw-all / harm-all (plus VIIRS 2012–2019), and VIIRS-only. Validation is 2020;
+  exploratory test is 2021–2024, already inspected in earlier experiments.
+- Preserved original `data/edge` results. New isolated outputs: `data/edge_causal`.
+  Rebuilt harmonized inputs with the existing controlled causal harmonizer fitted on
+  2012–2014, excluding `next` and `next3`. Removed seven next-day observed weather
+  features from all arms; retained day-t weather and historical neighbor features.
+- Retained the original 0.35 harmonized presence threshold, soft training labels,
+  arm-specific candidate selection, LightGBM hyperparameters and 2020 early stopping.
+  These remain experimental choices; this is not an isolated test of harmonization alone.
+- Five arms, seeds 0/1/2, 8 CPU threads each. Hyak job 476136 starts the nine controls;
+  six harmonized runs automatically submit after the rebuilt samples are ready.
+  Each task reserves one H200 allocation but LightGBM uses CPU, not GPU acceleration.
+  30-minute limits give a maximum requested batch cost of $6.75. Live recorded user
+  spend at submission was $12.97 / $250. No perimeter jobs were released.
+- The predictor operates on 0.1-degree edge candidates. Mapping its weights to the
+  ELMFIRE perimeter and checking three perimeter forecasts remain separate validation
+  steps; these classifier scores are not perimeter accuracy or evidence of improvement.
+- Availability caveats: evaluation candidates use next-day clear-sky label masks;
+  day-t daily observed weather supports day-end hindcasts, not demonstrated morning
+  forecasts. Removing look-ahead columns does not remove every observational bias.
+- Update 00:54 PST: all nine controls completed (43–118 seconds, exit 0).
+  Mean test AP over three seeds: raw-pre 0.03873, raw-all 0.04340,
+  VIIRS-only 0.04172. All nine harmonized years rebuilt successfully;
+  six harmonized tasks submitted as job 476177, initially pending priority.
+- Update 00:54 PST: verified harmonized training actually running on Hyak.
+  harm-all loads 5,182,878 training rows; harm-pre loads 2,246,572.
+  First harm-pre seed fitted 108 trees; harm-all passed 400 iterations.
+- Update 01:09 PST: all 15/15 runs and model artifacts verified complete; all
+  six harmonized tasks exited 0. Pulled models and compact results locally.
+  Three-seed mean exploratory test AP: harm-all 0.04407, raw-all 0.04340,
+  VIIRS-only 0.04172, harm-pre 0.03152, raw-pre 0.03873.
+  Harm-all exceeds raw-all by 0.00067 AP; this small classifier difference does
+  not establish a perimeter improvement. Summary: data/edge_causal/comparison.md.
+
+### 20. 2026-11-15 — Recent MODIS corroboration and learned ELMFIRE pilot
+- Started causal MODIS-to-VIIRS corroboration over 2015–2026, using the fixed
+  2012–2014 harmonizer on jointly clear sensor cell-days; support threshold 0.35.
+  Reports both supported VIIRS detections and disagreements. MODIS absence is
+  not grounds to reject VIIRS: lower sensitivity, clouds and overpass timing differ.
+  Harmonized MODIS predicts VIIRS and is not independent ground truth. This daily
+  archive experiment does not yet implement multiple timestamped overpass updates.
+- Started three paired 12-hour ELMFIRE forecasts (2021-038, 2021-031, 2020-008).
+  Three harm-all seeds predict from the previous complete UTC day's VIIRS history
+  and weather, without future clear-sky candidate filtering. Map coarse candidate
+  probabilities onto the fuel grid; spread multiplier p / mean validation CSI
+  threshold clipped to [0.5,2], default 1 outside candidate coverage. This is an
+  experimental transfer rule, not a calibrated fine-resolution spread probability.
+  Existing FEDS initial perimeter and active-front rules remain the starting state.
+  Results under data/edge_causal/elmfire; no forecast improvement claimed yet.
+- Three paired pilots completed: growth IoU control -> weighted: 2021-038
+  0.04355 -> 0.04348; 2021-031 0.07934 -> 0.07537; 2020-008
+  0.06053 -> 0.06802. Whole-perimeter IoU decreased on all three.
+  The transfer rule is not adopted as a default. This integrates spread-rate
+  weighting; learned ignition-segment activation and sequential overpass assimilation
+  remain unimplemented. Summary: data/edge_causal/elmfire/comparison.md.
+- Weather/hotspot audit: edge features already include day-t gridMET wind,
+  VPD/ERC/fm100/precipitation and 30-day daily fire-neighbor history. ELMFIRE
+  already uses forecast wind and 1/10/100-h moisture, with timestamped hotspots
+  in the six hours before issue defining the active edge. Explicit provenance
+  and timing limitations recorded in data/edge_causal/INPUTS.md. Historical edge
+  training is S-NPP only, not an all-three-VIIRS training corpus.
+- Recent corroboration completed for 2025 and available 2026: MODIS supports
+  14,082/49,676 and 11,168/42,987 jointly-clear VIIRS fire cell-days, respectively.
+  2026 is partial-year input. MODIS absence must not veto VIIRS detections.
+- Completed all 2015–2026 corroboration years; per-year counts and summary saved
+  under data/edge_causal/corroboration. All six ELMFIRE cases completed, and
+  weighted case metadata confirms the learned ADJ_FILE was supplied.
+
+### 21. 2026-11-15 — Opt-in learned perimeter activation
+- Implemented FRONT_PFILE + FRONT_PTHRESH for INIT=feds. A one-band probability
+  raster must match landscape shape, transform and CRS; covered values must be
+  finite in [0,1]. Nodata means no model coverage. Within the inner edge band,
+  recent six-hour hotspots always remain active; model probabilities at or above
+  threshold add active cells. Uncovered cells retain baseline selection (including
+  the baseline whole-edge rule when no detections support an edge). If selection
+  is empty, retain and record whole-edge fallback. Outside-perimeter recent
+  hotspots retain the existing initialization behavior.
+- Three harm-all seeds are averaged; fixed threshold is the mean of their existing
+  validation-selected thresholds: 0.049366665383179985. Features use the previous
+  complete UTC day. Coarse 0.1-degree candidate probabilities are copied only to
+  fuel cells whose centres lie within their geographic footprint; no interpolation
+  across gaps or claim of fine-resolution predictive skill. Model identifiers,
+  feature date, thresholds, coverage, hotspot support, model additions and fallback
+  are recorded in each case. Forecast weather and physical settings match control;
+  these runs use ADJ=1 and no learned ADJ_FILE.
+- New paired 12-hour forecasts started for 2021-038, 2021-031 and 2020-008 under
+  data/edge_causal/activation, separate from the completed spread-weighting pilot.
+  Activation remains opt-in; no expansion to other fires or threshold tuning.
+  Recent MODIS corroboration remains a separate diagnostic; sequential pass
+  assimilation is outside this change.
+- Completed all six forecasts and scored against exact +12 h FEDS truth and
+  post-issue hotspots. Results below are selected historical pilot cases, not
+  evidence of generalization; no threshold tuning on these outcomes.
+
+  | Fire | Arm | Growth IoU | Whole IoU | Boundary mean m | Hotspot hits | Active edge % |
+  |---|---|---|---|---|---|---|
+  | 2021-038 | activation | 0.04340 | 0.71700 | 982.3 | 5/7 | 28.51 |
+  | 2021-038 | control | 0.04355 | 0.71767 | 980.8 | 5/7 | 27.19 |
+  | 2021-038 | no_growth | 0.00000 | 0.78423 | 555.1 | 0/7 | 0.00 |
+  | 2021-031 | activation | 0.12675 | 0.71598 | 1086.9 | 46/70 | 73.56 |
+  | 2021-031 | control | 0.07934 | 0.70289 | 1040.0 | 30/70 | 40.76 |
+  | 2021-031 | no_growth | 0.00000 | 0.69946 | 1250.8 | 0/70 | 0.00 |
+  | 2020-008 | activation | 0.10634 | 0.49962 | 5450.5 | 249/264 | 36.31 |
+  | 2020-008 | control | 0.06047 | 0.51531 | 5989.6 | 249/264 | 23.37 |
+  | 2020-008 | no_growth | 0.00000 | 0.81334 | 531.3 | 0/264 | 0.00 |
+
+- Edge model coverage / hotspot-supported / model-added cells:
+  2021-038: 107 (1.71%) / 1703 / 83; whole-edge fallback False.
+  2021-031: 2156 (57.40%) / 1531 / 1232; whole-edge fallback False.
+  2020-008: 920 (20.21%) / 1064 / 589; whole-edge fallback False.
+- Growth IoU improved on two fires; whole-perimeter and boundary outcomes are
+  mixed. No-growth has substantially better whole IoU on 2021-038 and 2020-008.
+  Keep activation experimental and opt-in. The repeated 2020-008 control growth
+  IoU is 0.06047 versus 0.06053 in the prior spread pilot; control inputs and
+  physical overrides are unchanged, so this small run variation is retained,
+  not substituted with the old result.
+- Verification: behavioral tests pass for high-probability activation, hotspot
+  protection, nodata baseline preservation (including the no-hotspot whole-edge
+  rule), empty-selection fallback, outside-perimeter hotspot preservation,
+  shape/transform/CRS/band-count rejection, invalid probabilities, changed initial
+  phi with identical spread multipliers. All three forecast pairs have identical
+  weather, physical overrides, issue time and duration except the two opt-in
+  activation arguments. Python compilation and diff whitespace checks pass.
+- Reproduce: `uv run tests/test_front_probability.py`,
+  `uv run scripts/edge_elmfire.py`, then
+  `uv run scripts/edge_pilot_score.py data/edge_causal/activation`.
+  Full scores and comparison: data/edge_causal/activation/{scores.json,comparison.md}.
+
+### 22. 2026-11-15 — Weighted learned front, held-out test, outward-band ADJ
+- **Weighted front (FRONT_PMODE=weighted).** Covered inner-edge cells without
+  recent hotspot support start burning if p > 0 with spread multiplier
+  max(p, 0.01) after all other ADJ terms; hotspot-supported, uncovered and
+  outside-heat cells x1; p = 0 not ignited (ELMFIRE resets adj < 0 to 1 and
+  never tags/spreads adj = 0, so no zero multiplier is emitted). Level-set
+  limitation: ELMFIRE advances phi into an unburned cell at that cell's own
+  speed, so a multiplier on cells already burning at t=0 barely acts; weighted
+  == binary_pos (same ignitions, x1) to <= 0.0001 growth IoU on dev. Weighted is
+  in effect "activate every covered edge cell with p > 0".
+- **Outward band (ADJ_BAND_PFILE + ADJ_BAND_M + ADJ_BAND_PREF, user-approved).**
+  Unburned, model-covered cells outside the start FEDS perimeter whose centre
+  is within B m of a perimeter cell centre get clip(p / p_ref, 0.25, 2); all
+  else x1; start front = control's. Frozen in manifest.json band_variant before
+  any band run: B in {750, 2000} m, p_ref = 0.049366665 (mean validation
+  threshold), floor 0.25, cap 2. Same landscapes, HRRR weather, probability
+  rasters and physics as the held-out/dev runs. Tests cover emitted adj
+  (cap, floor, p/p_ref, uncovered, burning, corner outside band, interior,
+  composition with ADJ/ADJ_FILE, unchanged phi/weather/namelist, invalid options).
+- **Held out:** 12 fires frozen in manifest.json (2026-08-02T12, +12 h FEDS
+  truth, 6 regions), no failures. Five fires have covered_fuel_cells = 0 (no
+  2026-08-01 edge candidate near them), so every learned arm equals control
+  there; two more (66055, 53363) have ~0 edge coverage. Growth IoU mean / median:
+
+  | Arm | All 12 | Covered 7 | vs control (better/worse, covered) | Whole IoU mean, covered | Hotspots (all) |
+  |---|---|---|---|---|---|
+  | no_growth | 0 / 0 | 0 / 0 | - | 0.9301 | 0/23 |
+  | control | 0.0580 / 0.0238 | 0.0976 / 0.0650 | - | 0.8362 | 19/23 |
+  | binary | 0.0633 / 0.0348 | 0.1066 / 0.0650 | 2/0 | 0.8373 | 19/23 |
+  | weighted | 0.0545 / 0.0348 | 0.0916 / 0.0650 | 2/2 | 0.8110 | 19/23 |
+  | band750 | 0.0581 / 0.0234 | 0.0978 / 0.0655 | 2/3 | 0.8357 | 19/23 |
+  | band2000 | 0.0583 / 0.0206 | 0.0981 / 0.0717 | 2/3 | 0.8354 | 19/23 |
+
+- **Development (in-sample, 3 dev fires):** growth IoU mean control 0.0611,
+  binary 0.0922, weighted 0.0926, band750 0.0634, band2000 0.0642; band arms
+  better on 1/3 fires (2020-008), worse on 2021-031.
+- Reading: on held-out fires binary helped 2 fires (66433 +0.038, 65395 +0.025)
+  and hurt none; weighted lost 0.10 on 62041 (activating the whole covered edge
+  over-grew it). The band moves growth IoU by < 0.001 on average: +0.05 on 62041
+  but -0.04 on 65080 and small losses on 66433/65395. No-growth still has the
+  best whole IoU everywhere. Nothing here is significant on n = 7 influenced
+  fires; keep all three opt-in. Binary remains the least harmful learned rule.
+- Limitations: one issue time; FEDS truth; daily 0.1-degree next-day
+  probabilities are not calibrated fine-cell spread rates; LF2025 fuels
+  (anachronistic for the 2020-21 dev fires); the 2026-08-02 date was used
+  earlier for physics-only batch evaluation; model coverage is sparse.
+- Reproduce: `uv run tests/test_front_probability.py`;
+  `uv run scripts/edge_front_weighted.py {dev,manifest,heldout,band}`;
+  `uv run scripts/edge_pilot_score.py data/edge_causal/front_weighted/heldout --manifest data/edge_causal/front_weighted/manifest.json --arms control,binary,binary_pos,weighted,band750,band2000`
+  (and `.../dev`); `uv run scripts/edge_heldout_table.py data/edge_causal/front_weighted/heldout data/edge_causal/front_weighted/dev`
+  -> data/edge_causal/front_weighted/{heldout_table.md,heldout_table.json,growth_iou_vs_control.png}.

@@ -56,6 +56,19 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            FRONT_KM=D: an edge cell burns if a cell hot in the ACTIVE_HOURS before ISSUE lies within D km of it (distance
            on the fuel grid from the hot 375 m squares); FRONT_RFILE=path FRONT_R=R: edge cells where that raster (on
            the landscape grid, e.g. selfcal_adj.py's adj_selfcal.tif) is >= R also burn (union with detections);
+           FRONT_PFILE=path FRONT_PTHRESH=P: opt-in aligned probability raster; nodata retains baseline
+           selection, covered cells burn above P or with recent hotspot support. No spread multiplier changes.
+           FRONT_PMODE=weighted FRONT_PFILE=path (no FRONT_PTHRESH; not with FRONT=whole or FRONT_RFILE/FRONT_R):
+           covered inner-edge cells without recent hotspot support burn if p > 0 and their spread multiplier is
+           multiplied by max(p, FRONT_PFLOOR=0.01) after every other ADJ term; p = 0 cells do not start burning;
+           hotspot-supported, uncovered (baseline) and outside-perimeter heat cells keep x1; whole-edge fallback
+           keeps x1. Only initial edge cells are weighted. FRONT_PMODE=binary (default) is the threshold rule.
+           ADJ_BAND_PFILE=path ADJ_BAND_M=B ADJ_BAND_PREF=P [ADJ_BAND_FLOOR=0.25 ADJ_BAND_CAP=2] (INIT=feds): outward
+           band. Unburned cells outside the start FEDS perimeter whose centre lies within B m of a perimeter cell
+           centre, and that the aligned probability raster covers, get spread multiplier clip(p / P, FLOOR, CAP)
+           after every other ADJ term; cells beyond the band, inside the perimeter, burning at t=0 or uncovered
+           keep x1. The start front is unchanged (whatever the other options select).
+           case.json init.front records the effective weighting. A deterministic weighting, not a probability.
            FRONT=whole: the whole edge band burns. If a rule selects no edge cell the whole band burns (as before).
            DT_METEOROLOGY is WXDIR/wx.json "dt_s" (3600 if absent; 900 for hrrr_weather.py --subhourly); WXSTART
            counts weather bands.
@@ -199,6 +212,85 @@ ADJ_GROUPS = {"ADJ_GR": list(range(101, 110)) + list(range(121, 125)), "ADJ_SH":
               "ADJ_TIMBER": list(range(161, 166)) + list(range(181, 190)) + list(range(201, 205))}
 
 
+def read_front_probability(path, shape, transform, crs):
+    """Read aligned probabilities; masked nodata represents absent model coverage."""
+    with rasterio.open(path) as src:
+        if src.count != 1 or src.shape != shape or src.transform != transform or src.crs != crs:
+            raise ValueError("FRONT_PFILE must match landscape shape, transform and CRS, with one band")
+        field = src.read(1, masked=True)
+        tags = src.tags()
+    covered = ~np.ma.getmaskarray(field)
+    p = field.data
+    if np.any(covered & (~np.isfinite(p) | (p < 0) | (p > 1))):
+        raise ValueError("FRONT_PFILE covered probabilities must be finite and in [0,1]")
+    return p, covered, tags
+
+
+def probability_front(band, baseline, hotspot, probability, covered, threshold):
+    """Replace covered edge selection; retain hotspots and uncovered baseline cells."""
+    uncovered_baseline = baseline if baseline.any() else band
+    selected = band & ((uncovered_baseline & ~covered) | hotspot | (covered & (probability >= threshold)))
+    info = {"covered_edge_cells": int((band & covered).sum()),
+            "coverage_fraction": float((band & covered).sum() / max(1, band.sum())),
+            "hotspot_supported_cells": int((band & hotspot).sum()),
+            "model_added_cells": int((band & covered & (probability >= threshold) & ~baseline).sum()),
+            "uncovered_baseline_whole_edge": bool(not baseline.any() and (band & ~covered).any()),
+            "whole_edge_fallback": not bool(selected.any())}
+    return selected, info
+
+
+FRONT_PFLOOR = 0.01  # smallest weighted multiplier: ELMFIRE resets adj < 0 to 1 and never tags or spreads adj = 0
+
+
+def probability_front_weighted(band, baseline, hotspot, probability, covered, floor=FRONT_PFLOOR):
+    """Weighted mode: (active cells, per-cell multiplier on the landscape grid, info). Covered edge cells without
+    hotspot support burn if p > 0, with multiplier max(p, floor); everything else keeps multiplier 1."""
+    uncovered_baseline = baseline if baseline.any() else band
+    supported = band & hotspot
+    weighted = band & covered & ~hotspot & (probability > 0)
+    selected = (band & uncovered_baseline & ~covered) | supported | weighted
+    fallback = not bool(selected.any())
+    weight = np.ones(band.shape)
+    if not fallback:
+        weight[weighted] = np.maximum(probability[weighted], floor)
+    w = weight[weighted] if weighted.any() and not fallback else np.array([])
+    info = {"mode": "weighted", "floor": floor,
+            "covered_edge_cells": int((band & covered).sum()),
+            "coverage_fraction": float((band & covered).sum() / max(1, band.sum())),
+            "hotspot_supported_cells": int(supported.sum()),
+            "hotspot_override_cells": int((supported & covered).sum()),
+            "weighted_cells": int(weighted.sum()) if not fallback else 0,
+            "zero_probability_inactive_cells": int((band & covered & ~hotspot & (probability <= 0)).sum()),
+            "floored_cells": int((weighted & (probability < floor)).sum()) if not fallback else 0,
+            "weight_min": float(w.min()) if w.size else None, "weight_mean": float(w.mean()) if w.size else None,
+            "weight_max": float(w.max()) if w.size else None,
+            "uncovered_baseline_whole_edge": bool(not baseline.any() and (band & ~covered).any()),
+            "whole_edge_fallback": fallback}
+    return selected, weight, info
+
+
+def outward_band_adj(start, burning, probability, covered, band_m, cell_m, p_ref, floor, cap):
+    """Outward band: (multiplier grid, info). Unburned, covered cells outside the start perimeter with centre within
+    band_m of a start-perimeter cell centre get clip(p / p_ref, floor, cap); all other cells x1."""
+    from scipy.ndimage import distance_transform_edt
+    weight = np.ones(start.shape)
+    if not start.any():
+        return weight, {"band_m": band_m, "p_ref": p_ref, "floor": floor, "cap": cap, "band_cells": 0,
+                        "covered_band_cells": 0, "reason": "empty start perimeter"}
+    dist = distance_transform_edt(~start, sampling=cell_m)
+    in_band = ~start & ~burning & (dist <= band_m)
+    zone = in_band & covered
+    m = np.clip(probability[zone] / p_ref, floor, cap)
+    weight[zone] = m
+    info = {"band_m": band_m, "p_ref": p_ref, "floor": floor, "cap": cap, "band_cells": int(in_band.sum()),
+            "covered_band_cells": int(zone.sum()),
+            "band_coverage_fraction": float(zone.sum() / max(1, in_band.sum())),
+            "floored_cells": int((m <= floor).sum()), "capped_cells": int((m >= cap).sum()),
+            "weight_min": float(m.min()) if m.size else None, "weight_mean": float(m.mean()) if m.size else None,
+            "weight_max": float(m.max()) if m.size else None}
+    return weight, info
+
+
 def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     import datetime
     with rasterio.open(landscape_tif) as src:
@@ -225,6 +317,9 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     min_start, min_start_info = 0, None
     init_mode, edge_cells, init_info = "hotcells", 2, None
     adj_file = None
+    front_pfile, front_pthresh, front_pmode = None, None, None
+    front_weight = None
+    band_pfile, band_m, band_pref, band_floor, band_cap, band_weight = None, None, None, 0.25, 2.0, None
     front_km, front_rfile, front_r, front_whole = None, None, None, False
     for item in overrides:
         key, value = item.split("=", 1)
@@ -261,6 +356,27 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         if key.upper() == "INIT":
             init_mode = value.lower()
             continue
+        if key.upper() == "FRONT_PFILE":
+            front_pfile = value
+            continue
+        if key.upper() == "FRONT_PMODE":
+            front_pmode = value.lower()
+            continue
+        if key.upper() == "ADJ_BAND_PFILE":
+            band_pfile = value
+            continue
+        if key.upper() in ("ADJ_BAND_M", "ADJ_BAND_PREF", "ADJ_BAND_FLOOR", "ADJ_BAND_CAP"):
+            v = float(value)
+            if not np.isfinite(v):
+                raise ValueError("%s must be finite" % key)
+            band_m, band_pref, band_floor, band_cap = {"ADJ_BAND_M": (v, band_pref, band_floor, band_cap),
+                                                       "ADJ_BAND_PREF": (band_m, v, band_floor, band_cap),
+                                                       "ADJ_BAND_FLOOR": (band_m, band_pref, v, band_cap),
+                                                       "ADJ_BAND_CAP": (band_m, band_pref, band_floor, v)}[key.upper()]
+            continue
+        if key.upper() == "FRONT_PTHRESH":
+            front_pthresh = float(value)
+            continue
         if key.upper() == "FRONT_KM":
             front_km = float(value)
             continue
@@ -284,6 +400,36 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         group, _, key = key.rpartition(":")
         extra.setdefault(group or "?", {})[key] = parse_value(value)
+    front_probability = None
+    if front_pmode not in (None, "binary", "weighted"):
+        raise ValueError("FRONT_PMODE must be binary or weighted")
+    if front_pmode == "weighted":
+        if front_pfile is None:
+            raise ValueError("FRONT_PMODE=weighted requires FRONT_PFILE")
+        if front_pthresh is not None:
+            raise ValueError("FRONT_PMODE=weighted takes no FRONT_PTHRESH")
+        if front_whole or front_rfile is not None or front_r is not None:
+            raise ValueError("FRONT_PMODE=weighted cannot be combined with FRONT=whole or FRONT_RFILE/FRONT_R")
+        if init_mode != "feds" or not observed:
+            raise ValueError("FRONT_PFILE requires INIT=feds and OBSERVED")
+        front_probability = read_front_probability(front_pfile, bands.shape[1:], transform, crs)
+    elif front_pmode == "binary" and front_pfile is None:
+        raise ValueError("FRONT_PMODE=binary requires FRONT_PFILE")
+    elif front_pfile is not None or front_pthresh is not None:
+        if front_pfile is None or front_pthresh is None or not np.isfinite(front_pthresh) or not 0 <= front_pthresh <= 1:
+            raise ValueError("FRONT_PFILE requires FRONT_PTHRESH in [0,1]")
+        if init_mode != "feds" or not observed:
+            raise ValueError("FRONT_PFILE requires INIT=feds and OBSERVED")
+        front_probability = read_front_probability(front_pfile, bands.shape[1:], transform, crs)
+    band_probability = None
+    if band_pfile is not None or band_m is not None or band_pref is not None:
+        if band_pfile is None or band_m is None or band_pref is None:
+            raise ValueError("ADJ_BAND_PFILE needs ADJ_BAND_M and ADJ_BAND_PREF")
+        if band_m <= 0 or band_pref <= 0 or not 0 < band_floor <= band_cap:
+            raise ValueError("ADJ_BAND_M, ADJ_BAND_PREF must be > 0 and 0 < ADJ_BAND_FLOOR <= ADJ_BAND_CAP")
+        if init_mode != "feds" or not observed:
+            raise ValueError("ADJ_BAND_PFILE requires INIT=feds and OBSERVED")
+        band_probability = read_front_probability(band_pfile, bands.shape[1:], transform, crs)
     hot = np.zeros_like(burned)
     if observed:
         # Burning edges from hotspots: cells seen hot in the ACTIVE_HOURS before issue start burning. The rest of
@@ -294,7 +440,8 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         from shapely.geometry import mapping, shape
         import shapely
         to_grid = Transformer.from_crs("EPSG:4326", crs, always_xy=True)
-        obs = json.load(open(observed))
+        with open(observed) as observed_file:
+            obs = json.load(observed_file)
         offset = (datetime.datetime.fromisoformat(obs["reference"].replace("Z", "")) - reference).total_seconds()
         # The area burned by issue from what was known then only: every cell seen hot by issue, plus the latest
         # FEDS perimeter at or before issue. (The state raster's guessed arrivals use later snapshots.)
@@ -349,6 +496,21 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
                 front_info.update(front_r=front_r, r_edge_cells=int((band & (rfield >= front_r)).sum()))
             if front_whole:
                 active, active_mode = band, "front_whole"
+            if front_probability is not None and front_pmode == "weighted":
+                probability, covered, provenance = front_probability
+                active, front_weight, learned_info = probability_front_weighted(band, active, near_hot_fine,
+                                                                                probability, covered)
+                front_info.update(learned_info, probability_file=front_pfile,
+                                  covered_fuel_cells=int(covered.sum()), provenance=provenance)
+                active_mode = "detections+weighted"
+            elif front_probability is not None:
+                probability, covered, provenance = front_probability
+                active, learned_info = probability_front(band, active, near_hot_fine, probability,
+                                                         covered, front_pthresh)
+                front_info.update(learned_info, probability_file=front_pfile, threshold=front_pthresh,
+                                  covered_fuel_cells=int(covered.sum()), provenance=provenance)
+                active_mode = "detections+probability"
+            front_info["whole_edge_fallback"] = not bool(active.any())
             if not active.any():
                 active, active_mode = band, "whole_edge"
             # Recent heat clearly outside the perimeter (beyond one state cell): growth since it was drawn.
@@ -357,7 +519,14 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             feds_coarse[np.minimum(fr // refine, hot.shape[0] - 1), np.minimum(fc // refine, hot.shape[1] - 1)] = True
             outside = hot & ~binary_dilation(feds_coarse)
             burning = active | fine(outside)
+            if front_weight is not None:
+                front_weight[fine(outside)] = 1.0  # observed heat outside the perimeter is never down-weighted
             phi = np.where(burning, -1.0, 1.0)
+            if band_probability is not None:
+                band_weight, band_info = outward_band_adj(feds_fine, burning, band_probability[0], band_probability[1],
+                                                          band_m, abs(transform.a), band_pref, band_floor, band_cap)
+                front_info["outward_band"] = dict(band_info, probability_file=band_pfile,
+                                                  provenance=band_probability[2])
             interior = feds_fine & ~burning
             landscape["fbfm40"] = np.where(interior, 99, landscape["fbfm40"]).astype("int16")
             cell_m2 = abs(transform.a * transform.e)
@@ -424,6 +593,31 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         adj = adj * correction
         log.info("ADJ_FILE %s: factor %.2f-%.2f (median %.2f)", adj_file, correction.min(), correction.max(),
                  float(np.median(correction)))
+    if front_weight is not None:
+        # Weighted front: multiply after the physical terms and ADJ_FILE, so they stay composable.
+        base = adj.copy()
+        adj = adj * front_weight
+        changed = front_weight != 1
+        init_info["front"]["effective_adj"] = {
+            "weighted_cells": int(changed.sum()),
+            "base_adj_min": float(base[changed].min()) if changed.any() else None,
+            "adj_min": float(adj[changed].min()) if changed.any() else None,
+            "adj_mean": float(adj[changed].mean()) if changed.any() else None,
+            "adj_max": float(adj[changed].max()) if changed.any() else None}
+        log.info("FRONT_PMODE=weighted effective adj: %s", init_info["front"]["effective_adj"])
+    if band_probability is not None:
+        if band_weight is None:
+            raise ValueError("ADJ_BAND_PFILE needs a FEDS perimeter known at issue")
+        base = adj.copy()
+        adj = adj * band_weight
+        zone = band_weight != 1
+        init_info["front"]["outward_band"]["effective_adj"] = {
+            "changed_cells": int(zone.sum()),
+            "adj_min": float(adj[zone].min()) if zone.any() else None,
+            "adj_mean": float(adj[zone].mean()) if zone.any() else None,
+            "adj_max": float(adj[zone].max()) if zone.any() else None,
+            "base_adj_mean": float(base[zone].mean()) if zone.any() else None}
+        log.info("ADJ_BAND outward band: %s", init_info["front"]["outward_band"])
     for k in ("m1", "m10", "m100"):
         weather[k] = weather[k] + moist_add
     # Keys given without a group go to the group write_case already uses them in, else SIMULATOR.

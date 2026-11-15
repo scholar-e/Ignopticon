@@ -1,0 +1,229 @@
+{
+ "created": "2026-11-15T09:48:32+00:00",
+ "purpose": "held-out evaluation of learned front activation/weighting; frozen before any held-out run",
+ "issue": "2026-08-02T12:00",
+ "horizon_h": 12,
+ "truth": "FEDS perimeter at issue + 12 h",
+ "models": [
+  {
+   "file": "data/edge_causal/runs/harm-all-seed0/models/harm-all.txt",
+   "sha256": "63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce"
+  },
+  {
+   "file": "data/edge_causal/runs/harm-all-seed1/models/harm-all.txt",
+   "sha256": "8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef"
+  },
+  {
+   "file": "data/edge_causal/runs/harm-all-seed2/models/harm-all.txt",
+   "sha256": "f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685"
+  }
+ ],
+ "feature_day": "2026-08-01 (previous complete UTC day)",
+ "feature_inputs": [
+  "data/harmonize/grid/VNP14A1_2026.npz",
+  "data/harmonize/weather/weather_2026.npz"
+ ],
+ "feature_inputs_sha256": {
+  "data/harmonize/grid/VNP14A1_2026.npz": "8dbc1adfa7fbd7138246558c56857b6c25968dc4347a93c72d4dfacc156c4080",
+  "data/harmonize/weather/weather_2026.npz": "bb331518faa1d847184b8c3ccc013824ca08aaf15a1b0b8c2c23b17b3bc05775"
+ },
+ "binary_threshold": 0.049366665383179985,
+ "weighting_rule": "FRONT_PMODE=weighted: covered inner-edge cells without recent hotspot support start burning if p > 0 with spread multiplier max(p, 0.01); hotspot-supported, uncovered and outside heat cells x1; p = 0 not ignited; empty selection -> whole edge x1",
+ "arms": {
+  "no_growth": "initial FEDS perimeter as forecast",
+  "control": [
+   "ADJ=1.0",
+   "INIT=feds",
+   "LH_MOISTURE_CONTENT=90"
+  ],
+  "binary": "control + FRONT_PFILE + FRONT_PTHRESH=binary_threshold",
+  "weighted": "control + FRONT_PMODE=weighted + FRONT_PFILE",
+  "binary_pos": "diagnostic only: control + FRONT_PFILE + FRONT_PTHRESH=1e-9 (weighted ignition, x1)"
+ },
+ "weather": "HRRR 2026-08-02T12 sub-hourly 12 h, rebuilt once per fire (hrrr_weather.py --subhourly --fm100=data/perimeter_batch/gridmet_fm100_20260801.tif); identical for all arms",
+ "landscape": "LANDFIRE LF2025 + 3DEP (landscape_download.py, refine from case.json)",
+ "selection": "eligible = FEDS perimeter <= issue, FEDS perimeter exactly at issue+12h exists, >= 5 VIIRS fire cells in 6 h before issue, not 66510; up to 2 per region ranked by pre-issue 6 h detections, filled to 12 by the same rank",
+ "metrics": [
+  "growth_iou",
+  "iou",
+  "area_ratio",
+  "boundary_mean_m",
+  "false_growth_fraction",
+  "hotspot_hits/targets (post-issue VIIRS outside start perimeter, one 375 m cell tolerance)"
+ ],
+ "aggregation": "per-fire table; median and mean over fires completing all arms; failures listed",
+ "status": "held out from learned-model training (2003-2019) and from front-weighting development; the 2026-08-02 date was used for earlier physics-only batch evaluation",
+ "fires": [
+  {
+   "fire": "map20260802-66433",
+   "lon": -119.6366,
+   "lat": 48.7242,
+   "region": "pacific_northwest",
+   "hot_cells_6h": 2722,
+   "radius_km": 24.0,
+   "observed": "data/training/fires/map20260802-66433/fire-observed.json"
+  },
+  {
+   "fire": "map20260802-65395",
+   "lon": -117.0542,
+   "lat": 42.6537,
+   "region": "pacific_northwest",
+   "hot_cells_6h": 2546,
+   "radius_km": 37.5,
+   "observed": "data/training/fires/map20260802-65395/fire-observed.json"
+  },
+  {
+   "fire": "map20260802-65682",
+   "lon": -113.237,
+   "lat": 47.8362,
+   "region": "northern_rockies",
+   "hot_cells_6h": 301,
+   "radius_km": 20.25,
+   "observed": "data/training/fires/map20260802-65682/fire-observed.json"
+  },
+  {
+   "fire": "map20260802-65080",
+   "lon": -115.1197,
+   "lat": 46.1151,
+   "region": "northern_rockies",
+   "hot_cells_6h": 94,
+   "radius_km": 20.25,
+   "observed": "data/perimeter_batch/map20260802-65080/associated-observed.json"
+  },
+  {
+   "fire": "map20260802-20036",
+   "lon": -112.257,
+   "lat": 41.8958,
+   "region": "great_basin_california",
+   "hot_cells_6h": 132,
+   "radius_km": 20.25,
+   "observed": "data/perimeter_batch/map20260802-20036/associated-observed.json"
+  },
+  {
+   "fire": "map20260802-66055",
+   "lon": -117.4671,
+   "lat": 39.6574,
+   "region": "great_basin_california",
+   "hot_cells_6h": 122,
+   "radius_km": 20.25,
+   "observed": "data/training/fires/map20260802-66055/fire-observed.json"
+  },
+  {
+   "fire": "map20260802-64816",
+   "lon": -101.7649,
+   "lat": 31.7593,
+   "region": "southern_plains",
+   "hot_cells_6h": 20,
+   "radius_km": 20.25,
+   "observed": "data/training/fires/map20260802-64816/fire-observed.json"
+  },
+  {
+   "fire": "map20260802-340",
+   "lon": -99.9376,
+   "lat": 25.5842,
+   "region": "southern_plains",
+   "hot_cells_6h": 12,
+   "radius_km": 20.25,
+   "observed": "data/training/fires/map20260802-340/fire-observed.json"
+  },
+  {
+   "fire": "map20260802-19",
+   "lon": -87.4523,
+   "lat": 41.6724,
+   "region": "north_plains_midwest",
+   "hot_cells_6h": 43,
+   "radius_km": 20.25,
+   "observed": "data/training/fires/map20260802-19/fire-observed.json"
+  },
+  {
+   "fire": "map20260802-62041",
+   "lon": -92.1643,
+   "lat": 48.2341,
+   "region": "north_plains_midwest",
+   "hot_cells_6h": 23,
+   "radius_km": 21.75,
+   "observed": "data/training/fires/map20260802-62041/fire-observed.json"
+  },
+  {
+   "fire": "map20260802-53363",
+   "lon": -87.9832,
+   "lat": 31.1529,
+   "region": "southeast",
+   "hot_cells_6h": 9,
+   "radius_km": 20.25,
+   "observed": "data/perimeter_batch/map20260802-53363/associated-observed.json"
+  },
+  {
+   "fire": "map20260802-53095",
+   "lon": -88.566,
+   "lat": 33.439,
+   "region": "southeast",
+   "hot_cells_6h": 7,
+   "radius_km": 20.25,
+   "observed": "data/perimeter_batch/map20260802-53095/associated-observed.json"
+  }
+ ],
+ "excluded": {
+  "map20260802-18872": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-31094": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-331": "fewer than 5 VIIRS fire cells in the 6 h before issue",
+  "map20260802-48632": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-57204": "fewer than 5 VIIRS fire cells in the 6 h before issue",
+  "map20260802-57585": "fewer than 5 VIIRS fire cells in the 6 h before issue",
+  "map20260802-60791": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-62590": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-62944": "fewer than 5 VIIRS fire cells in the 6 h before issue",
+  "map20260802-63215": "fewer than 5 VIIRS fire cells in the 6 h before issue",
+  "map20260802-63363": "fewer than 5 VIIRS fire cells in the 6 h before issue",
+  "map20260802-63372": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-63960": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-64600": "fewer than 5 VIIRS fire cells in the 6 h before issue",
+  "map20260802-65680": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-65718": "fewer than 5 VIIRS fire cells in the 6 h before issue",
+  "map20260802-66244": "no FEDS perimeter exactly at issue + 12 h (cannot score)",
+  "map20260802-66510": "prior development case (selfcal/front calibration)",
+  "map20260802-11887": "eligible, not selected (region quota / rank)",
+  "map20260802-2143": "eligible, not selected (region quota / rank)",
+  "map20260802-49109": "eligible, not selected (region quota / rank)",
+  "map20260802-51849": "eligible, not selected (region quota / rank)",
+  "map20260802-52611": "eligible, not selected (region quota / rank)",
+  "map20260802-53763": "eligible, not selected (region quota / rank)",
+  "map20260802-5450": "eligible, not selected (region quota / rank)",
+  "map20260802-58056": "eligible, not selected (region quota / rank)",
+  "map20260802-61855": "eligible, not selected (region quota / rank)",
+  "map20260802-63369": "eligible, not selected (region quota / rank)",
+  "map20260802-63374": "eligible, not selected (region quota / rank)",
+  "map20260802-63568": "eligible, not selected (region quota / rank)",
+  "map20260802-63588": "eligible, not selected (region quota / rank)",
+  "map20260802-63683": "eligible, not selected (region quota / rank)",
+  "map20260802-63715": "eligible, not selected (region quota / rank)",
+  "map20260802-63962": "eligible, not selected (region quota / rank)",
+  "map20260802-63969": "eligible, not selected (region quota / rank)",
+  "map20260802-65258": "eligible, not selected (region quota / rank)",
+  "map20260802-65401": "eligible, not selected (region quota / rank)",
+  "map20260802-65486": "eligible, not selected (region quota / rank)",
+  "map20260802-65489": "eligible, not selected (region quota / rank)",
+  "map20260802-65726": "eligible, not selected (region quota / rank)",
+  "map20260802-65727": "eligible, not selected (region quota / rank)",
+  "map20260802-65995": "eligible, not selected (region quota / rank)",
+  "map20260802-66204": "eligible, not selected (region quota / rank)"
+ },
+ "band_variant": {
+  "frozen": "2026-11-15T10:08:57+00:00",
+  "frozen_before": "any band run or score; chosen without looking at band outcomes (held-out control/binary/weighted scores were computed earlier the same session)",
+  "rule": "ADJ_BAND_PFILE=edge_probability.tif: unburned, model-covered cells outside the start FEDS perimeter, centre within B m of a perimeter cell centre, multiplier clip(p / p_ref, floor, cap) after all other ADJ terms; beyond band, inside perimeter, burning at t=0, uncovered: x1; start front = control (physics)",
+  "band_m": [
+   750,
+   2000
+  ],
+  "p_ref": 0.049366665383179985,
+  "floor": 0.25,
+  "cap": 2.0,
+  "arms": {
+   "band750": "control + ADJ_BAND_PFILE + ADJ_BAND_M=750 + ADJ_BAND_PREF=p_ref",
+   "band2000": "control + ADJ_BAND_PFILE + ADJ_BAND_M=2000 + ADJ_BAND_PREF=p_ref"
+  },
+  "inputs": "same landscape, HRRR weather, probability rasters and physics as the held-out/dev runs (reused files)",
+  "fires": "3 dev fires (development) + the 12 manifest fires (held out)"
+ }
+}

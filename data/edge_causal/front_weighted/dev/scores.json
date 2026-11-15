@@ -1,0 +1,953 @@
+{
+ "fires": {
+  "2021-038": {
+   "control": {
+    "iou": 0.717667167558416,
+    "growth_iou": 0.04355474924064377,
+    "no_growth_iou": 0.78422518454425,
+    "predicted_growth_cells": 28164,
+    "observed_growth_cells": 47764,
+    "area_ratio": 0.5896491081148982,
+    "boundary_mean_m": 980.78962108009,
+    "false_growth_cells": 24995,
+    "false_growth_fraction": 0.8874804715239313,
+    "hotspots": {
+     "targets": 7,
+     "hits": 5,
+     "false_alarm_cells": 473,
+     "model_cells": 497,
+     "hit_rate": 0.7142857142857143,
+     "csi": 0.010416666666666666
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.27187100893997446,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1703,
+     "whole_edge_fallback": false
+    }
+   },
+   "binary": {
+    "iou": 0.716995180537627,
+    "growth_iou": 0.043403800572689034,
+    "no_growth_iou": 0.78422518454425,
+    "predicted_growth_cells": 28393,
+    "observed_growth_cells": 47764,
+    "area_ratio": 0.5944435139435558,
+    "boundary_mean_m": 982.3203828639496,
+    "false_growth_cells": 25225,
+    "false_growth_fraction": 0.8884232029021237,
+    "hotspots": {
+     "targets": 7,
+     "hits": 5,
+     "false_alarm_cells": 478,
+     "model_cells": 502,
+     "hit_rate": 0.7142857142857143,
+     "csi": 0.010309278350515464
+    },
+    "active_mode": "detections+probability",
+    "active_edge_coverage": 0.2851213282247765,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1703,
+     "covered_edge_cells": 107,
+     "coverage_fraction": 0.017081736909323117,
+     "hotspot_supported_cells": 1703,
+     "model_added_cells": 83,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-038/edge_probability.tif",
+     "threshold": 0.049366665383179985,
+     "covered_fuel_cells": 653698,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2021-06-26",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     }
+    }
+   },
+   "binary_pos": {
+    "iou": 0.716995180537627,
+    "growth_iou": 0.043403800572689034,
+    "no_growth_iou": 0.78422518454425,
+    "predicted_growth_cells": 28393,
+    "observed_growth_cells": 47764,
+    "area_ratio": 0.5944435139435558,
+    "boundary_mean_m": 982.3203828639496,
+    "false_growth_cells": 25225,
+    "false_growth_fraction": 0.8884232029021237,
+    "hotspots": {
+     "targets": 7,
+     "hits": 5,
+     "false_alarm_cells": 478,
+     "model_cells": 502,
+     "hit_rate": 0.7142857142857143,
+     "csi": 0.010309278350515464
+    },
+    "active_mode": "detections+probability",
+    "active_edge_coverage": 0.2851213282247765,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1703,
+     "covered_edge_cells": 107,
+     "coverage_fraction": 0.017081736909323117,
+     "hotspot_supported_cells": 1703,
+     "model_added_cells": 83,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-038/edge_probability.tif",
+     "threshold": 1e-09,
+     "covered_fuel_cells": 653698,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2021-06-26",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     }
+    }
+   },
+   "weighted": {
+    "iou": 0.7169876217491411,
+    "growth_iou": 0.04341512199799981,
+    "no_growth_iou": 0.78422518454425,
+    "predicted_growth_cells": 28398,
+    "observed_growth_cells": 47764,
+    "area_ratio": 0.5945481952935265,
+    "boundary_mean_m": 983.0566351992553,
+    "false_growth_cells": 25229,
+    "false_growth_fraction": 0.8884076343404466,
+    "hotspots": {
+     "targets": 7,
+     "hits": 5,
+     "false_alarm_cells": 480,
+     "model_cells": 504,
+     "hit_rate": 0.7142857142857143,
+     "csi": 0.01026694045174538
+    },
+    "active_mode": "detections+weighted",
+    "active_edge_coverage": 0.2851213282247765,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1703,
+     "mode": "weighted",
+     "floor": 0.01,
+     "covered_edge_cells": 107,
+     "coverage_fraction": 0.017081736909323117,
+     "hotspot_supported_cells": 1703,
+     "hotspot_override_cells": 24,
+     "weighted_cells": 83,
+     "zero_probability_inactive_cells": 0,
+     "floored_cells": 0,
+     "weight_min": 0.06052099168300629,
+     "weight_mean": 0.06052099168300629,
+     "weight_max": 0.06052099168300629,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-038/edge_probability.tif",
+     "covered_fuel_cells": 653698,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2021-06-26",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     },
+     "effective_adj": {
+      "weighted_cells": 83,
+      "base_adj_min": 1.0,
+      "adj_min": 0.06052099168300629,
+      "adj_mean": 0.06052099168300629,
+      "adj_max": 0.06052099168300629
+     }
+    }
+   },
+   "band750": {
+    "iou": 0.717466127843601,
+    "growth_iou": 0.04347467867735911,
+    "no_growth_iou": 0.78422518454425,
+    "predicted_growth_cells": 28226,
+    "observed_growth_cells": 47764,
+    "area_ratio": 0.5909471568545348,
+    "boundary_mean_m": 981.9066189779934,
+    "false_growth_cells": 25060,
+    "false_growth_fraction": 0.887833911996032,
+    "hotspots": {
+     "targets": 7,
+     "hits": 5,
+     "false_alarm_cells": 470,
+     "model_cells": 494,
+     "hit_rate": 0.7142857142857143,
+     "csi": 0.010482180293501049
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.27187100893997446,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1703,
+     "whole_edge_fallback": false,
+     "outward_band": {
+      "band_m": 750.0,
+      "p_ref": 0.049366665383179985,
+      "floor": 0.25,
+      "cap": 2.0,
+      "band_cells": 70209,
+      "covered_band_cells": 1682,
+      "band_coverage_fraction": 0.02395704254440314,
+      "floored_cells": 0,
+      "capped_cells": 0,
+      "weight_min": 1.2259485721588135,
+      "weight_mean": 1.2259483337402344,
+      "weight_max": 1.2259485721588135,
+      "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-038/edge_probability.tif",
+      "provenance": {
+       "binary_threshold": "0.049366665383179985",
+       "coarse_resolution_degrees": "0.1",
+       "feature_date": "2021-06-26",
+       "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+       "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+       "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+       "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+       "AREA_OR_POINT": "Area"
+      },
+      "effective_adj": {
+       "changed_cells": 1682,
+       "adj_min": 1.2259485721588135,
+       "adj_mean": 1.2259485721588135,
+       "adj_max": 1.2259485721588135,
+       "base_adj_mean": 1.0
+      }
+     }
+    }
+   },
+   "band2000": {
+    "iou": 0.717466127843601,
+    "growth_iou": 0.04347467867735911,
+    "no_growth_iou": 0.78422518454425,
+    "predicted_growth_cells": 28226,
+    "observed_growth_cells": 47764,
+    "area_ratio": 0.5909471568545348,
+    "boundary_mean_m": 981.9066189779934,
+    "false_growth_cells": 25060,
+    "false_growth_fraction": 0.887833911996032,
+    "hotspots": {
+     "targets": 7,
+     "hits": 5,
+     "false_alarm_cells": 470,
+     "model_cells": 494,
+     "hit_rate": 0.7142857142857143,
+     "csi": 0.010482180293501049
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.27187100893997446,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1703,
+     "whole_edge_fallback": false,
+     "outward_band": {
+      "band_m": 2000.0,
+      "p_ref": 0.049366665383179985,
+      "floor": 0.25,
+      "cap": 2.0,
+      "band_cells": 184944,
+      "covered_band_cells": 7134,
+      "band_coverage_fraction": 0.03857383856735012,
+      "floored_cells": 0,
+      "capped_cells": 0,
+      "weight_min": 0.8763445019721985,
+      "weight_mean": 1.195418119430542,
+      "weight_max": 1.2259485721588135,
+      "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-038/edge_probability.tif",
+      "provenance": {
+       "binary_threshold": "0.049366665383179985",
+       "coarse_resolution_degrees": "0.1",
+       "feature_date": "2021-06-26",
+       "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+       "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+       "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+       "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+       "AREA_OR_POINT": "Area"
+      },
+      "effective_adj": {
+       "changed_cells": 7134,
+       "adj_min": 0.8763445019721985,
+       "adj_mean": 1.1954182475546278,
+       "adj_max": 1.2259485721588135,
+       "base_adj_mean": 1.0
+      }
+     }
+    }
+   },
+   "no_growth": {
+    "iou": 0.78422518454425,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.78422518454425,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 47764,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 555.1281117170643,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 7,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "2021-031": {
+   "control": {
+    "iou": 0.7028948250810327,
+    "growth_iou": 0.07933712383857995,
+    "no_growth_iou": 0.6999196126623917,
+    "predicted_growth_cells": 12944,
+    "observed_growth_cells": 64887,
+    "area_ratio": 0.19948525898870345,
+    "boundary_mean_m": 1039.9617444922094,
+    "false_growth_cells": 7223,
+    "false_growth_fraction": 0.5580191594561187,
+    "hotspots": {
+     "targets": 70,
+     "hits": 30,
+     "false_alarm_cells": 251,
+     "model_cells": 303,
+     "hit_rate": 0.42857142857142855,
+     "csi": 0.09345794392523364
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.4076144834930777,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1531,
+     "whole_edge_fallback": false
+    }
+   },
+   "binary": {
+    "iou": 0.7159814707585408,
+    "growth_iou": 0.1267530331071355,
+    "no_growth_iou": 0.6999196126623917,
+    "predicted_growth_cells": 17304,
+    "observed_growth_cells": 64887,
+    "area_ratio": 0.2666789957926857,
+    "boundary_mean_m": 1086.859140990806,
+    "false_growth_cells": 8058,
+    "false_growth_fraction": 0.4656726768377254,
+    "hotspots": {
+     "targets": 70,
+     "hits": 46,
+     "false_alarm_cells": 320,
+     "model_cells": 412,
+     "hit_rate": 0.6571428571428571,
+     "csi": 0.11794871794871795
+    },
+    "active_mode": "detections+probability",
+    "active_edge_coverage": 0.7356230031948882,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1531,
+     "covered_edge_cells": 2156,
+     "coverage_fraction": 0.5740149094781682,
+     "hotspot_supported_cells": 1531,
+     "model_added_cells": 1232,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-031/edge_probability.tif",
+     "threshold": 0.049366665383179985,
+     "covered_fuel_cells": 671142,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2021-07-08",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     }
+    }
+   },
+   "binary_pos": {
+    "iou": 0.7168233040844506,
+    "growth_iou": 0.1293440263212009,
+    "no_growth_iou": 0.6999196126623917,
+    "predicted_growth_cells": 17493,
+    "observed_growth_cells": 64887,
+    "area_ratio": 0.26959175181469325,
+    "boundary_mean_m": 1085.424403085053,
+    "false_growth_cells": 8058,
+    "false_growth_fraction": 0.4606413994169096,
+    "hotspots": {
+     "targets": 70,
+     "hits": 46,
+     "false_alarm_cells": 323,
+     "model_cells": 415,
+     "hit_rate": 0.6571428571428571,
+     "csi": 0.11704834605597965
+    },
+    "active_mode": "detections+probability",
+    "active_edge_coverage": 0.7515974440894568,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1531,
+     "covered_edge_cells": 2156,
+     "coverage_fraction": 0.5740149094781682,
+     "hotspot_supported_cells": 1531,
+     "model_added_cells": 1292,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-031/edge_probability.tif",
+     "threshold": 1e-09,
+     "covered_fuel_cells": 671142,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2021-07-08",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     }
+    }
+   },
+   "weighted": {
+    "iou": 0.7167926385505142,
+    "growth_iou": 0.12933823126267888,
+    "no_growth_iou": 0.6999196126623917,
+    "predicted_growth_cells": 17505,
+    "observed_growth_cells": 64887,
+    "area_ratio": 0.26977668870497945,
+    "boundary_mean_m": 1086.334562613296,
+    "false_growth_cells": 8069,
+    "false_growth_fraction": 0.4609540131391031,
+    "hotspots": {
+     "targets": 70,
+     "hits": 46,
+     "false_alarm_cells": 324,
+     "model_cells": 416,
+     "hit_rate": 0.6571428571428571,
+     "csi": 0.116751269035533
+    },
+    "active_mode": "detections+weighted",
+    "active_edge_coverage": 0.7515974440894568,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1531,
+     "mode": "weighted",
+     "floor": 0.01,
+     "covered_edge_cells": 2156,
+     "coverage_fraction": 0.5740149094781682,
+     "hotspot_supported_cells": 1531,
+     "hotspot_override_cells": 864,
+     "weighted_cells": 1292,
+     "zero_probability_inactive_cells": 0,
+     "floored_cells": 0,
+     "weight_min": 0.03292855992913246,
+     "weight_mean": 0.09575170422140106,
+     "weight_max": 0.12179165333509445,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-031/edge_probability.tif",
+     "covered_fuel_cells": 671142,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2021-07-08",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     },
+     "effective_adj": {
+      "weighted_cells": 1292,
+      "base_adj_min": 1.0,
+      "adj_min": 0.03292855992913246,
+      "adj_mean": 0.09575170422140106,
+      "adj_max": 0.12179165333509445
+     }
+    }
+   },
+   "band750": {
+    "iou": 0.7010395363167906,
+    "growth_iou": 0.07593152899241513,
+    "no_growth_iou": 0.6999196126623917,
+    "predicted_growth_cells": 12990,
+    "observed_growth_cells": 64887,
+    "area_ratio": 0.2001941837348005,
+    "boundary_mean_m": 1087.7662671410876,
+    "false_growth_cells": 7494,
+    "false_growth_fraction": 0.576905311778291,
+    "hotspots": {
+     "targets": 70,
+     "hits": 32,
+     "false_alarm_cells": 246,
+     "model_cells": 303,
+     "hit_rate": 0.45714285714285713,
+     "csi": 0.10126582278481013
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.4076144834930777,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1531,
+     "whole_edge_fallback": false,
+     "outward_band": {
+      "band_m": 750.0,
+      "p_ref": 0.049366665383179985,
+      "floor": 0.25,
+      "cap": 2.0,
+      "band_cells": 42504,
+      "covered_band_cells": 24300,
+      "band_coverage_fraction": 0.5717108977978543,
+      "floored_cells": 0,
+      "capped_cells": 8120,
+      "weight_min": 0.6670201420783997,
+      "weight_mean": 1.3722774982452393,
+      "weight_max": 2.0,
+      "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-031/edge_probability.tif",
+      "provenance": {
+       "binary_threshold": "0.049366665383179985",
+       "coarse_resolution_degrees": "0.1",
+       "feature_date": "2021-07-08",
+       "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+       "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+       "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+       "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+       "AREA_OR_POINT": "Area"
+      },
+      "effective_adj": {
+       "changed_cells": 24300,
+       "adj_min": 0.6670201420783997,
+       "adj_mean": 1.3722774401196727,
+       "adj_max": 2.0,
+       "base_adj_mean": 1.0
+      }
+     }
+    }
+   },
+   "band2000": {
+    "iou": 0.697952362538946,
+    "growth_iou": 0.07536839811510909,
+    "no_growth_iou": 0.6999196126623917,
+    "predicted_growth_cells": 14073,
+    "observed_growth_cells": 64887,
+    "area_ratio": 0.21688473808312914,
+    "boundary_mean_m": 1057.2303391749015,
+    "false_growth_cells": 8539,
+    "false_growth_fraction": 0.6067647267817807,
+    "hotspots": {
+     "targets": 70,
+     "hits": 33,
+     "false_alarm_cells": 259,
+     "model_cells": 320,
+     "hit_rate": 0.4714285714285714,
+     "csi": 0.10030395136778116
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.4076144834930777,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1531,
+     "whole_edge_fallback": false,
+     "outward_band": {
+      "band_m": 2000.0,
+      "p_ref": 0.049366665383179985,
+      "floor": 0.25,
+      "cap": 2.0,
+      "band_cells": 117811,
+      "covered_band_cells": 66410,
+      "band_coverage_fraction": 0.5636994847679758,
+      "floored_cells": 0,
+      "capped_cells": 21073,
+      "weight_min": 0.6670201420783997,
+      "weight_mean": 1.3469256162643433,
+      "weight_max": 2.0,
+      "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2021-031/edge_probability.tif",
+      "provenance": {
+       "binary_threshold": "0.049366665383179985",
+       "coarse_resolution_degrees": "0.1",
+       "feature_date": "2021-07-08",
+       "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+       "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+       "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+       "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+       "AREA_OR_POINT": "Area"
+      },
+      "effective_adj": {
+       "changed_cells": 66410,
+       "adj_min": 0.6670201420783997,
+       "adj_mean": 1.3469254707019205,
+       "adj_max": 2.0,
+       "base_adj_mean": 1.0
+      }
+     }
+    }
+   },
+   "no_growth": {
+    "iou": 0.6994576164692403,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.6994576164692403,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 64987,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 1250.7670155667633,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 70,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "2020-008": {
+   "control": {
+    "iou": 0.5153078429400524,
+    "growth_iou": 0.060472618346603856,
+    "no_growth_iou": 0.7505375364431487,
+    "predicted_growth_cells": 63995,
+    "observed_growth_cells": 18847,
+    "area_ratio": 3.395500610176686,
+    "boundary_mean_m": 5989.645260227214,
+    "false_growth_cells": 59271,
+    "false_growth_fraction": 0.9261817329478865,
+    "hotspots": {
+     "targets": 264,
+     "hits": 249,
+     "false_alarm_cells": 2716,
+     "model_cells": 3075,
+     "hit_rate": 0.9431818181818182,
+     "csi": 0.08355704697986577
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.23374340949033393,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1064,
+     "whole_edge_fallback": false
+    }
+   },
+   "binary": {
+    "iou": 0.49962138421929425,
+    "growth_iou": 0.10634131806621192,
+    "no_growth_iou": 0.7505375364431487,
+    "predicted_growth_cells": 85117,
+    "observed_growth_cells": 18847,
+    "area_ratio": 4.516209476309227,
+    "boundary_mean_m": 5450.5015772937795,
+    "false_growth_cells": 75124,
+    "false_growth_fraction": 0.8825968960372194,
+    "hotspots": {
+     "targets": 264,
+     "hits": 249,
+     "false_alarm_cells": 3698,
+     "model_cells": 4064,
+     "hit_rate": 0.9431818181818182,
+     "csi": 0.06284704694598688
+    },
+    "active_mode": "detections+probability",
+    "active_edge_coverage": 0.3631370826010545,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1064,
+     "covered_edge_cells": 920,
+     "coverage_fraction": 0.20210896309314588,
+     "hotspot_supported_cells": 1064,
+     "model_added_cells": 589,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2020-008/edge_probability.tif",
+     "threshold": 0.049366665383179985,
+     "covered_fuel_cells": 480264,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2020-08-18",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     }
+    }
+   },
+   "binary_pos": {
+    "iou": 0.49597350026306464,
+    "growth_iou": 0.10491541954631736,
+    "no_growth_iou": 0.7505375364431487,
+    "predicted_growth_cells": 86510,
+    "observed_growth_cells": 18847,
+    "area_ratio": 4.590120443571921,
+    "boundary_mean_m": 5452.8208911174725,
+    "false_growth_cells": 76506,
+    "false_growth_fraction": 0.8843601895734597,
+    "hotspots": {
+     "targets": 264,
+     "hits": 250,
+     "false_alarm_cells": 3759,
+     "model_cells": 4134,
+     "hit_rate": 0.946969696969697,
+     "csi": 0.06214267959234402
+    },
+    "active_mode": "detections+probability",
+    "active_edge_coverage": 0.3875219683655536,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1064,
+     "covered_edge_cells": 920,
+     "coverage_fraction": 0.20210896309314588,
+     "hotspot_supported_cells": 1064,
+     "model_added_cells": 700,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2020-008/edge_probability.tif",
+     "threshold": 1e-09,
+     "covered_fuel_cells": 480264,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2020-08-18",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     }
+    }
+   },
+   "weighted": {
+    "iou": 0.49601885607211693,
+    "growth_iou": 0.10495070274805958,
+    "no_growth_iou": 0.7505375364431487,
+    "predicted_growth_cells": 86499,
+    "observed_growth_cells": 18847,
+    "area_ratio": 4.5895367963071045,
+    "boundary_mean_m": 5452.091802571266,
+    "false_growth_cells": 76493,
+    "false_growth_fraction": 0.8843223621082325,
+    "hotspots": {
+     "targets": 264,
+     "hits": 250,
+     "false_alarm_cells": 3759,
+     "model_cells": 4134,
+     "hit_rate": 0.946969696969697,
+     "csi": 0.06214267959234402
+    },
+    "active_mode": "detections+weighted",
+    "active_edge_coverage": 0.3875219683655536,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1064,
+     "mode": "weighted",
+     "floor": 0.01,
+     "covered_edge_cells": 920,
+     "coverage_fraction": 0.20210896309314588,
+     "hotspot_supported_cells": 1064,
+     "hotspot_override_cells": 220,
+     "weighted_cells": 700,
+     "zero_probability_inactive_cells": 0,
+     "floored_cells": 14,
+     "weight_min": 0.009999999776482582,
+     "weight_mean": 0.25433455865298,
+     "weight_max": 0.5479691624641418,
+     "uncovered_baseline_whole_edge": false,
+     "whole_edge_fallback": false,
+     "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2020-008/edge_probability.tif",
+     "covered_fuel_cells": 480264,
+     "provenance": {
+      "binary_threshold": "0.049366665383179985",
+      "coarse_resolution_degrees": "0.1",
+      "feature_date": "2020-08-18",
+      "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+      "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+      "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+      "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+      "AREA_OR_POINT": "Area"
+     },
+     "effective_adj": {
+      "weighted_cells": 700,
+      "base_adj_min": 1.0,
+      "adj_min": 0.009999999776482582,
+      "adj_mean": 0.25433455865298,
+      "adj_max": 0.5479691624641418
+     }
+    }
+   },
+   "band750": {
+    "iou": 0.5171990099766604,
+    "growth_iou": 0.07065821378056172,
+    "no_growth_iou": 0.7505375364431487,
+    "predicted_growth_cells": 65932,
+    "observed_growth_cells": 18847,
+    "area_ratio": 3.498275587626678,
+    "boundary_mean_m": 5889.104852979317,
+    "false_growth_cells": 60337,
+    "false_growth_fraction": 0.9151398410483529,
+    "hotspots": {
+     "targets": 264,
+     "hits": 249,
+     "false_alarm_cells": 2814,
+     "model_cells": 3175,
+     "hit_rate": 0.9431818181818182,
+     "csi": 0.08089668615984405
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.23374340949033393,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1064,
+     "whole_edge_fallback": false,
+     "outward_band": {
+      "band_m": 750.0,
+      "p_ref": 0.049366665383179985,
+      "floor": 0.25,
+      "cap": 2.0,
+      "band_cells": 25726,
+      "covered_band_cells": 6932,
+      "band_coverage_fraction": 0.2694550260436912,
+      "floored_cells": 395,
+      "capped_cells": 5498,
+      "weight_min": 0.25,
+      "weight_mean": 1.7013070583343506,
+      "weight_max": 2.0,
+      "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2020-008/edge_probability.tif",
+      "provenance": {
+       "binary_threshold": "0.049366665383179985",
+       "coarse_resolution_degrees": "0.1",
+       "feature_date": "2020-08-18",
+       "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+       "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+       "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+       "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+       "AREA_OR_POINT": "Area"
+      },
+      "effective_adj": {
+       "changed_cells": 6932,
+       "adj_min": 0.25,
+       "adj_mean": 1.7013071246544063,
+       "adj_max": 2.0,
+       "base_adj_mean": 1.0
+      }
+     }
+    }
+   },
+   "band2000": {
+    "iou": 0.5121880575572908,
+    "growth_iou": 0.07390320014685187,
+    "no_growth_iou": 0.7505375364431487,
+    "predicted_growth_cells": 68907,
+    "observed_growth_cells": 18847,
+    "area_ratio": 3.6561256433384623,
+    "boundary_mean_m": 5809.810876202952,
+    "false_growth_cells": 62868,
+    "false_growth_fraction": 0.9123601375767338,
+    "hotspots": {
+     "targets": 264,
+     "hits": 249,
+     "false_alarm_cells": 2941,
+     "model_cells": 3302,
+     "hit_rate": 0.9431818181818182,
+     "csi": 0.07769110764430577
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.23374340949033393,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 1064,
+     "whole_edge_fallback": false,
+     "outward_band": {
+      "band_m": 2000.0,
+      "p_ref": 0.049366665383179985,
+      "floor": 0.25,
+      "cap": 2.0,
+      "band_cells": 67505,
+      "covered_band_cells": 21746,
+      "band_coverage_fraction": 0.3221391008073476,
+      "floored_cells": 1407,
+      "capped_cells": 16756,
+      "weight_min": 0.25,
+      "weight_mean": 1.6639643907546997,
+      "weight_max": 2.0,
+      "probability_file": "/home/elinzi/Coding/ignopticon/data/edge_causal/front_weighted/dev/2020-008/edge_probability.tif",
+      "provenance": {
+       "binary_threshold": "0.049366665383179985",
+       "coarse_resolution_degrees": "0.1",
+       "feature_date": "2020-08-18",
+       "inputs": "VNP14A1 daily grid + gridMET, read directly from data/harmonize",
+       "mapping": "fuel cell centre within coarse candidate footprint; no interpolation",
+       "model_identifiers": "[\"harm-all-seed0\", \"harm-all-seed1\", \"harm-all-seed2\"]",
+       "model_sha256": "[\"63749c34766a469d5ddaaf91beb926349973fefbdccf4bfce62055dae10518ce\", \"8c95ef26e927cc75425c002679c42d550aadab6e7d0fb8deebfbe86c19fd14ef\", \"f50f6fdc1e436fbc8f4a43c7885c4d7454bf05d94985275ab274b89a725a7685\"]",
+       "AREA_OR_POINT": "Area"
+      },
+      "effective_adj": {
+       "changed_cells": 21746,
+       "adj_min": 0.25,
+       "adj_mean": 1.6639643610565333,
+       "adj_max": 2.0,
+       "base_adj_mean": 1.0
+      }
+     }
+    }
+   },
+   "no_growth": {
+    "iou": 0.8133385990028138,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.8133385990028138,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 18847,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 531.3166654005786,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 264,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  }
+ },
+ "failures": {}
+}

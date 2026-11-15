@@ -1,0 +1,23 @@
+{
+  "2021-038": {
+    "feature_day": "2021-06-26",
+    "issue": "2021-06-27T12:00",
+    "candidate_cells": 591,
+    "covered_fuel_cells": 653698,
+    "binary_threshold": 0.049366665383179985
+  },
+  "2021-031": {
+    "feature_day": "2021-07-08",
+    "issue": "2021-07-09T12:00",
+    "candidate_cells": 978,
+    "covered_fuel_cells": 671142,
+    "binary_threshold": 0.049366665383179985
+  },
+  "2020-008": {
+    "feature_day": "2020-08-18",
+    "issue": "2020-08-19T12:00",
+    "candidate_cells": 1895,
+    "covered_fuel_cells": 480264,
+    "binary_threshold": 0.049366665383179985
+  }
+}
