@@ -69,7 +69,7 @@ class Heap {
 export function createNav(ctx) {
   const {$, esc, say} = ctx;
   let pkg = null, pkgFor = null, hz = null, view = null;
-  let start = null, startAcc = null, startManual = false, dest = null, destSuggested = false;
+  let start = null, startAcc = null, startManual = false, dest = null, destSuggested = false, gpsFailed = false;
   let mode = "both", allow4x4 = true, picking = null, routes = [], chosen = null;
   let navigating = null, offSince = 0, repeaters = [], dispatch = null, refreshTimer = null, longCache = new Map();
 
@@ -606,7 +606,7 @@ export function createNav(ctx) {
   function render() {
     const p = $("#navpanel"); if (!p) return;
     const fromIn = $("#nav-from-in"), toIn = $("#nav-to-in");
-    if (document.activeElement !== fromIn) fromIn.value = picking === "start" ? "Tap the map…" : !start ? (startManual ? "" : "Current location (waiting for GPS)") :
+    if (document.activeElement !== fromIn) fromIn.value = picking === "start" ? "Tap the map…" : !start ? (startManual ? "" : gpsFailed ? "Current location (GPS unavailable)" : "Current location (waiting for GPS)") :
       startManual ? `${start[1].toFixed(5)}, ${start[0].toFixed(5)}` : `Current location (±${Math.round(startAcc || 0)} m)`;
     if (document.activeElement !== toIn) toIn.value = picking === "dest" ? "Tap the map…" : !dest || destSuggested ? "Recommended spot (just outside the fire)" : `${dest[1].toFixed(5)}, ${dest[0].toFixed(5)}`;
     for (const b of document.querySelectorAll("[data-navmode]")) b.setAttribute("aria-pressed", b.dataset.navmode === mode);
@@ -755,9 +755,11 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
     },
     gps(lon, lat, acc) {
       if (startManual && !navigating) return;
-      if (acc > 100 && !navigating) { if (!start) note("Your location is approximate (±" + Math.round(acc) + " m): set the start on the map for accurate routes."); return; }
-      start = [lon, lat]; startAcc = acc; startManual = false; render(); updateNav();
+      // Use an approximate fix (laptops, indoors) rather than waiting forever; just warn about it.
+      if (acc > 100 && !start && !navigating) note("Your location is approximate (±" + Math.round(acc) + " m): set the start on the map for accurate routes.");
+      start = [lon, lat]; startAcc = acc; startManual = false; gpsFailed = false; render(); updateNav();
     },
+    gpsError() { gpsFailed = true; render(); },
     styleLoaded,
     opened() { showCoverage(true); },  // dead zones show while choosing a start and destination
     sourceText: () => sourceText,

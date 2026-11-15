@@ -106,7 +106,7 @@ function requestGps() {
   gpsWatch = navigator.geolocation.watchPosition(({coords}) => {
     gps = [coords.longitude, coords.latitude]; showPosition(); if (at) renderList();
     nav.gps(coords.longitude, coords.latitude, coords.accuracy);
-  }, () => { gps = null; gpsMarker?.remove(); gpsMessage = "GPS unavailable"; if (at) renderList(); },
+  }, () => { gps = null; gpsMarker?.remove(); gpsMessage = "GPS unavailable"; if (at) renderList(); nav.gpsError(); },
   {enableHighAccuracy: true, maximumAge: 10000, timeout: 15000});
 }
 const saves = new Map();
@@ -584,8 +584,8 @@ function renderForecast() {
   if (!fc) return;
   const zone = zoneOf(cur.fire), stops = fcStops(fc);
   $("#fc-stops").innerHTML = [{hours: null}, ...stops].map((s, i) => {
-    const label = s.hours == null ? "Issue" : `+${s.hours} h`, color = s.hours == null ? "transparent" : BANDS[Math.min(2, i - 1)];
-    const title = s.hours == null ? "Show the fire as of the forecast issue time (no forecast)" : `${fc.bound ? "Most likely" : "Predicted"} by ${when(s.time, zone)} · +${num(s.acres)} ac`;
+    const label = s.hours == null ? "Off" : `+${s.hours} h`, color = s.hours == null ? "transparent" : BANDS[Math.min(2, i - 1)];
+    const title = s.hours == null ? "Prediction off: show the fire as of the forecast issue time" : `${fc.bound ? "Most likely" : "Predicted"} by ${when(s.time, zone)} · +${num(s.acres)} ac`;
     return `<li class="stop" style="--stop-color:${color}"><button type="button" data-fc="${s.hours ?? "off"}" aria-pressed="${state.fc === s.hours}" title="${title}">${label}</button></li>`;
   }).join("");
   const s = stops.find((x) => x.hours === state.fc), obs = s && (cur.detail.observed_after || []).find((o) => o.hours === s.hours);
@@ -868,6 +868,8 @@ $("#home").onclick = () => { state.filter = ""; $("#filter").value = ""; if (map
 $("#return").onclick = () => { overview(); const matches = fires.filter(matchesFire); if (matches.length) fit(matches.map(f=>f.bbox).reduce(union)); };
 $("#locate").onclick = () => { if (gps && map) map.easeTo({center:gps, zoom:12}); else requestGps(); };
 requestGps();
+// Location switched on after the page opened: ask again instead of staying on the old denial.
+navigator.permissions?.query({name: "geolocation"}).then(p => { p.onchange = () => { if (p.state === "granted") requestGps(); }; }).catch(() => {});
 // The list renders from the API without waiting for the map.
 $("#labels").setAttribute("aria-pressed", state.labels);
 for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === state.view);
@@ -892,4 +894,3 @@ function noOutlines(data) {
 }
 // The map library is a deferred script after this module; start the map once it has run.
 if (window.maplibregl) initMap(); else $('script[src$="maplibre-gl.js"]').addEventListener("load", initMap);
-if (matchMedia("(min-width:821px)").matches) $("#keybox").open = true;
