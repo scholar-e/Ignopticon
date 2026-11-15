@@ -1,0 +1,70 @@
+{
+  "harm_2009": {
+    "weighted_label_mean": 0.0014044359559193254,
+    "fire0_quantiles": [
+      2.3245811462402344e-06,
+      0.00180816650390625,
+      0.0078887939453125,
+      0.23632446289059317,
+      0.9990234375
+    ],
+    "weighted_fire0_fractional": 1.0,
+    "weighted_label_gt_half": 0.0004620871914085001
+  },
+  "raw_2009": {
+    "weighted_label_mean": 0.001861481461673975,
+    "fire0_quantiles": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "weighted_fire0_fractional": 0.0,
+    "weighted_label_gt_half": 0.001861481461673975
+  },
+  "viirs_2020": {
+    "weighted_label_mean": 0.0015879556303843856,
+    "fire0_quantiles": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "weighted_fire0_fractional": 0.0,
+    "weighted_label_gt_half": 0.0015879556303843856
+  },
+  "harm-pre": {
+    "trees": 1,
+    "unique_predictions": 6,
+    "largest_probability_group_fraction": 0.998489265344696,
+    "largest_group_probability": 0.0014431735212102237,
+    "min": 0.0014431735212102237,
+    "max": 0.9999999999999996
+  },
+  "raw-pre": {
+    "trees": 406,
+    "unique_predictions": 1813097,
+    "largest_probability_group_fraction": 9.395458393331703e-05,
+    "largest_group_probability": 1.0,
+    "min": 0.0,
+    "max": 1.0
+  },
+  "harm-all": {
+    "trees": 590,
+    "unique_predictions": 1812445,
+    "largest_probability_group_fraction": 0.00010710243048990687,
+    "largest_group_probability": 1.0,
+    "min": 2.3660078958642906e-276,
+    "max": 1.0
+  },
+  "raw-all": {
+    "trees": 503,
+    "unique_predictions": 1811831,
+    "largest_probability_group_fraction": 0.0001399901568628644,
+    "largest_group_probability": 1.0,
+    "min": 0.0,
+    "max": 1.0
+  }
+}

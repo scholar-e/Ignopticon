@@ -261,14 +261,28 @@ def perimeters(grid, lon, lat, radius_m, date, end_date=None):
         log.info("no FEDS perimeters for %s: detections only", date)
         return []
     try:
-        with urllib.request.urlopen(url + "?" + urllib.parse.urlencode(params), timeout=300) as response:
-            features = json.load(response)["features"]
+        if os.environ.get('FEDS_SNAPSHOT_DIR'):
+            import glob
+            features = []
+            for path in sorted(glob.glob(os.path.join(os.environ['FEDS_SNAPSHOT_DIR'], '*-*.json'))):
+                snapshot = json.load(open(path))
+                stamp = snapshot['time'].rstrip('Z') + 'Z'
+                if not params['datetime'].split('/')[0] <= stamp <= params['datetime'].split('/')[1]:
+                    continue
+                features.extend({'geometry': f['geometry'], 'properties': {
+                    't': stamp.rstrip('Z'), 'fireid': f['properties']['id'],
+                    'farea': f['properties']['area_km2']}} for f in snapshot['features'])
+        else:
+            with urllib.request.urlopen(url + "?" + urllib.parse.urlencode(params), timeout=300) as response:
+                features = json.load(response)["features"]
     except Exception as err:  # FEDS down or slow: carry on from detections only
         log.warning("FEDS perimeters unavailable (%s): detections only", err)
         return []
     biggest = {}
     for f in features:
         p = f["properties"]
+        if os.environ.get("FEDS_FIRE_ID") and str(p["fireid"]) != os.environ["FEDS_FIRE_ID"]:
+            continue
         if p["t"] not in biggest or p["farea"] > biggest[p["t"]]["properties"]["farea"]:
             biggest[p["t"]] = f
     result = []

@@ -1,0 +1,351 @@
+{
+ "table": {
+  "12.0": {
+   "fires_scored": 3,
+   "fires_with_outline": 5,
+   "methods": {
+    "p3:adj0.5": {
+     "growth_iou": 0.022829172548912743,
+     "iou": 0.7651101707361977,
+     "area_ratio": 0.5156253261799887,
+     "boundary_mean_m": 474.16336569084484
+    },
+    "p3:adj1": {
+     "growth_iou": 0.02841093168794522,
+     "iou": 0.6704008595794364,
+     "area_ratio": 1.2869340124835604,
+     "boundary_mean_m": 797.3034422541698
+    },
+    "p3:adj1-wind0.7": {
+     "growth_iou": 0.02975818022177893,
+     "iou": 0.7088837929422009,
+     "area_ratio": 0.8857900340270964,
+     "boundary_mean_m": 671.7053017796227
+    },
+    "fw16:mean_of_members": {
+     "growth_iou": 0.0026856618626760823,
+     "iou": 0.7093128483879363,
+     "area_ratio": 148.87326388888889,
+     "boundary_mean_m": 448.9933322941865
+    },
+    "fw16:best_member_in_sample(gr0.4-sh0.4-tm0.2-we0)": {
+     "growth_iou": 0.004768004554511813,
+     "iou": 0.8008965291133705,
+     "area_ratio": 73.75694444444444,
+     "boundary_mean_m": 196.68196747175546
+    },
+    "fw16:oracle_per_fire": {
+     "growth_iou": 0.004768004554511813
+    },
+    "fw16orig:mean_of_members": {
+     "growth_iou": 0.022899640789649376,
+     "iou": 0.6341107423090375,
+     "area_ratio": 17.97351943989587,
+     "boundary_mean_m": 479.16737907444355
+    },
+    "fw16orig:best_member_in_sample(gr0.4-sh0.4-tm0.6-we-1)": {
+     "growth_iou": 0.03408851709688242,
+     "iou": 0.7115072524646804,
+     "area_ratio": 8.157723474828904,
+     "boundary_mean_m": 271.0825825259815
+    },
+    "fw16orig:oracle_per_fire": {
+     "growth_iou": 0.03808457352020421
+    },
+    "no_growth": {
+     "iou": 0.933160481089737,
+     "growth_iou": 0.0
+    }
+   }
+  }
+ },
+ "viirs_mean_csi": {
+  "fw16:gr0.4-sh0.4-tm0.2-we-1": [
+   0.044,
+   1
+  ],
+  "fw16:gr0.4-sh0.4-tm0.2-we0": [
+   0.047,
+   1
+  ],
+  "fw16:gr0.4-sh0.4-tm0.6-we-1": [
+   0.05,
+   1
+  ],
+  "fw16:gr0.4-sh0.4-tm0.6-we0": [
+   0.053,
+   1
+  ],
+  "fw16:gr0.4-sh1-tm0.2-we-1": [
+   0.031,
+   1
+  ],
+  "fw16:gr0.4-sh1-tm0.2-we0": [
+   0.033,
+   1
+  ],
+  "fw16:gr0.4-sh1-tm0.6-we-1": [
+   0.034,
+   1
+  ],
+  "fw16:gr0.4-sh1-tm0.6-we0": [
+   0.037,
+   1
+  ],
+  "fw16:gr1-sh0.4-tm0.2-we-1": [
+   0.021,
+   1
+  ],
+  "fw16:gr1-sh0.4-tm0.2-we0": [
+   0.023,
+   1
+  ],
+  "fw16:gr1-sh0.4-tm0.6-we-1": [
+   0.025,
+   1
+  ],
+  "fw16:gr1-sh0.4-tm0.6-we0": [
+   0.025,
+   1
+  ],
+  "fw16:gr1-sh1-tm0.2-we-1": [
+   0.015,
+   1
+  ],
+  "fw16:gr1-sh1-tm0.2-we0": [
+   0.016,
+   1
+  ],
+  "fw16:gr1-sh1-tm0.6-we-1": [
+   0.017,
+   1
+  ],
+  "fw16:gr1-sh1-tm0.6-we0": [
+   0.018,
+   1
+  ],
+  "p3:adj0.5": [
+   0.041,
+   2
+  ],
+  "p3:adj1": [
+   0.025,
+   2
+  ],
+  "p3:adj1-wind0.7": [
+   0.027,
+   2
+  ]
+ },
+ "fires": [
+  {
+   "fire": "map20260802-11887",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 2563.2921232510635,
+   "raster_acres": 2562.7530773254844,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)"
+  },
+  {
+   "fire": "map20260802-18872",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 789.7227678555062,
+   "raster_acres": 792.6291212717871,
+   "perimeter_hours": [],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)"
+  },
+  {
+   "fire": "map20260802-20036",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 3871.281414355855,
+   "raster_acres": 3870.3652576611853,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)"
+  },
+  {
+   "fire": "map20260802-2143",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 1706.6556671145395,
+   "raster_acres": 1703.4055030575626,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)"
+  },
+  {
+   "fire": "map20260802-31094",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 1673.2977112045621,
+   "raster_acres": 1673.8686879290653,
+   "perimeter_hours": [],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)"
+  },
+  {
+   "fire": "map20260802-331",
+   "init": "feds",
+   "active_mode": "whole_edge",
+   "feds_acres_issue": 2995.7666730540914,
+   "raster_acres": 2995.380545972295,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)"
+  },
+  {
+   "fire": "map20260802-66510",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 73057.94255984802,
+   "raster_acres": 73053.92609522592,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)"
+  }
+ ],
+ "per_fire": [
+  {
+   "fire": "map20260802-11887",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 2563.2921232510635,
+   "raster_acres": 2562.7530773254844,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)",
+   "hours": 12.0,
+   "observed_growth_cells": 0,
+   "no_growth_iou": 1.0,
+   "p3_growth_iou": {
+    "adj1": 0.0,
+    "adj0.5": 0.0,
+    "adj1-wind0.7": 0.0
+   },
+   "p3_adj1_area_ratio": null,
+   "fw16_rescored_best_growth_iou": 0,
+   "viirs_csi": {}
+  },
+  {
+   "fire": "map20260802-20036",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 3871.281414355855,
+   "raster_acres": 3870.3652576611853,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)",
+   "hours": 12.0,
+   "observed_growth_cells": 72,
+   "no_growth_iou": 0.9858162355040143,
+   "p3_growth_iou": {
+    "adj1": 0.002830684621294836,
+    "adj0.5": 0.007009111845399018,
+    "adj1-wind0.7": 0.003973885892705081
+   },
+   "p3_adj1_area_ratio": 343.43055555555554,
+   "fw16_rescored_best_growth_iou": 0.009536009109023627,
+   "viirs_csi": {
+    "gr0.4-sh0.4-tm0.6-we0": 0.053000000000000005,
+    "gr0.4-sh0.4-tm0.6-we-1": 0.05,
+    "gr0.4-sh0.4-tm0.2-we0": 0.047,
+    "adj0.5": 0.04466666666666667,
+    "gr0.4-sh0.4-tm0.2-we-1": 0.044,
+    "gr0.4-sh1-tm0.6-we0": 0.03733333333333333,
+    "gr0.4-sh1-tm0.2-we0": 0.03333333333333333,
+    "gr0.4-sh1-tm0.6-we-1": 0.034333333333333334,
+    "gr0.4-sh1-tm0.2-we-1": 0.03133333333333333,
+    "gr1-sh0.4-tm0.2-we0": 0.023,
+    "gr1-sh0.4-tm0.6-we-1": 0.025,
+    "gr1-sh0.4-tm0.6-we0": 0.025,
+    "gr1-sh0.4-tm0.2-we-1": 0.021333333333333333,
+    "adj1-wind0.7": 0.017333333333333333,
+    "gr1-sh1-tm0.2-we0": 0.01633333333333333,
+    "gr1-sh1-tm0.6-we-1": 0.017333333333333333,
+    "gr1-sh1-tm0.6-we0": 0.018000000000000002,
+    "gr1-sh1-tm0.2-we-1": 0.015333333333333334,
+    "adj1": 0.013333333333333334
+   }
+  },
+  {
+   "fire": "map20260802-2143",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 1706.6556671145395,
+   "raster_acres": 1703.4055030575626,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)",
+   "hours": 12.0,
+   "observed_growth_cells": 1,
+   "no_growth_iou": 0.9997960432388334,
+   "p3_growth_iou": {
+    "adj1": 0.0,
+    "adj0.5": 0.0,
+    "adj1-wind0.7": 0.0
+   },
+   "p3_adj1_area_ratio": 0.0,
+   "fw16_rescored_best_growth_iou": 0,
+   "viirs_csi": {}
+  },
+  {
+   "fire": "map20260802-331",
+   "init": "feds",
+   "active_mode": "whole_edge",
+   "feds_acres_issue": 2995.7666730540914,
+   "raster_acres": 2995.380545972295,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)",
+   "hours": 12.0,
+   "observed_growth_cells": 0,
+   "no_growth_iou": 1.0,
+   "p3_growth_iou": {
+    "adj1": 0.0,
+    "adj0.5": 0.0,
+    "adj1-wind0.7": 0.0
+   },
+   "p3_adj1_area_ratio": null,
+   "fw16_rescored_best_growth_iou": 0,
+   "viirs_csi": {}
+  },
+  {
+   "fire": "map20260802-66510",
+   "init": "feds",
+   "active_mode": "detections",
+   "feds_acres_issue": 73057.94255984802,
+   "raster_acres": 73053.92609522592,
+   "perimeter_hours": [
+    12.0
+   ],
+   "wx": "HRRR wrfsubhf sub-hourly forecast (instantaneous 15 min)",
+   "hours": 12.0,
+   "observed_growth_cells": 47903,
+   "no_growth_iou": 0.8138691645263635,
+   "p3_growth_iou": {
+    "adj1": 0.08240211044254082,
+    "adj0.5": 0.06147840580133922,
+    "adj1-wind0.7": 0.08530065477263171
+   },
+   "p3_adj1_area_ratio": 1.2869340124835604,
+   "fw16_rescored_best_growth_iou": null,
+   "viirs_csi": {
+    "adj1": 0.03725,
+    "adj1-wind0.7": 0.036000000000000004,
+    "adj0.5": 0.03675
+   }
+  }
+ ]
+}

@@ -4,7 +4,7 @@
    "fire_id": 66510,
    "name": "Widemouth 2",
    "issued": "2026-08-02T12:00:00Z",
-   "model": "ELMFIRE (Rothermel/LANDFIRE fuels, HRRR 12Z forecast weather, started from VIIRS burning edges; spread x0.02 chosen on other days)",
+   "model": "ELMFIRE: HRRR forecast weather, LANDFIRE fuels, VIIRS active edges, spread x0.02; experimental case study",
    "path": "66510/2026-08-02T1200.json"
   }
  ]

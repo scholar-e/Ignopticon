@@ -1,0 +1,800 @@
+{
+ "horizon_h": 24.0,
+ "k": 3,
+ "ridge_alpha": 1.0,
+ "members": [
+  "gr0.4-sh0.4-tm0.2-we-1",
+  "gr0.4-sh0.4-tm0.2-we0",
+  "gr0.4-sh0.4-tm0.6-we-1",
+  "gr0.4-sh0.4-tm0.6-we0",
+  "gr0.4-sh1-tm0.2-we-1",
+  "gr0.4-sh1-tm0.2-we0",
+  "gr0.4-sh1-tm0.6-we-1",
+  "gr0.4-sh1-tm0.6-we0",
+  "gr1-sh0.4-tm0.2-we-1",
+  "gr1-sh0.4-tm0.2-we0",
+  "gr1-sh0.4-tm0.6-we-1",
+  "gr1-sh0.4-tm0.6-we0",
+  "gr1-sh1-tm0.2-we-1",
+  "gr1-sh1-tm0.2-we0",
+  "gr1-sh1-tm0.6-we-1",
+  "gr1-sh1-tm0.6-we0"
+ ],
+ "fires": [
+  {
+   "fire": "map20260802-11887",
+   "hours": 12.0,
+   "observed_growth_cells": 279,
+   "features": {
+    "GR": 0.4516971279373368,
+    "SH": 0.01004217714400482,
+    "TIMBER": 0.5382606949186584,
+    "wind_mph": 5.590876579284668,
+    "log10_init_acres": 2.4455941694772507
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.900621906333291
+   },
+   "ridge": {
+    "member": "gr0.4-sh1-tm0.6-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.900621906333291
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.900621906333291
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.2-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.900621906333291
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.900621906333291
+   }
+  },
+  {
+   "fire": "map20260802-20036",
+   "hours": 12.0,
+   "observed_growth_cells": 467,
+   "features": {
+    "GR": 0.8174974245185831,
+    "SH": 0.15203264917980822,
+    "TIMBER": 0.030469926301608687,
+    "wind_mph": 7.915192127227783,
+    "log10_init_acres": 3.3862212848280424
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.052851363695680546,
+    "area_ratio": 16.2762312633833,
+    "iou": 0.5802339610764308
+   },
+   "ridge": {
+    "member": "gr0.4-sh1-tm0.2-we-1",
+    "growth_iou": 0.032133676092544985,
+    "area_ratio": 26.511777301927197,
+    "iou": 0.46360281784636026
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.0576506285218899,
+    "area_ratio": 14.674518201284796,
+    "iou": 0.603405927624038
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.0576506285218899,
+    "area_ratio": 14.674518201284796,
+    "iou": 0.603405927624038
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8979523047105419
+   }
+  },
+  {
+   "fire": "map20260802-2143",
+   "hours": 24.0,
+   "observed_growth_cells": 509,
+   "features": {
+    "GR": 0.40583554376657827,
+    "SH": 0.17108753315649866,
+    "TIMBER": 0.4230769230769231,
+    "wind_mph": 9.368191719055176,
+    "log10_init_acres": 2.8425991841894036
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.015355086372360844,
+    "area_ratio": 0.03929273084479371,
+    "iou": 0.8429419651407777
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.009671179883945842,
+    "area_ratio": 0.025540275049115914,
+    "iou": 0.8430132259919494
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.009671179883945842,
+    "area_ratio": 0.025540275049115914,
+    "iou": 0.8430132259919494
+   },
+   "oracle": {
+    "member": "gr1-sh1-tm0.2-we-1",
+    "growth_iou": 0.01855287569573284,
+    "area_ratio": 0.07858546168958742,
+    "iou": 0.8404275625119297
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8433480514494145
+   }
+  },
+  {
+   "fire": "map20260802-331",
+   "hours": 12.0,
+   "observed_growth_cells": 493,
+   "features": {
+    "GR": 0.856401384083045,
+    "SH": 0.07670126874279123,
+    "TIMBER": 0.06689734717416379,
+    "wind_mph": 8.458134651184082,
+    "log10_init_acres": 2.6558484113384067
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.2150101419878296,
+    "iou": 0.8739649424669319
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.2150101419878296,
+    "iou": 0.8739649424669319
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.0,
+    "area_ratio": 0.14198782961460446,
+    "iou": 0.8773615459354421
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.2-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.17647058823529413,
+    "iou": 0.8757543103448275
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8840422060263243
+   }
+  },
+  {
+   "fire": "map20260802-51849",
+   "hours": 12.0,
+   "observed_growth_cells": 249,
+   "features": {
+    "GR": 0.7177231994689678,
+    "SH": 0.0011616329239960172,
+    "TIMBER": 0.2811151676070362,
+    "wind_mph": 5.1715497970581055,
+    "log10_init_acres": 2.1461180377172906
+   },
+   "knn": {
+    "member": "gr0.4-sh1-tm0.6-we-1",
+    "growth_iou": 0.14945652173913043,
+    "area_ratio": 0.6987951807228916,
+    "iou": 0.5807291666666666
+   },
+   "ridge": {
+    "member": "gr0.4-sh1-tm0.6-we-1",
+    "growth_iou": 0.14945652173913043,
+    "area_ratio": 0.6987951807228916,
+    "iou": 0.5807291666666666
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.15160349854227406,
+    "area_ratio": 0.5863453815261044,
+    "iou": 0.5962314939434724
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.15160349854227406,
+    "area_ratio": 0.5863453815261044,
+    "iou": 0.5962314939434724
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.6024653312788906
+   }
+  },
+  {
+   "fire": "map20260802-53095",
+   "hours": 12.0,
+   "observed_growth_cells": 314,
+   "features": {
+    "GR": 0.5874840357598978,
+    "SH": 0.10712005108556832,
+    "TIMBER": 0.30539591315453385,
+    "wind_mph": 4.004809856414795,
+    "log10_init_acres": 2.242407172153372
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8114061557030778
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8114061557030778
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8114061557030778
+   },
+   "oracle": {
+    "member": "gr1-sh1-tm0.2-we-1",
+    "growth_iou": 0.022292993630573247,
+    "area_ratio": 0.022292993630573247,
+    "iou": 0.8135184067592034
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8114061557030778
+   }
+  },
+  {
+   "fire": "map20260802-53363",
+   "hours": 12.0,
+   "observed_growth_cells": 112,
+   "features": {
+    "GR": 0.0662978414656267,
+    "SH": 0.16216216216216217,
+    "TIMBER": 0.771539996372211,
+    "wind_mph": 4.031426429748535,
+    "log10_init_acres": 2.8839351382995306
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.0571870170015456,
+    "area_ratio": 5.107142857142857,
+    "iou": 0.6791883740060324
+   },
+   "ridge": {
+    "member": "gr1-sh1-tm0.2-we-1",
+    "growth_iou": 0.047186932849364795,
+    "area_ratio": 4.151785714285714,
+    "iou": 0.6944522669670515
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.09090909090909091,
+    "area_ratio": 1.8928571428571428,
+    "iou": 0.7482559902942069
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.09090909090909091,
+    "area_ratio": 1.8928571428571428,
+    "iou": 0.7482559902942069
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.7840616966580977
+   }
+  },
+  {
+   "fire": "map20260802-57204",
+   "hours": 12.0,
+   "observed_growth_cells": 284,
+   "features": {
+    "GR": 0.4040291878172589,
+    "SH": 0.5959708121827412,
+    "TIMBER": 0.0,
+    "wind_mph": 4.306817531585693,
+    "log10_init_acres": 1.848179189938786
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.12110726643598616,
+    "area_ratio": 0.14084507042253522,
+    "iou": 0.8628069694059541
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.2-we0",
+    "growth_iou": 0.12110726643598616,
+    "area_ratio": 0.14084507042253522,
+    "iou": 0.8628069694059541
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.12110726643598616,
+    "area_ratio": 0.14084507042253522,
+    "iou": 0.8628069694059541
+   },
+   "oracle": {
+    "member": "gr1-sh1-tm0.2-we0",
+    "growth_iou": 0.13766233766233765,
+    "area_ratio": 0.5422535211267606,
+    "iou": 0.8540284360189574
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8585941790225151
+   }
+  },
+  {
+   "fire": "map20260802-57585",
+   "hours": 12.0,
+   "observed_growth_cells": 348,
+   "features": {
+    "GR": 0.39461588969139855,
+    "SH": 0.09345589844604946,
+    "TIMBER": 0.511928211862552,
+    "wind_mph": 4.329220294952393,
+    "log10_init_acres": 2.242407172153372
+   },
+   "knn": {
+    "member": "gr1-sh1-tm0.2-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.640625
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.640625
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.640625
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.2-we-1",
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.640625
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.640625
+   }
+  },
+  {
+   "fire": "map20260802-58056",
+   "hours": 12.0,
+   "observed_growth_cells": 106,
+   "features": {
+    "GR": 0.9618239660657476,
+    "SH": 0.022534464475079532,
+    "TIMBER": 0.015641569459172854,
+    "wind_mph": 8.074170112609863,
+    "log10_init_acres": 2.0222121302951566
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.2-we0",
+    "growth_iou": 0.1056338028169014,
+    "area_ratio": 0.4811320754716981,
+    "iou": 0.7059732234809475
+   },
+   "ridge": {
+    "member": "gr0.4-sh1-tm0.6-we-1",
+    "growth_iou": 0.11333333333333333,
+    "area_ratio": 0.5754716981132075,
+    "iou": 0.7041025641025641
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.1056338028169014,
+    "area_ratio": 0.4811320754716981,
+    "iou": 0.7059732234809475
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.2-we-1",
+    "growth_iou": 0.11409395973154363,
+    "area_ratio": 0.5660377358490566,
+    "iou": 0.7044638276038995
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.7114375655823715
+   }
+  },
+  {
+   "fire": "map20260802-61855",
+   "hours": 24.0,
+   "observed_growth_cells": 566,
+   "features": {
+    "GR": 0.21464605370219692,
+    "SH": 0.3506916192026037,
+    "TIMBER": 0.43466232709519936,
+    "wind_mph": 6.3849897384643555,
+    "log10_init_acres": 2.4455941694772507
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.03822937625754527,
+    "area_ratio": 3.558303886925795,
+    "iou": 0.7803647652308886
+   },
+   "ridge": {
+    "member": "gr1-sh0.4-tm0.6-we0",
+    "growth_iou": 0.032534246575342464,
+    "area_ratio": 4.326855123674911,
+    "iou": 0.7548798798798799
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.03822937625754527,
+    "area_ratio": 3.558303886925795,
+    "iou": 0.7803647652308886
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.04718152470821952,
+    "area_ratio": 6.450530035335689,
+    "iou": 0.7035419699175157
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.9082619004194784
+   }
+  },
+  {
+   "fire": "map20260802-62944",
+   "hours": 12.0,
+   "observed_growth_cells": 43,
+   "features": {
+    "GR": 0.9797541576283442,
+    "SH": 0.018076644974692697,
+    "TIMBER": 0.0021691973969631237,
+    "wind_mph": 4.898874759674072,
+    "log10_init_acres": 1.553266257925948
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.03414634146341464,
+    "area_ratio": 3.9302325581395348,
+    "iou": 0.540495867768595
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.03414634146341464,
+    "area_ratio": 3.9302325581395348,
+    "iou": 0.540495867768595
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.08860759493670886,
+    "area_ratio": 1.0,
+    "iou": 0.6826722338204593
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.2-we0",
+    "growth_iou": 0.08860759493670886,
+    "area_ratio": 1.0,
+    "iou": 0.6826722338204593
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.7223476297968398
+   }
+  },
+  {
+   "fire": "map20260802-63215",
+   "hours": 12.0,
+   "observed_growth_cells": 296,
+   "features": {
+    "GR": 0.879965550651308,
+    "SH": 0.12003444934869201,
+    "TIMBER": 0.0,
+    "wind_mph": 5.171597957611084,
+    "log10_init_acres": 2.0222121302951566
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.15172413793103448,
+    "area_ratio": 0.6925675675675675,
+    "iou": 0.44291497975708505
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.2-we0",
+    "growth_iou": 0.15172413793103448,
+    "area_ratio": 0.6925675675675675,
+    "iou": 0.44291497975708505
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.15172413793103448,
+    "area_ratio": 0.6925675675675675,
+    "iou": 0.44291497975708505
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.2-we-1",
+    "growth_iou": 0.1856474258970359,
+    "area_ratio": 1.5675675675675675,
+    "iou": 0.4163775156141568
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.43886861313868614
+   }
+  },
+  {
+   "fire": "map20260802-63363",
+   "hours": 12.0,
+   "observed_growth_cells": 195,
+   "features": {
+    "GR": 0.6492829204693612,
+    "SH": 0.0,
+    "TIMBER": 0.35071707953063885,
+    "wind_mph": 5.4849700927734375,
+    "log10_init_acres": 2.6558484113384067
+   },
+   "knn": {
+    "member": "gr0.4-sh1-tm0.6-we-1",
+    "growth_iou": 0.04501607717041801,
+    "area_ratio": 0.6666666666666666,
+    "iou": 0.7438122790099646
+   },
+   "ridge": {
+    "member": "gr0.4-sh1-tm0.6-we-1",
+    "growth_iou": 0.04501607717041801,
+    "area_ratio": 0.6666666666666666,
+    "iou": 0.7438122790099646
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.030303030303030304,
+    "area_ratio": 0.39487179487179486,
+    "iou": 0.7532637075718016
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.6-we-1",
+    "growth_iou": 0.04501607717041801,
+    "area_ratio": 0.6666666666666666,
+    "iou": 0.7438122790099646
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.7679465776293823
+   }
+  },
+  {
+   "fire": "map20260802-63369",
+   "hours": 24.0,
+   "observed_growth_cells": 17985,
+   "features": {
+    "GR": 0.2517133412820737,
+    "SH": 0.19166157753414564,
+    "TIMBER": 0.5566250811837806,
+    "wind_mph": 9.270291328430176,
+    "log10_init_acres": 4.4568871179114575
+   },
+   "knn": {
+    "member": "gr1-sh0.4-tm0.6-we0",
+    "growth_iou": 0.16552141747623936,
+    "area_ratio": 1.461495690853489,
+    "iou": 0.8670317936695601
+   },
+   "ridge": {
+    "member": "gr1-sh1-tm0.2-we-1",
+    "growth_iou": 0.17476905850517868,
+    "area_ratio": 1.1000834028356965,
+    "iou": 0.8821100082116192
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.16357771082504033,
+    "area_ratio": 1.1258826800111204,
+    "iou": 0.8791331201436803
+   },
+   "oracle": {
+    "member": "gr0.4-sh1-tm0.6-we0",
+    "growth_iou": 0.1785764742448645,
+    "area_ratio": 1.3192104531554072,
+    "iou": 0.8747804044296291
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.9069469274247431
+   }
+  },
+  {
+   "fire": "map20260802-63568",
+   "hours": 24.0,
+   "observed_growth_cells": 1510,
+   "features": {
+    "GR": 0.26863554294557646,
+    "SH": 0.2948155790559711,
+    "TIMBER": 0.43654887799845243,
+    "wind_mph": 6.842779636383057,
+    "log10_init_acres": 3.480607622760345
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.04246575342465753,
+    "area_ratio": 0.5119205298013245,
+    "iou": 0.9530446385249879
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.04246575342465753,
+    "area_ratio": 0.5119205298013245,
+    "iou": 0.9530446385249879
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.04246575342465753,
+    "area_ratio": 0.5119205298013245,
+    "iou": 0.9530446385249879
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.04246575342465753,
+    "area_ratio": 0.5119205298013245,
+    "iou": 0.9530446385249879
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.9598336594911937
+   }
+  },
+  {
+   "fire": "map20260802-63588",
+   "hours": 24.0,
+   "observed_growth_cells": 431,
+   "features": {
+    "GR": 0.09456142617232915,
+    "SH": 0.5798346466864747,
+    "TIMBER": 0.32560392714119624,
+    "wind_mph": 6.589194297790527,
+    "log10_init_acres": 2.8839351382995306
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.20297462817147857,
+    "area_ratio": 2.1902552204176335,
+    "iou": 0.8361176308159602
+   },
+   "ridge": {
+    "member": "gr1-sh0.4-tm0.2-we-1",
+    "growth_iou": 0.1284263959390863,
+    "area_ratio": 4.157772621809745,
+    "iou": 0.7530359355638166
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.20297462817147857,
+    "area_ratio": 2.1902552204176335,
+    "iou": 0.8361176308159602
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.20297462817147857,
+    "area_ratio": 2.1902552204176335,
+    "iou": 0.8361176308159602
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.8917470525187567
+   }
+  },
+  {
+   "fire": "map20260802-63715",
+   "hours": 24.0,
+   "observed_growth_cells": 2665,
+   "features": {
+    "GR": 0.0785228795711277,
+    "SH": 0.44237028527666095,
+    "TIMBER": 0.47910683515221136,
+    "wind_mph": 6.677482604980469,
+    "log10_init_acres": 3.8034641183305893
+   },
+   "knn": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.14678747940691927,
+    "area_ratio": 1.6120075046904314,
+    "iou": 0.9531815671595999
+   },
+   "ridge": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.14678747940691927,
+    "area_ratio": 1.6120075046904314,
+    "iou": 0.9531815671595999
+   },
+   "fixed": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.14678747940691927,
+    "area_ratio": 1.6120075046904314,
+    "iou": 0.9531815671595999
+   },
+   "oracle": {
+    "member": "gr0.4-sh0.4-tm0.6-we0",
+    "growth_iou": 0.14678747940691927,
+    "area_ratio": 1.6120075046904314,
+    "iou": 0.9531815671595999
+   },
+   "no_growth": {
+    "growth_iou": 0.0,
+    "area_ratio": 0.0,
+    "iou": 0.9679378309779714
+   }
+  }
+ ],
+ "summary": {
+  "no_growth": {
+   "mean_growth_iou": 0.0,
+   "median_area_ratio": 0.0,
+   "median_abs_log2_area_ratio": 9.965784284662087,
+   "mean_iou": 0.8054691437867542,
+   "held_out": false
+  },
+  "fixed": {
+   "mean_growth_iou": 0.0778469543536946,
+   "median_area_ratio": 0.5491329556637145,
+   "median_abs_log2_area_ratio": 1.2358213816637265,
+   "mean_iou": 0.7705774489853803,
+   "held_out": true
+  },
+  "knn": {
+   "mean_growth_iou": 0.07380312607573956,
+   "median_area_ratio": 0.679617117117117,
+   "median_abs_log2_area_ratio": 1.9029022033774943,
+   "mean_iou": 0.7553030659009307,
+   "held_out": true
+  },
+  "ridge": {
+   "mean_growth_iou": 0.06826435559724205,
+   "median_area_ratio": 0.679617117117117,
+   "median_abs_log2_area_ratio": 2.054771423453148,
+   "mean_iou": 0.7443777872977442,
+   "held_out": true
+  },
+  "oracle": {
+   "mean_growth_iou": 0.08500124125854135,
+   "median_area_ratio": 0.6265060240963856,
+   "median_abs_log2_area_ratio": 0.9432868813965944,
+   "mean_iou": 0.7633811722625611,
+   "held_out": false
+  }
+ }
+}

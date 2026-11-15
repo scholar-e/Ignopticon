@@ -34,6 +34,7 @@ Writes data/training/fires/FIRE_ID/: case.json (grid, refine, issues with their 
 volumes), detections.csv, fire-observed.json, fire-state.tif, landscape.tif, wx/YYYYMMDDTHH/, obs/.
 """
 import argparse
+import fcntl
 import concurrent.futures
 import csv
 import datetime
@@ -139,7 +140,7 @@ def granules(fire_dir, bbox, first, last, geo=False):
     if geo:
         os.makedirs(RAW_GEO, exist_ok=True)
 
-    def fetch(job):
+    def fetch_unlocked(job):
         name, size, prod, d, outdir = job
         dst = os.path.join(outdir, name)
         if os.path.exists(dst) and os.path.getsize(dst) == size:
@@ -152,6 +153,14 @@ def granules(fire_dir, bbox, first, last, geo=False):
                 log.warning("%s: %s (attempt %d)", name, err, attempt + 1)
                 time.sleep(5 * (attempt + 1))
         raise RuntimeError("could not download " + name)
+
+    def fetch(job):
+        # Array tasks share granules; serialize each filename so .part writes
+        # cannot overwrite one another while unrelated downloads stay parallel.
+        name, _, _, _, outdir = job
+        with open(os.path.join(outdir, name + '.lock'), 'a') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            return fetch_unlocked(job)
 
     with concurrent.futures.ThreadPoolExecutor(6) as pool:
         got = sum(pool.map(fetch, jobs))
@@ -242,7 +251,11 @@ def main():
     ap.add_argument("--keep-raw", action="store_true")
     ap.add_argument("--max-issues", type=int, default=0, help="keep the N issues with most heat after (0: all)")
     ap.add_argument("--steps", default="1,2,3,4,5")
+    ap.add_argument("--issue", help="fixed UTC issue; do not select using future fire activity")
+    ap.add_argument("--feds-fire-id", help="match this FEDS fire instead of the largest neighbor")
     a = ap.parse_args()
+    if a.feds_fire_id:
+        os.environ['FEDS_FIRE_ID'] = a.feds_fire_id
     os.chdir(REPO)
     steps = set(a.steps.split(","))
     row = next(r for r in csv.DictReader(open(a.catalog)) if r["id"] == a.fire)
@@ -308,7 +321,8 @@ def main():
 
     if "5" in steps and obs:
         if "issues" not in meta:
-            issues = choose_issues(obs, row["start"], row["end"])
+            issues = ([{"issue": a.issue, "selection": "fixed before scoring"}] if a.issue
+                      else choose_issues(obs, row["start"], row["end"]))
             if a.max_issues and len(issues) > a.max_issues:
                 issues = sorted(sorted(issues, key=lambda i: -i["hot_cells_after"])[:a.max_issues],
                                 key=lambda i: i["issue"])

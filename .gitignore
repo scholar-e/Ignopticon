@@ -42,3 +42,14 @@ earth/deploy/ec2/.env
 id_rsa*
 id_ed25519*
 .env
+
+# Controlled diagnostic model artifacts
+data/compare/controlled/*.txt
+data/compare/controlled/*.log
+data/compare/controlled/complete
+
+# Perimeter export execution logs
+earth/public/data/perimeters/**/*.log
+
+# Large perimeter-batch results and logs stay on Hyak
+data/perimeter_batch/map*/

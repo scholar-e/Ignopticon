@@ -94,6 +94,15 @@ def main(run_dir, state_tif, issue, fire_id, name, model, out_dir, hours="6,12,2
         start = np.zeros(toa.shape, np.uint8)
         reproject(before, start, src_transform=src.transform, src_crs=src.crs, dst_transform=transform,
                   dst_crs=crs, resampling=Resampling.nearest)
+    # Runs built with OBSERVED reconstruct their initial footprint from data
+    # available at issue. The interpolated state raster can use later snapshots.
+    provenance = None
+    metadata_path = os.path.join(run_dir, "run.json")
+    if os.path.exists(metadata_path):
+        metadata = json.load(open(metadata_path))
+        if any(v.startswith("OBSERVED=") for v in metadata.get("overrides", [])):
+            from elmfire_perimeters import known_start
+            start, provenance = known_start(metadata, toa.shape, transform, crs)
     start = start.astype(bool) | (valid & (toa <= 0))
 
     taken = valid & (toa <= hours[-1] * 3600) | start
@@ -211,7 +220,9 @@ def main(run_dir, state_tif, issue, fire_id, name, model, out_dir, hours="6,12,2
     doc = {"type": "FeatureCollection", "fire": {"id": fire_id, "name": name}, "issued": issued, "model": model,
            "hours": [h if h != int(h) else int(h) for h in hours],
            "source": ("scripts/ellipse_spread.py" if ellipse else "ELMFIRE") + " -> scripts/forecast_to_geojson.py",
-           "perimeter_time": perimeter_time, "summary": summary, "features": features}
+           "perimeter_time": perimeter_time, "summary": summary, "features": features,
+           "initial_state_provenance": provenance,
+           "grid_resolution_m": [abs(transform.a), abs(transform.e)]}
     out = os.path.join(out_dir, rel)
     os.makedirs(os.path.dirname(out), exist_ok=True)
     json.dump(doc, open(out, "w", encoding="utf-8"), separators=(",", ":"), ensure_ascii=False)
