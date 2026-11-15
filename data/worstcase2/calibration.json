@@ -1,0 +1,45 @@
+{
+ "a": 0.17097647301667981,
+ "b": 0.6959379805250132,
+ "target": 0.8,
+ "bounds_km2": [
+  10.0,
+  100.0
+ ],
+ "classes": {
+  "small": {
+   "w": 0.0,
+   "m": 18.8604,
+   "calib_recall": 0.8087420042643924,
+   "calib_fa_km2": 68.06390624999999,
+   "target_reached": true,
+   "pooled_with": [
+    "small"
+   ],
+   "n_calib": 7
+  },
+  "medium": {
+   "w": 0.0,
+   "m": 22.7607,
+   "calib_recall": 0.8310005467468562,
+   "calib_fa_km2": 246.99515625,
+   "target_reached": true,
+   "pooled_with": [
+    "medium"
+   ],
+   "n_calib": 6
+  },
+  "large": {
+   "w": 0.0,
+   "m": 33.1479,
+   "calib_recall": 0.8065310119111493,
+   "calib_fa_km2": 3645.5414062499995,
+   "target_reached": true,
+   "pooled_with": [
+    "large"
+   ],
+   "n_calib": 11
+  }
+ },
+ "n_fit": 24
+}
