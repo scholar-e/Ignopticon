@@ -2,10 +2,10 @@
 // Caches: ops-shell-VERSION (app shell, cache-first), ops-api (network-first), ops-tiles (cache-first, trimmed),
 // ops-area-{id} (tiles and data of areas saved by offline.js, never trimmed), ops-data (/data/, stale-while-revalidate).
 // Bump VERSION whenever a shell file changes: the new worker precaches, then waits until the page asks it to take over.
-const VERSION = "v3";
+const VERSION = "v9";
 const SHELL = "ops-shell-" + VERSION;
 const SHELL_FILES = [
-  "/ops/", "/ops/index.html", "/ops/ops.css", "/ops/ops.js", "/ops/offline.js", "/ops/storage.html",
+  "/ops/", "/ops/index.html", "/ops/ops.css", "/ops/ops.js", "/ops/earthlayers.js", "/ops/offline.js", "/ops/storage.html",
   "/ops/manifest.webmanifest", "/ops/icons/icon-192.png", "/ops/icons/icon-512.png", "/ops/icons/maskable-512.png",
   "/ops/vendor/maplibre-gl.js", "/ops/vendor/maplibre-gl.css", "/ops/vendor/fonts/Noto%20Sans%20Bold/0-255.pbf",
 ];
@@ -26,7 +26,8 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(caches.keys()
-    .then((keys) => Promise.all(keys.filter((k) => k.startsWith("ops-shell-") && k !== SHELL).map((k) => caches.delete(k))))
+    // v9 also drops the passive tile cache once: it could hold USGS's blank white tiles, which the server now refuses.
+    .then((keys) => Promise.all(keys.filter((k) => (k.startsWith("ops-shell-") && k !== SHELL) || (k === "ops-tiles" && VERSION === "v9")).map((k) => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 

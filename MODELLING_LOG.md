@@ -178,3 +178,36 @@ Results on the 14 passes after the update:
   - Pooled CSI: A 0.255 (unchanged), B 0.306 (0.305 unmasked).
   - A's full-horizon pooled CSI by multiplier rises slightly, and ×0.02 stays best (0.268).
   - The A < B result is not a cloud artifact on this fire. Smoke isn't flagged as cloud by the mask, so smoke-obscured fire is still not accounted for.
+
+### 12. Does harmonizing change a decision? Flint Hills burning before and after the 2010 smoke plan
+- **Question:** KDHE adopted the Flint Hills Smoke Management Plan on 2010-12-29, after April 2009 smoke contributed to ozone exceedances in Kansas City and Wichita, and is revising it in 2025–26. Did spring (Feb–Apr) burning change after it? The plan's first season (2011) falls one year before VIIRS (2012), so a raw MODIS-then-VIIRS calendar mixes the policy with the sensor change.
+- **Data:** FIRMS yearly US country archives, no key (`data/raw/firms-country/`, 814 MB): MODIS C6.1 (Terra + Aqua) 2001–2025 and VIIRS S-NPP 375 m 2012–2025, type 0 only. These are FIRMS point detections, not the 1 km gridded products of entry 10, so ratios differ from it (here VIIRS sees 2.38x the MODIS fire cell-days nationally).
+- **Measure:** fire cell-days on the 0.1° grid, per month, in a Flint Hills box (36.9–39.3° N, 97.2–96.0° W), with Southeast (29.5–33.5° N, 86–81° W), Sierra (35.5–41° N, 122.5–118.5° W) and lower 48 for contrast. Script `scripts/firms_region_check.py`.
+- **Harmonization used here (calendar level, not entry 10's model):** VIIRS-equivalent = MODIS × r(region, calendar month), r fitted on the overlap. Scored leave-one-year-out on 2012–2025 monthly totals (sum |error| / sum VIIRS):
+
+  | Region | MODIS as-is | One national factor | Regional monthly factor | VIIRS / MODIS in region |
+  |---|---|---|---|---|
+  | Flint Hills | 0.36 | 0.60 | **0.14** | 1.55 |
+  | Southeast | 0.47 | 0.29 | **0.12** | 1.88 |
+  | Sierra | 0.55 | 0.23 | **0.17** | 2.19 |
+  | Lower 48 | 0.58 | 0.15 | **0.11** | 2.38 |
+
+  A single national factor is worse than no correction in the Flint Hills (VIIRS/MODIS there is 1.55, nationally 2.38).
+- **Result (spring fire cell-days per year, mean):**
+
+  | Calendar | 2003–2010 | 2013–2025 | Change | Trend 2003–2025 |
+  |---|---|---|---|---|
+  | Raw splice (MODIS to 2011, VIIRS from 2012) | 857 | 1,092 | **+27%** | +18 per year |
+  | MODIS only (one sensor throughout) | 857 | 763 | **−11%** | −3 per year |
+  | Harmonized (regional monthly factor) | 1,227 | 1,092 | **−11%** | −5 per year |
+
+  - With 2011 counted as after (2011–2025): splice +20%, MODIS only −14%, harmonized −14%.
+  - The raw splice reverses the sign: it says burning rose after the plan; the consistent records say it fell.
+  - April's share of spring burning fell from 0.85 (2003–2010) to 0.70 (2011–2025) in every calendar; share is not affected by the sensor change.
+  - Robust to dropping low-confidence detections (VIIRS "l", MODIS < 30): splice +18%, MODIS only −14%, harmonized −14%.
+- **Caveats:**
+  - A monthly ratio rescales MODIS, so the harmonized before/after change equals MODIS-only's by construction. What harmonization adds is the level (about 1.4x more burning than MODIS sees, on VIIRS's footing) and a calendar continuous through 2012; the evidence against the splice is that a single sensor run through the whole period agrees with it.
+  - The pre-2012 factor assumes the region's VIIRS/MODIS ratio stayed constant (untestable before 2012).
+  - Before/after is not causal: 2012–2013 were very low years (cause not checked), and burning depends on weather and grazing economics.
+  - Entry 10's p_viirs should be run on the same box to confirm with the cell-day model.
+  - S-NPP stopped delivering data in November 2026 (reported by other teams; not checked), so the VIIRS reference needs NOAA-20 continuation.
