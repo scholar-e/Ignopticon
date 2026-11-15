@@ -10,7 +10,7 @@ const BASEMAPS = ["satellite", "imagerytopo", "topo"];
 const state = {
   t: params.get("t"), fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
   base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") === "on",
-  sort: "distance", filter: "", mode: "progression", step: 0, compare: false,
+  filter: "", mode: "progression", step: 0, compare: false,
   layers: {current: true, previous: true, forecast: true, arrows: true, hotspots: false, interior: false, detached: false},
 };
 let fires = [], byId = new Map(), at = null, map = null, cur = null, playing = null;
@@ -142,15 +142,11 @@ function writeUrl() {
   history.replaceState(null, "", "?" + p);
 }
 
-const SORTS = {
-  distance: (a,b) => distance(a) - distance(b) || label(a).localeCompare(label(b)),
-  growth: (a, b) => (b.growth_acres ?? -1e12) - (a.growth_acres ?? -1e12) || b.acres - a.acres,
-  size: (a, b) => b.acres - a.acres,
-  name: (a, b) => label(a).localeCompare(label(b)),
-};
+// Always nearest to your GPS position first; without a position every distance is Infinity, so it falls back to A-Z.
+const nearest = (a, b) => distance(a) - distance(b) || label(a).localeCompare(label(b));
 function renderList() {
   if (!at) return;
-  const rows = fires.filter(matchesFire).sort(SORTS[state.sort]);
+  const rows = fires.filter(matchesFire).sort(nearest);
   $("#list").innerHTML = rows.map((f) => {
     const g = growthText(f);
     return `<li><button type="button" class="fire" data-id="${f.id}"${f.id === state.fire ? ' aria-current="true"' : ""}>
@@ -680,7 +676,6 @@ function initMap() {
 
 $("#filter").addEventListener("input", (e) => { state.filter = e.target.value; renderList(); if (map?.getSource("fires")) setFires();
   const matches = fires.filter(matchesFire); if (matches.length) fit(matches.map(f => f.bbox).reduce(union)); });
-$("#sort").addEventListener("change", (e) => { state.sort = e.target.value; renderList(); });
 $("#list").addEventListener("click", (e) => { const b = e.target.closest("button.fire"); if (b) select(+b.dataset.id); });
 const prefetch = (e) => { const b = e.target.closest("button.fire"); if (b) detail(+b.dataset.id).catch(() => {}); };
 $("#list").addEventListener("mouseover", prefetch);
