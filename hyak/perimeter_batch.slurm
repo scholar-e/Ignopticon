@@ -21,4 +21,5 @@ minstart=${MIN_START_CELLS:-20}
 exec apptainer exec --cleanenv --bind "$PWD" --pwd "$PWD" --env PY=python3 --env RUN_PY=python3 \
   --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env WORKERS="${SLURM_CPUS_PER_TASK:-8}" \
   --env PERIMETER_MEMBERS="$members" --env MIN_START_CELLS="$minstart" \
+  --env LANDSCAPE_TILE="${LANDSCAPE_TILE:-256}" --env LANDSCAPE_ATTEMPTS="${LANDSCAPE_ATTEMPTS:-10}" \
   hyak/ignopticon-model.sif python3 scripts/perimeter_batch.py "$fire"

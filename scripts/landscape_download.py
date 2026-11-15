@@ -42,7 +42,10 @@ log = logging.getLogger(__name__)
 LANDFIRE = "https://lfps.usgs.gov/arcgis/rest/services/Landfire_LF2025/LF2025_{}_CONUS/ImageServer/exportImage"
 DEP3 = "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage"
 FETCH_CELL = 30.0
-TILE = 1024  # cells per request, each way
+# Cells per request, each way. 3DEP times out on large requests (504), which an HTTP proxy such as Tillicum's
+# compute-node proxy reports as "403 Tunnel connection failed". Small tiles avoid it (default 256).
+TILE = int(os.environ.get("LANDSCAPE_TILE", "256"))
+ATTEMPTS = int(os.environ.get("LANDSCAPE_ATTEMPTS", "10"))
 NODATA = -9999
 # (band name, URL, pixel type, resampling)
 LAYERS = [
@@ -63,7 +66,7 @@ def fetch_one(url, pixel_type, bbox, epsg, width, height, path):
         "interpolation": "RSP_NearestNeighbor" if pixel_type == "S16" else "RSP_BilinearInterpolation", "f": "image",
     }
     req = urllib.request.Request(url + "?" + urllib.parse.urlencode(params), headers={"User-Agent": "ignopticon"})
-    for attempt in range(6):
+    for attempt in range(ATTEMPTS):
         try:
             with urllib.request.urlopen(req, timeout=300) as r:
                 body = r.read()
@@ -74,7 +77,7 @@ def fetch_one(url, pixel_type, bbox, epsg, width, height, path):
             log.warning("%s: not a GeoTIFF: %r", url, body[:200])
         except (urllib.error.URLError, TimeoutError) as err:
             log.warning("%s: %s (attempt %d)", os.path.basename(path), err, attempt + 1)
-        time.sleep(5 * 2 ** attempt)
+        time.sleep(min(5 * 2 ** attempt, 60))
     raise RuntimeError("could not fetch " + path)
 
 
