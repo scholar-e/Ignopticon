@@ -270,7 +270,7 @@ Held-out results, 13 overlap years 2012–2024: train on 9 years, test on 2013, 
   - The weather sets used gridMET for all years.
   - `p_viirs` sums over every cell-day include cloudy ones, where VIIRS would have counted nothing. Use the clear-look sums for comparisons.
   - VJ114A1 (NOAA-20) is gridded but unused. The model targets S-NPP only.
-  - Overlap years still ungridded: VNP14A1 2025–2026 (gridding queued). The final model uses 2012–2024 minus nothing; the held-out evaluation uses 2013/16/19/22.
+  - VNP14A1 2025–2026 were gridded after these fits and are not used yet. The model for `apply` is refitted on all of 2012–2024; the held-out scores come from the fit without 2013, 2016, 2019 and 2022.
 
 
 ### 11. National next-day fire activity model
