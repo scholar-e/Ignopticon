@@ -812,3 +812,20 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
 - Reading: the cut fixes ELMFIRE's over-area (whole IoU +0.10) but the predicted areas are tiny (0.0-12 km2) because the model predicts ~0.4
   cells for every fire, so it lands near no growth (whole IoU 0.91) and loses hotspot hits; even with the true area the growth IoU is only 0.08 (where, not how much, is the limit) .
   Caveats: 12 fires, one date; 6 of 12 fires have no VIIRS cluster at 0.1 deg on Aug 1 (zero predicted growth); k fitted in-sample on few fires.
+
+### 25. 2026-11-15 — Lower/upper forecast cases; does harmonized history improve the tail? (`scripts/growth_bounds.py`)
+- Cases: lower (most likely) = entry 24's area-constrained forecast (growth model harm, t0 = day-t features, x 45.7 km2/cell x 0.5). Upper (worst case) =
+  the q0.9 (frozen) of next-day growth among the K=100 (frozen) nearest ANALOG event-days (standardized size, recent growth, days active, season, lat/lon, day-t
+  wind/VPD/ERC/FM100, fuel fractions) in the arm's training rows (<= 2019), same conversion, max with lower; footprint = control (or, where local, the earliest-arrival
+  UNION of the fuelwind16 + physics3 members) arrival map cut at that area. Only Widemouth 2 (66510) has members locally (19); the other 72 use the control run.
+- Tail calibration, test 2021-24 (2903 event-days, 146 events; 312 in the largest-growth decile), `data/bounds/tail_calibration.md`. Coverage = share of days with growth
+  <= predicted q90 (target 0.90; discrete target with 71% zeros, so ties push it above 0.90): harm 0.939, raw 0.941, viirs-only 0.932, constant pool q90 0.950.
+  Pinball(0.9): harm 0.2190, raw 0.2273, viirs-only 0.2329, constant 0.2914, zero 0.467. Tail coverage (largest decile): harm 0.45, raw 0.48, viirs-only 0.39;
+  sum pred / sum obs in that decile 0.76 / 0.72 / 0.65. Paired pinball (event-block bootstrap): harm - raw -0.008 (CI -0.026..+0.003), harm - viirs-only
+  -0.014 (CI -0.036..+0.0003): the ordering favours harmonized history but is not significant; the analog (conditional) q90 beats a constant q90, and every arm
+  under-covers the extreme days (the top decile is ~half covered). The ~0.9-0.94 coverage is mostly ties, not a calibrated tail.
+- Held-out, 12 fires, +12 h vs FEDS (observed growth 67 km2 in total; `data/bounds/heldout_table.md`): growth IoU mean / recall (pooled) / mean false-alarm km2:
+  no growth 0 / 0 / 0; lower 0.062 / 0.135 / 2.7; upper (harm) 0.060 / 0.269 / 11.4; control 0.058 / 0.361 / 20.5. Whole IoU 0.909 / 0.889 / 0.784 / 0.774. The upper case
+  recovers about 3/4 of the control's recall at about half the false-alarm area; raw and viirs-only uppers are nearly the same (0.283 recall, 13.2 km2).
+- Export: lower and upper GeoJSON for all 73 Aug 2 forecasts (`earth/public/data/forecasts_bounds`, index.json lists areas and footprint source). Caveats: 12 fires/one date;
+  harm/raw/viirs-only differences within noise; the K-NN feature set and K were chosen once without tuning; weather/fuel for fires without a VIIRS cluster looked up on the 0.1 deg grid.
