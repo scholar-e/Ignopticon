@@ -846,7 +846,7 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
   Rule (frozen in `data/burnscar/manifest.json` first): best within 0.002 ties go to the smaller perturbation. Chosen N = 1, m = 0.3; gain +0.0009 is below 0.002 (`no_dev_benefit` true).
 - Held-out (12 frozen 2026-08-02T12 fires, same cases/weather as control; `data/burnscar/heldout_table.md`): scar_harm = scar_raw = scar_viirs_only = control to every
   reported digit (growth IoU 0.0580 mean / 0.0238 median, whole IoU 0.7601, area ratio 36.97 mean / 2.71 median, false growth 0.911; no_growth growth IoU 0, whole IoU 0.9098). No fire changed (0 better / 0 worse).
-- Coverage: 11 of 12 held-out landscapes contain scar cells (<= 1 y after exclusion; 11-52% of 1.0-1.6 M fuel cells; 66055 none; 66433 210 k, 65395 43 k, 340 603 k, 53095 843 k), but
+- Coverage: 11 of 12 held-out landscapes contain scar cells (<= 1 y after exclusion; 4-72% of 1.0-1.6 M fuel cells; 66055 none; 66433 210 k, 65395 43 k, 340 603 k, 53095 843 k), but
   every history cell touching the start area is excluded (up to 640 k cells) and a 0.1 deg cell is 8-11 km, so the remaining scar starts well beyond what a 12 h spread reaches; the correction is inert here.
 - Caveats: coarse history cells plus whole-cell own exclusion make the option nearly inert at 12 h; a useful test needs a fine (perimeter-based) scar map and fires that run into old scars. LF2025 fuels
   already reflect disturbance through about 2024, so only 2025-26 scars could matter for the held-out date. Dev numbers in-sample; N makes no difference. Not recommended for the demo.
