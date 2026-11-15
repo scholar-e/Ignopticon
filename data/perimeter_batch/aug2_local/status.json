@@ -1,0 +1,1687 @@
+{
+  "map20260802-66433": {
+    "feds_id": "66433",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 2722,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 90617.95813534297,
+      "feds_raster_acres": 90614.77891091687,
+      "edge_band_cells": 7956,
+      "active_edge_cells": 6045,
+      "burning_cells": 7145,
+      "burning_burnable_cells": 6389,
+      "outside_hot_cells_375m": 11,
+      "hot_cells_375m": 1207,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 6045,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 58767,
+    "name": "Okanogan Co., WA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:01:23+00:00"
+  },
+  "map20260802-11887": {
+    "feds_id": "11887",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-18872": {
+    "feds_id": "18872",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-19": {
+    "feds_id": "19",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 31,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 3629.2430283586746,
+      "feds_raster_acres": 3628.163373607509,
+      "edge_band_cells": 849,
+      "active_edge_cells": 331,
+      "burning_cells": 431,
+      "burning_burnable_cells": 27,
+      "outside_hot_cells_375m": 1,
+      "hot_cells_375m": 23,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 331,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 6,
+    "name": "Lake Co., IN",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:02:09+00:00"
+  },
+  "map20260802-20036": {
+    "feds_id": "20036",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-2143": {
+    "feds_id": "2143",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-31094": {
+    "feds_id": "31094",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-331": {
+    "feds_id": "331",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-340": {
+    "feds_id": "340",
+    "status": "no growth",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 11,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1583.281888326805,
+      "feds_raster_acres": 1583.5207828301332,
+      "edge_band_cells": 450,
+      "active_edge_cells": 62,
+      "burning_cells": 62,
+      "burning_burnable_cells": 62,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 10,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 62,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 0,
+    "name": "FEDS 340",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:01:58+00:00"
+  },
+  "map20260802-48632": {
+    "feds_id": "48632",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-49109": {
+    "feds_id": "49109",
+    "status": "no growth",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 5,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1118.8969696355657,
+      "feds_raster_acres": 1117.186595742567,
+      "edge_band_cells": 699,
+      "active_edge_cells": 91,
+      "burning_cells": 91,
+      "burning_burnable_cells": 0,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 3,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 91,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 0,
+    "name": "Nueces Co., TX",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:06:17+00:00"
+  },
+  "map20260802-51849": {
+    "feds_id": "51849",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-52611": {
+    "feds_id": "52611",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 4,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 777.8501622849881,
+      "feds_raster_acres": 778.729443564259,
+      "edge_band_cells": 632,
+      "active_edge_cells": 145,
+      "burning_cells": 145,
+      "burning_burnable_cells": 140,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 4,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 145,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 6584,
+    "name": "McKenzie Co., ND",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:06:25+00:00"
+  },
+  "map20260802-53095": {
+    "feds_id": "53095",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-53363": {
+    "feds_id": "53363",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-53763": {
+    "feds_id": "53763",
+    "status": "no growth",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 4,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1428.3219808854299,
+      "feds_raster_acres": 1426.1069327923778,
+      "edge_band_cells": 1152,
+      "active_edge_cells": 167,
+      "burning_cells": 167,
+      "burning_burnable_cells": 135,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 4,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 167,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 0,
+    "name": "Reagan Co., TX",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:06:22+00:00"
+  },
+  "map20260802-5450": {
+    "feds_id": "5450",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 1,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "whole_edge",
+      "feds_polygon_acres": 2169.09059495886,
+      "feds_raster_acres": 2172.5196256866343,
+      "edge_band_cells": 687,
+      "active_edge_cells": 687,
+      "burning_cells": 687,
+      "burning_burnable_cells": 263,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 1,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 0,
+        "whole_edge_fallback": true
+      }
+    },
+    "grown_cells": 115,
+    "name": "Porter Co., IN",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:05:50+00:00"
+  },
+  "map20260802-57204": {
+    "feds_id": "57204",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-57585": {
+    "feds_id": "57585",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-58056": {
+    "feds_id": "58056",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-60791": {
+    "feds_id": "60791",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-61855": {
+    "feds_id": "61855",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-62041": {
+    "feds_id": "62041",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 23,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 33485.69649482985,
+      "feds_raster_acres": 33487.45102491927,
+      "edge_band_cells": 5405,
+      "active_edge_cells": 374,
+      "burning_cells": 374,
+      "burning_burnable_cells": 301,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 16,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 374,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 5465,
+    "name": "St. Louis Co., MN",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:05:50+00:00"
+  },
+  "map20260802-62590": {
+    "feds_id": "62590",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 19,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 4784.0258781770335,
+      "feds_raster_acres": 4786.701510529972,
+      "edge_band_cells": 986,
+      "active_edge_cells": 30,
+      "burning_cells": 30,
+      "burning_burnable_cells": 30,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 11,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 30,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 1169,
+    "name": "Lassen Co., CA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:06:20+00:00"
+  },
+  "map20260802-62944": {
+    "feds_id": "62944",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63215": {
+    "feds_id": "63215",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63363": {
+    "feds_id": "63363",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63369": {
+    "feds_id": "63369",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63372": {
+    "feds_id": "63372",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63374": {
+    "feds_id": "63374",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 812,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 291262.8449397334,
+      "feds_raster_acres": 291239.94700583525,
+      "edge_band_cells": 14831,
+      "active_edge_cells": 518,
+      "burning_cells": 518,
+      "burning_burnable_cells": 515,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 353,
+      "fine_cell_m": 75.0,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 518,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 1832,
+    "name": "Crook Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:34:10+00:00"
+  },
+  "map20260802-63568": {
+    "feds_id": "63568",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63588": {
+    "feds_id": "63588",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63683": {
+    "feds_id": "63683",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 1179,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 64455.03151430483,
+      "feds_raster_acres": 64456.62794117714,
+      "edge_band_cells": 5894,
+      "active_edge_cells": 2469,
+      "burning_cells": 2469,
+      "burning_burnable_cells": 2066,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 480,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 2469,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 13756,
+    "name": "Ferry Co., WA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:12:29+00:00"
+  },
+  "map20260802-63715": {
+    "feds_id": "63715",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63960": {
+    "feds_id": "63960",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-63962": {
+    "feds_id": "63962",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 65,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 21396.493491419842,
+      "feds_raster_acres": 21405.156177650508,
+      "edge_band_cells": 2094,
+      "active_edge_cells": 577,
+      "burning_cells": 577,
+      "burning_burnable_cells": 571,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 52,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 577,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 1968,
+    "name": "Okanogan Co., WA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:09:42+00:00"
+  },
+  "map20260802-63969": {
+    "feds_id": "63969",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 1,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "whole_edge",
+      "feds_polygon_acres": 4678.848743392007,
+      "feds_raster_acres": 4676.199072755124,
+      "edge_band_cells": 1084,
+      "active_edge_cells": 1084,
+      "burning_cells": 1084,
+      "burning_burnable_cells": 1038,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 1,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 0,
+        "whole_edge_fallback": true
+      }
+    },
+    "grown_cells": 3481,
+    "name": "Wallowa Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:09:13+00:00"
+  },
+  "map20260802-64600": {
+    "feds_id": "64600",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 1,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 112.51295175509478,
+      "feds_raster_acres": 112.239897488289,
+      "edge_band_cells": 111,
+      "active_edge_cells": 73,
+      "burning_cells": 73,
+      "burning_burnable_cells": 73,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 1,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 73,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 571,
+    "name": "Pecos Co., TX",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:10:11+00:00"
+  },
+  "map20260802-64816": {
+    "feds_id": "64816",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 1,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 210.3204176202157,
+      "feds_raster_acres": 210.23262532636176,
+      "edge_band_cells": 232,
+      "active_edge_cells": 83,
+      "burning_cells": 83,
+      "burning_burnable_cells": 79,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 1,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 83,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 236,
+    "name": "Glasscock Co., TX",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:06:43+00:00"
+  },
+  "map20260802-65080": {
+    "feds_id": "65080",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-65258": {
+    "feds_id": "65258",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 22,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 4057.7956653556325,
+      "feds_raster_acres": 4061.138334197008,
+      "edge_band_cells": 789,
+      "active_edge_cells": 255,
+      "burning_cells": 255,
+      "burning_burnable_cells": 251,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 17,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 255,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 666,
+    "name": "Douglas Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:09:58+00:00"
+  },
+  "map20260802-65395": {
+    "feds_id": "65395",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 2546,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 231474.55187978403,
+      "feds_raster_acres": 231522.76167098247,
+      "edge_band_cells": 12546,
+      "active_edge_cells": 2031,
+      "burning_cells": 2031,
+      "burning_burnable_cells": 2025,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 931,
+      "fine_cell_m": 75.0,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 2031,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 18090,
+    "name": "Malheur Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:09:39+00:00"
+  },
+  "map20260802-65401": {
+    "feds_id": "65401",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 172,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 78304.79170221153,
+      "feds_raster_acres": 78303.48687341658,
+      "edge_band_cells": 4291,
+      "active_edge_cells": 569,
+      "burning_cells": 569,
+      "burning_burnable_cells": 561,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 102,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 569,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 3405,
+    "name": "Wheeler Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:13:21+00:00"
+  },
+  "map20260802-65486": {
+    "feds_id": "65486",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 1855,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 124777.49344518576,
+      "feds_raster_acres": 124795.4763614991,
+      "edge_band_cells": 7995,
+      "active_edge_cells": 2880,
+      "burning_cells": 2880,
+      "burning_burnable_cells": 2634,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 871,
+      "fine_cell_m": 75.0,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 2880,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 25655,
+    "name": "Baker Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:18:07+00:00"
+  },
+  "map20260802-65489": {
+    "feds_id": "65489",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 432,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 37527.96722548846,
+      "feds_raster_acres": 37524.61241507079,
+      "edge_band_cells": 2887,
+      "active_edge_cells": 1133,
+      "burning_cells": 1133,
+      "burning_burnable_cells": 1122,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 190,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 1133,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 5821,
+    "name": "Wasco Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:12:38+00:00"
+  },
+  "map20260802-65680": {
+    "feds_id": "65680",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 15,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 2109.993752806697,
+      "feds_raster_acres": 2110.3185679454464,
+      "edge_band_cells": 600,
+      "active_edge_cells": 124,
+      "burning_cells": 124,
+      "burning_burnable_cells": 124,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 8,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 124,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 534,
+    "name": "Missoula Co., MT",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:13:08+00:00"
+  },
+  "map20260802-65682": {
+    "feds_id": "65682",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 301,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 8557.026746038322,
+      "feds_raster_acres": 8559.421532295773,
+      "edge_band_cells": 1093,
+      "active_edge_cells": 434,
+      "burning_cells": 434,
+      "burning_burnable_cells": 373,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 119,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 434,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 3798,
+    "name": "Flathead Co., MT",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:12:53+00:00"
+  },
+  "map20260802-65718": {
+    "feds_id": "65718",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 1,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 82.53373719770268,
+      "feds_raster_acres": 83.3980662451683,
+      "edge_band_cells": 103,
+      "active_edge_cells": 30,
+      "burning_cells": 30,
+      "burning_burnable_cells": 28,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 1,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 30,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 61,
+    "name": "Skamania Co., WA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:15:35+00:00"
+  },
+  "map20260802-65726": {
+    "feds_id": "65726",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 75,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 204167.29631014695,
+      "feds_raster_acres": 204144.56649046447,
+      "edge_band_cells": 10579,
+      "active_edge_cells": 323,
+      "burning_cells": 323,
+      "burning_burnable_cells": 312,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 46,
+      "fine_cell_m": 75.0,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 323,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 2136,
+    "name": "Malheur Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:21:15+00:00"
+  },
+  "map20260802-65727": {
+    "feds_id": "65727",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 26,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 111393.91050381245,
+      "feds_raster_acres": 111398.61949504087,
+      "edge_band_cells": 6678,
+      "active_edge_cells": 83,
+      "burning_cells": 83,
+      "burning_burnable_cells": 83,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 15,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 83,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 427,
+    "name": "Harney Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:17:29+00:00"
+  },
+  "map20260802-65995": {
+    "feds_id": "65995",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 63,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1373.550106618623,
+      "feds_raster_acres": 1375.3731091599007,
+      "edge_band_cells": 417,
+      "active_edge_cells": 378,
+      "burning_cells": 378,
+      "burning_burnable_cells": 275,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 32,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 378,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 7785,
+    "name": "Custer Co., ID",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:16:14+00:00"
+  },
+  "map20260802-66055": {
+    "feds_id": "66055",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 122,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 39636.22750815705,
+      "feds_raster_acres": 39630.413587761286,
+      "edge_band_cells": 3180,
+      "active_edge_cells": 286,
+      "burning_cells": 286,
+      "burning_burnable_cells": 286,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 46,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 286,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 11862,
+    "name": "Churchill Co., NV",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:16:00+00:00"
+  },
+  "map20260802-66204": {
+    "feds_id": "66204",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 45,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1061.4371470839783,
+      "feds_raster_acres": 1061.2403929697666,
+      "edge_band_cells": 376,
+      "active_edge_cells": 258,
+      "burning_cells": 258,
+      "burning_burnable_cells": 258,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 21,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 258,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 4781,
+    "name": "Granite Co., MT",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:19:50+00:00"
+  },
+  "map20260802-66244": {
+    "feds_id": "66244",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 4,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 157.5784025073422,
+      "feds_raster_acres": 157.06635809506696,
+      "edge_band_cells": 143,
+      "active_edge_cells": 116,
+      "burning_cells": 116,
+      "burning_burnable_cells": 116,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 3,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 116,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 1157,
+    "name": "Idaho Co., ID",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:19:28+00:00"
+  },
+  "map20260802-66510": {
+    "feds_id": "66510",
+    "status": "existing forecast (skipped)"
+  },
+  "map20260802-66555": {
+    "feds_id": "66555",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 61,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 31739.543493586192,
+      "feds_raster_acres": 31736.786617656107,
+      "edge_band_cells": 3888,
+      "active_edge_cells": 287,
+      "burning_cells": 287,
+      "burning_burnable_cells": 284,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 40,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 287,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 13574,
+    "name": "Nye Co., NV",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:23:02+00:00"
+  },
+  "map20260802-66737": {
+    "feds_id": "66737",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 15,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1644.9093917598593,
+      "feds_raster_acres": 1645.374348628633,
+      "edge_band_cells": 473,
+      "active_edge_cells": 183,
+      "burning_cells": 183,
+      "burning_burnable_cells": 183,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 8,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 183,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 1459,
+    "name": "Archuleta Co., CO",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:21:46+00:00"
+  },
+  "map20260802-66834": {
+    "feds_id": "66834",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 5,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 362.94952039737336,
+      "feds_raster_acres": 362.4340962237939,
+      "edge_band_cells": 307,
+      "active_edge_cells": 155,
+      "burning_cells": 155,
+      "burning_burnable_cells": 138,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 4,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 155,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 606,
+    "name": "Midland Co., TX",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:24:27+00:00"
+  },
+  "map20260802-67083": {
+    "feds_id": "67083",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 27,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 725.521839439118,
+      "feds_raster_acres": 725.215684390276,
+      "edge_band_cells": 305,
+      "active_edge_cells": 286,
+      "burning_cells": 286,
+      "burning_burnable_cells": 278,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 14,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 286,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 3551,
+    "name": "Clearwater Co., ID",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:23:45+00:00"
+  },
+  "map20260802-67149": {
+    "feds_id": "67149",
+    "status": "no growth",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 1,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "whole_edge",
+      "feds_polygon_acres": 3986.3440317305685,
+      "feds_raster_acres": 3991.6399456593676,
+      "edge_band_cells": 1070,
+      "active_edge_cells": 1070,
+      "burning_cells": 1070,
+      "burning_burnable_cells": 1070,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 1,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 0,
+        "whole_edge_fallback": true
+      }
+    },
+    "grown_cells": 0,
+    "name": "FEDS 67149",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:25:05+00:00"
+  },
+  "map20260802-67447": {
+    "feds_id": "67447",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 2,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 107.85846973063676,
+      "feds_raster_acres": 107.72250223334238,
+      "edge_band_cells": 117,
+      "active_edge_cells": 83,
+      "burning_cells": 83,
+      "burning_burnable_cells": 79,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 1,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 83,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 262,
+    "name": "Hinds Co., MS",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:24:24+00:00"
+  },
+  "map20260802-67569": {
+    "feds_id": "67569",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 224,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 11623.094221701398,
+      "feds_raster_acres": 11623.95297486302,
+      "edge_band_cells": 1563,
+      "active_edge_cells": 306,
+      "burning_cells": 306,
+      "burning_burnable_cells": 306,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 107,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 306,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 8421,
+    "name": "White Pine Co., NV",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:26:56+00:00"
+  },
+  "map20260802-67572": {
+    "feds_id": "67572",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 48,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 2349.3686318517744,
+      "feds_raster_acres": 2350.4355003429932,
+      "edge_band_cells": 771,
+      "active_edge_cells": 225,
+      "burning_cells": 225,
+      "burning_burnable_cells": 211,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 23,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 225,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 2136,
+    "name": "Beaverhead Co., MT",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:28:19+00:00"
+  },
+  "map20260802-67610": {
+    "feds_id": "67610",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 58,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 4008.841860661067,
+      "feds_raster_acres": 4005.5396233668957,
+      "edge_band_cells": 915,
+      "active_edge_cells": 305,
+      "burning_cells": 305,
+      "burning_burnable_cells": 163,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 28,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 305,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 2469,
+    "name": "Jefferson Co., ID",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:27:56+00:00"
+  },
+  "map20260802-67614": {
+    "feds_id": "67614",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 37,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1195.1167261714436,
+      "feds_raster_acres": 1194.6772989620358,
+      "edge_band_cells": 404,
+      "active_edge_cells": 206,
+      "burning_cells": 206,
+      "burning_burnable_cells": 200,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 19,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 206,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 2024,
+    "name": "Emery Co., UT",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:28:47+00:00"
+  },
+  "map20260802-67616": {
+    "feds_id": "67616",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 33,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 8520.669675889872,
+      "feds_raster_acres": 8525.36732191233,
+      "edge_band_cells": 2049,
+      "active_edge_cells": 564,
+      "burning_cells": 564,
+      "burning_burnable_cells": 556,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 20,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 564,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 14395,
+    "name": "Malheur Co., OR",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:28:45+00:00"
+  },
+  "map20260802-67758": {
+    "feds_id": "67758",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 122,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 4836.443979356274,
+      "feds_raster_acres": 4836.392858334385,
+      "edge_band_cells": 859,
+      "active_edge_cells": 637,
+      "burning_cells": 637,
+      "burning_burnable_cells": 426,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 60,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 637,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 2347,
+    "name": "Spokane Co., WA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:31:15+00:00"
+  },
+  "map20260802-67765": {
+    "feds_id": "67765",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 83,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1875.3436886422992,
+      "feds_raster_acres": 1875.066522745534,
+      "edge_band_cells": 489,
+      "active_edge_cells": 320,
+      "burning_cells": 320,
+      "burning_burnable_cells": 320,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 36,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 320,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 2269,
+    "name": "Beaverhead Co., MT",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:32:11+00:00"
+  },
+  "map20260802-67766": {
+    "feds_id": "67766",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 58,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 1409.5854692416335,
+      "feds_raster_acres": 1410.469795371409,
+      "edge_band_cells": 604,
+      "active_edge_cells": 586,
+      "burning_cells": 586,
+      "burning_burnable_cells": 352,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 28,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 586,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 2024,
+    "name": "Spokane Co., WA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:32:17+00:00"
+  },
+  "map20260802-67815": {
+    "feds_id": "67815",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 358,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 6395.420070356178,
+      "feds_raster_acres": 6394.894221290968,
+      "edge_band_cells": 1151,
+      "active_edge_cells": 957,
+      "burning_cells": 957,
+      "burning_burnable_cells": 746,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 147,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 957,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 4591,
+    "name": "Stevens Co., WA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:32:51+00:00"
+  },
+  "map20260802-67816": {
+    "feds_id": "67816",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 204,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T12:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 4630.110704257277,
+      "feds_raster_acres": 4631.720104091034,
+      "edge_band_cells": 873,
+      "active_edge_cells": 706,
+      "burning_cells": 706,
+      "burning_burnable_cells": 541,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 86,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 706,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 5185,
+    "name": "Stevens Co., WA",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-1200.json",
+    "finished": "2026-11-15T10:33:10+00:00"
+  },
+  "map20260802-67885": {
+    "feds_id": "67885",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 2,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 20.787660633155564,
+      "feds_raster_acres": 19.80704073322747,
+      "edge_band_cells": 38,
+      "active_edge_cells": 38,
+      "burning_cells": 38,
+      "burning_burnable_cells": 38,
+      "outside_hot_cells_375m": 0,
+      "hot_cells_375m": 2,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 38,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 1262,
+    "name": "Ravalli Co., MT",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:36:11+00:00"
+  },
+  "map20260802-800": {
+    "feds_id": "800",
+    "status": "ok",
+    "stage": "convert",
+    "inputs": "built",
+    "hot_cells_before": 14,
+    "latest_perimeter": "2026-08-02T00:00Z",
+    "init_used": {
+      "mode": "feds",
+      "perimeter_time": "2026-08-02T00:00Z",
+      "edge_cells": 2,
+      "active_mode": "detections",
+      "feds_polygon_acres": 2223.838869646329,
+      "feds_raster_acres": 2222.9059573764234,
+      "edge_band_cells": 685,
+      "active_edge_cells": 119,
+      "burning_cells": 319,
+      "burning_burnable_cells": 29,
+      "outside_hot_cells_375m": 2,
+      "hot_cells_375m": 12,
+      "fine_cell_m": 37.5,
+      "front": {
+        "front_km": null,
+        "active_hours": 6.0,
+        "detection_edge_cells": 119,
+        "whole_edge_fallback": false
+      }
+    },
+    "grown_cells": 1,
+    "name": "Lake Co., IN",
+    "perimeter_snapshot": "earth/public/data/fires/feds/2026/08/02-0000.json",
+    "finished": "2026-11-15T10:37:18+00:00"
+  },
+  "map20260802-20957": {
+    "feds_id": "20957",
+    "status": "no FEDS start",
+    "stage": "build",
+    "inputs": "built",
+    "hot_cells_before": 0,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "detail": "no associated VIIRS hot cells in 6 h before issue",
+    "finished": "2026-11-15T10:36:06+00:00"
+  },
+  "map20260802-68001": {
+    "feds_id": "68001",
+    "status": "no FEDS start",
+    "stage": "build",
+    "inputs": "built",
+    "hot_cells_before": 0,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "detail": "no associated VIIRS hot cells in 6 h before issue",
+    "finished": "2026-11-15T10:37:18+00:00"
+  },
+  "map20260802-68021": {
+    "feds_id": "68021",
+    "status": "no FEDS start",
+    "stage": "build",
+    "inputs": "built",
+    "hot_cells_before": 0,
+    "latest_perimeter": "2026-08-02T12:00Z",
+    "detail": "no associated VIIRS hot cells in 6 h before issue",
+    "finished": "2026-11-15T10:36:44+00:00"
+  }
+}
