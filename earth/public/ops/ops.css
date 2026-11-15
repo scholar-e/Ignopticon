@@ -6,6 +6,7 @@
   --bg:#0E1116; --panel:#15231f; --raise:#21332c; --line:#45564d; --text:#F2F4F7; --muted:#B4BEC9;
   --brand-bar:#162c25; --sheet-edge:#98ab94;
   --focus:#5AB0FF; --red:#FF453A; --redtext:#FF8A80; --amber:#FF9F0A; --gold:#FFD27A; --case:#0B0D10; --past:#FFD649;
+  --fc:#C75AF5;  /* forecast: the middle band colour, for every forecast frame */
   /* Map pills (search, Home/Back, Labels, 2D | 3D) and map panels (Key, timeline). */
   --pill:#15231ff2; --pill-line:#93a397; --pill-on:#E8EDF3; --pill-on-text:#0E1116; --pill-shadow:0 2px 12px #0005;
   --overlay:rgba(14,17,22,0.92);
@@ -32,8 +33,21 @@ body{
 body.selected{grid-template-rows:auto minmax(0,1fr) minmax(0,1fr)}
 .fresh{grid-row:1;display:flex;justify-content:space-between;align-items:center;min-height:32px;padding:4px max(22px,env(safe-area-inset-right)) 4px 22px;
   background:var(--brand-bar);color:#e2efe5;font:600 12px/1.4 system-ui}
-.fresh-r{display:flex;gap:16px;align-items:center}.navlink{color:#e2efe5;font-weight:700;text-decoration:none;border-bottom:2px solid #e2efe5aa}.navlink:hover{border-bottom-color:#fff}
+.fresh-r{display:flex;gap:16px;align-items:center;white-space:nowrap}
+.navlink{color:#e2efe5;font-weight:700;text-decoration:none;border-bottom:2px solid #e2efe5aa}.navlink:hover{border-bottom-color:#fff}
 .wordmark{font-size:14px;font-weight:800;letter-spacing:.06em}
+.refresh-wrap{position:relative;display:grid;justify-items:end}
+.app-actions{display:flex;gap:6px}
+.refresh-wrap button{min-height:32px;padding:0 10px;border:1px solid var(--pill-line);border-radius:6px;background:var(--raise);color:#fff;font:600 12px system-ui}
+.refresh-wrap button:hover{border-color:#cfd8d3}
+.refresh-wrap button.offline{border-color:var(--red);box-shadow:0 0 0 1px var(--red)}
+.refresh-wrap span{min-height:0;color:var(--redtext);font-size:11px;font-weight:800;letter-spacing:.08em}
+/* Phones: the bar keeps one line; the update note gives way to the buttons unless it says OFFLINE. */
+@media (max-width:600px){
+  .fresh{padding-left:16px;padding-right:max(16px,env(safe-area-inset-right))}
+  .fresh-r{gap:10px}
+  #fresh:not(.offline){display:none}
+}
 .mapwrap{grid-row:2;grid-column:1;position:relative;overflow:hidden}
 /* z-index 0 makes the map (and the wind canvas inside it) its own layer, so every panel and menu over the map stays on top. */
 .map{position:absolute;inset:0;z-index:0;background:#1B2027}
@@ -48,12 +62,6 @@ body.selected{grid-template-rows:auto minmax(0,1fr) minmax(0,1fr)}
 .flabel{font-size:.85rem;color:var(--muted)}
 .ctl{display:flex;align-items:center;gap:8px;min-width:0}
 .ctl > select{flex:1}
-.joined{display:flex;flex:1;min-width:0}
-.joined select{flex:1 1 auto;min-width:0}
-.joined select{border-radius:0;margin-left:-1px}
-.joined select:first-child{border-radius:6px 0 0 6px;margin-left:0}
-.joined select:last-child{border-radius:0 6px 6px 0}
-.joined select:focus-visible{position:relative;z-index:1}
 .today{padding:6px 10px;background:none;border:1px solid transparent;border-radius:6px;color:#9FD3FF;font-size:.85rem}
 .today:hover{border-color:var(--line)}
 .today[aria-pressed="true"]{background:var(--raise);border-color:var(--line);color:var(--text);font-weight:600}
@@ -73,16 +81,15 @@ body.selected{grid-template-rows:auto minmax(0,1fr) minmax(0,1fr)}
 .nm{font-weight:650;font-size:1.05rem}
 .st{color:var(--muted);font-weight:600}
 .ac{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums}
-.ac small,.big small{font-size:1rem;font-weight:500;color:var(--muted)}
+.ac small{font-size:1rem;font-weight:500;color:var(--muted)}
 .gr{color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
 .up{color:var(--redtext);font-weight:600}
 .new{color:var(--gold);font-weight:600}
 .badge{background:var(--amber);color:#111;font-weight:700;border-radius:4px;padding:0 8px}
-/* Overview: Wildfires · Select date · the fire list (its own scroll box) · Wind/Model. */
-body:not(.selected) .sidebar{display:flex;flex-direction:column;overflow:hidden}
-body:not(.selected) .sidebar > *{flex:none}
-body:not(.selected) .sidebar > .fires{flex:1 1 auto;min-height:140px;display:flex;flex-direction:column}
-body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16px;border:1px solid var(--line);border-radius:8px}
+/* Overview: Track Fires · Date / Sort by · the fire list · Wind/Model. The panel scrolls as one; on desktop the list
+   is its own scroll box (see Breakpoints) so Wind/Model stay in view. */
+body:not(.selected) .fires .list{margin:0 16px;border:1px solid var(--line);border-radius:8px}
+body:not(.selected) .fires .list:empty{display:none}
 .layerctl{display:grid;gap:8px;margin:12px 16px 14px}
 .ctlrow{display:grid;grid-template-columns:52px 1fr;align-items:center;gap:2px 8px}
 .ctlrow label{color:var(--muted);font-size:.9rem}
@@ -96,29 +103,22 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .detail{padding:4px 16px 16px;border-bottom:1px solid var(--line)}
 .detail h2{margin:8px 0 0;font-size:1.65rem;line-height:1.2}
 .detail p{margin:4px 0}
-.detail dl{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin:12px 0}
-.detail dl.stats{align-items:end}
-.detail dt{color:var(--muted);font-size:.9rem}
-.detail dd{margin:0}
-.big{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
-.detail dl.stats dd.big{line-height:1.1}
-.detail .growth{grid-column:1/-1}
-.detail .growth dd{font-weight:600}
 .back{display:none}
 .fc,.nofc{margin:12px 0;padding:12px;border-radius:8px}
-.fc{border:2px solid #d06bef;background:#271e2d}
+.fc{border:2px solid var(--fc);background:#271e2d}
 .nofc{border:2px dashed #8A94A3;background:var(--raise)}
-.fc h3,.nofc h3{margin:0 0 4px;font-size:1.1rem}
+.nofc h3{margin:0 0 4px;font-size:1.1rem}
 .fc ul{margin:4px 0 8px;padding-left:20px}
-.fc .big{font-size:1.35rem;color:#eea3ff}
-.disclaimer{margin-top:8px !important;padding:8px 10px;border:1px solid #FFD27A66;border-radius:6px;background:#2E2410}
-/* Disclosures (Data sources, Key): a drawn chevron that turns when open. */
+.fc summary{min-height:36px;font-weight:600}
+/* The warning closes the forecast box: a rule and warm text, not a second box inside it. */
+.disclaimer{margin:10px 0 0 !important;padding-top:10px;border-top:1px solid #FFD27A55;color:#FFE3A8}
+/* Disclosures (Data sources, Key, Forecast details): a drawn chevron that turns when open. */
 .sources{margin:6px 16px 0;color:var(--muted)}
-.sources summary,.keybox summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}
-.sources summary::-webkit-details-marker,.keybox summary::-webkit-details-marker{display:none}
-.sources summary::before,.keybox summary::before{content:"";width:6px;height:6px;flex:none;margin:0 2px 0 1px;
+.sources summary,.keybox summary,.fc summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}
+:is(.sources,.keybox,.fc) summary::-webkit-details-marker{display:none}
+.sources summary::before,.keybox summary::before,.fc summary::before{content:"";width:6px;height:6px;flex:none;margin:0 2px 0 1px;
   border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s ease-out}
-.sources details[open] > summary::before,.keybox[open] > summary::before{transform:rotate(45deg)}
+.sources details[open] > summary::before,.keybox[open] > summary::before,.fc details[open] > summary::before{transform:rotate(45deg)}
 .sources summary{min-height:44px;color:var(--text)}
 .sources summary:hover{color:#fff;text-decoration:underline;text-underline-offset:3px}
 .sources ul{margin:0 0 8px;padding-left:20px;font-size:.9rem}
@@ -130,9 +130,8 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .conditions dl{display:grid;gap:6px;padding:8px 0}
 .conditions dl div{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:8px;align-items:baseline}
 .conditions dt{color:var(--muted);font-size:.9rem}
-.upload{display:inline-flex;align-items:center;min-height:44px;margin:4px 4px 4px 0;padding:6px 12px;
+.upload{position:relative;display:inline-flex;align-items:center;min-height:44px;margin:4px 4px 4px 0;padding:6px 12px;
   background:var(--raise);border:1px solid var(--line);border-radius:6px;cursor:pointer}
-.upload{position:relative}
 .upload input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer}
 .upload:focus-within{outline:2px solid var(--focus)}
 /* Incident text is for reading: allow press-and-hold copy on phones. */
@@ -146,17 +145,17 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .selected .mapnav{display:flex}
 .mapnav button{display:inline-flex;align-items:center;gap:6px;padding:0 14px}
 
-/* ---- Map: zoom group with "My location" (top right) ---- */
+/* ---- Map: zoom group with "My location" (top right), dressed like the other map pills ---- */
 .maplibregl-ctrl-top-right{top:0}
+.maplibregl-ctrl-top-right .maplibregl-ctrl-group:not(:empty){overflow:hidden;background:var(--pill);border:1px solid var(--pill-line);border-radius:12px;box-shadow:var(--pill-shadow)}
 .maplibregl-ctrl-group button{width:44px;height:44px}
-.maplibregl-ctrl-group #locate{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-top:1px solid #ddd;
-  border-radius:0;background:#fff;color:#666}
-.maplibregl-ctrl-group #locate:hover{color:#1a73e8;background:#f5f5f5}
-/* 2D: rotation is off, so no compass; "My location" is then the group's last button and takes its rounded corners. */
+.maplibregl-ctrl-group button + button,.maplibregl-ctrl-group #locate{border-top:1px solid var(--line)}
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon{filter:invert(1) brightness(1.15)}  /* MapLibre's dark-grey glyphs, made light */
+.maplibregl-ctrl-group button:not(:disabled):hover{background:var(--raise)}
+.maplibregl-ctrl-group #locate{display:grid;place-items:center;padding:0;border-radius:0;background:none;color:#fff}
+/* 2D: rotation is off, so no compass. */
 .flat .maplibregl-ctrl-compass{display:none}
-.flat .maplibregl-ctrl-group #locate{border-radius:0 0 4px 4px}
 .gpsdot{width:19px;height:19px;border-radius:50%;background:#ff3636;border:3px solid #fff;box-shadow:0 0 0 5px #ca23234d}
-.access-dot{width:20px;height:20px;background:#59dad0;border:3px solid var(--brand-bar);border-radius:3px}
 
 /* ---- Map: bottom-right row: Labels · 2D | 3D · credit, scale bar above it (right-aligned, grows left) ---- */
 .maplibregl-ctrl-bottom-right{display:flex;align-items:center;gap:8px;padding:0 12px 12px 0}
@@ -177,11 +176,12 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .bottom{position:absolute;left:12px;bottom:12px;max-width:calc(100% - 420px);display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
 .bottom > *{pointer-events:auto}
 .keybox{max-width:min(360px,calc(100vw - 24px));background:var(--overlay);border:1px solid var(--line);border-radius:10px}
-.keybox summary{min-height:36px;padding:6px 12px;font-weight:600}
+.keybox summary{min-height:36px;padding:6px 12px;font-size:.9rem;font-weight:600}
 .legend{max-height:45vh;overflow-y:auto;padding:0 4px 6px}
 .legend ul{list-style:none;margin:0;padding:0}
 .legend .s{display:none}
-.legend li button{display:flex;gap:8px;align-items:center;width:100%;min-height:44px;padding:4px 8px;text-align:left;background:none;border:0;border-radius:6px;font-size:.95rem}
+.legend .l{font-size:.85rem;line-height:1.3}
+.legend li button{display:flex;gap:8px;align-items:center;width:100%;min-height:34px;padding:2px 8px;text-align:left;background:none;border:0;border-radius:6px;font-size:.88rem}
 .legend li button:hover{background:var(--raise)}
 .legend li button[aria-pressed="false"]{color:var(--muted);text-decoration:line-through}
 .legend li button[aria-pressed="false"] :is(.sw,.sw-fc){opacity:.25}
@@ -208,8 +208,8 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .tl-mini button[aria-pressed="true"]{background:var(--pill-on);color:var(--pill-on-text)}
 .tl-mini .tl-h{padding:0 4px 0 6px;color:var(--muted);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .tl-mini .showall{font-weight:800}
-/* The forecast is its own bar with a band-coloured edge, so it never reads as part of the observed record. */
-.fcbar{flex-wrap:wrap;border-color:#C75AF5;border-left-width:5px;border-style:solid dashed solid solid}
+/* The forecast is its own bar framed in the forecast colour, so it never reads as part of the observed record. */
+.fcbar{flex-wrap:wrap;border:2px solid var(--fc)}
 .tl-mini #compare:disabled{opacity:.45;cursor:not-allowed}
 /* contain: the readout wraps to the buttons' width instead of widening the bar. */
 .fc-read{flex-basis:100%;contain:inline-size;margin:0;padding:0 6px 2px;font-size:.75rem;color:var(--muted)}
@@ -227,29 +227,33 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
   .bottom{bottom:68px;max-width:calc(100% - 24px)}
   .tl-mini button{height:40px}
 }
-.refresh-wrap{position:relative;display:grid;justify-items:end}.app-actions{display:flex;gap:6px}.refresh-wrap button{min-height:32px;padding:0 10px;border:1px solid #93a397;border-radius:6px;background:#21332c;color:#fff;font:600 12px system-ui}.refresh-wrap button[hidden]{display:none}.refresh-wrap button.offline{border-color:#FF453A;box-shadow:0 0 0 1px #FF453A}.refresh-wrap span{min-height:0;color:#FF8A80;font-size:11px;font-weight:800;letter-spacing:.08em}
-/* Desktop: panel beside the map. */
+/* Desktop: panel beside the map; in the overview the fire list is its own scroll box between the controls. */
 @media (min-width:1100px) and (min-aspect-ratio:4/3){
   body,body.selected{grid-template-columns:minmax(320px,380px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
   .fresh{grid-column:1/-1}
   .sidebar{grid-column:1;grid-row:2;padding:12px 6px;border-top:0;border-right:1px solid var(--line)}
   .mapwrap{grid-column:2;grid-row:2}
+  body:not(.selected) .sidebar{display:flex;flex-direction:column;overflow:hidden}
+  body:not(.selected) .sidebar > *{flex:none}
+  body:not(.selected) .sidebar > .fires{flex:1 1 auto;min-height:140px;display:flex;flex-direction:column}
+  body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto}
 }
 @media (min-width:1100px) and (min-aspect-ratio:4/3) and (max-width:1240px){.bottom{bottom:68px;max-width:calc(100% - 24px)}}
-@media (prefers-reduced-motion:reduce){.sources summary::before,.keybox summary::before{transition:none}}
+@media (prefers-reduced-motion:reduce){:is(.sources,.keybox,.fc) summary::before{transition:none}}
 
 /* ---- Navigation (nav.js): the panel in the fire card, the map bar while navigating, alerts, dead-zone key ---- */
 .navpanel{position:absolute;z-index:6;top:12px;left:12px;width:min(400px,calc(100% - 24px));max-height:calc(100% - 24px);overflow-y:auto;
   padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:var(--pill-shadow)}
 .nav-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.navpanel .nav-x{width:36px;min-height:36px;padding:0;font-size:1.2rem;line-height:1}
+.navpanel .nav-x{display:grid;place-items:center;width:36px;min-height:36px;padding:0}
+.nav-x svg,.hist-x svg{width:18px;height:18px}
 .nav-open{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;margin:12px 0 4px;border:0;border-radius:10px;
   background:#2f7cf6;color:#fff;font-weight:700;font-size:1.05rem;box-shadow:0 2px 8px #0006}
 .nav-open:hover{background:#4a8ef8}
 .nav-open svg{width:20px;height:20px}
 .navpanel h2{margin:0 0 4px;font-size:1.17rem}
-.nav-status,.nav-note,.nav-foot{margin:4px 0;color:var(--muted);font-size:.85rem}
-.nav-note:empty,.nav-status:empty{display:none}
+.nav-note,.nav-foot{margin:4px 0;color:var(--muted);font-size:.85rem}
+.nav-note:empty{display:none}
 .nav-note a,.nav-foot a{color:#d0e7cf;text-underline-offset:3px}
 .navpanel button,.navpanel .upload{min-height:36px;padding:0 10px;background:var(--raise);border:1px solid var(--line);border-radius:6px;color:var(--text);font-size:.85rem}
 .navpanel button[aria-pressed="true"]{background:var(--pill-on);color:var(--pill-on-text);border-color:var(--pill-on)}
@@ -293,9 +297,9 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 /* ---- Fire history (history.js): calendar panel over the map, daily layer ---- */
 .hist{position:absolute;z-index:5;top:12px;left:12px;max-height:calc(100% - 24px);width:min(620px,calc(100% - 24px));display:flex;flex-direction:column;gap:8px;
   padding:12px 14px;background:var(--overlay);border:1px solid var(--line);border-radius:12px;box-shadow:var(--pill-shadow)}
-.hist-head{display:flex;align-items:center;justify-content:space-between}
-.hist-head h2{margin:0;font-size:1.17rem}
-.hist-x{width:36px;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--raise);color:var(--text);font-size:1.2rem;line-height:1}
+.hist-head{display:flex;align-items:center;gap:8px}
+.hist-head h2{margin:0 auto 0 0;font-size:1.17rem}
+.hist-x{display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--raise);color:var(--text)}
 .hist-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
 .hist-ctl select,.hist-ctl input,.hist-ctl button{min-height:34px;padding:0 10px;background:var(--raise);border:1px solid var(--line);border-radius:6px;color:var(--text);font-size:.85rem}
 .hist-ctl label{color:var(--muted);font-size:.85rem}
@@ -322,8 +326,6 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .hist-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--muted);font-size:.75rem}
 .hist-legend i{width:120px;height:8px;border-radius:4px}
 .hist-legend .hist-note{margin-left:auto}
-.hist-head{gap:8px}
-.hist-head h2{margin-right:auto}
 .hist-min{min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--raise);color:var(--text);font-size:.85rem}
 .hist.min .hist-body,.hist.min .hist-legend{display:none}
 .hist.min{width:min(560px,calc(100% - 24px))}
@@ -334,15 +336,11 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .legend .more{margin-top:4px;border-top:1px solid var(--line)}
 .legend .more summary{min-height:36px;padding:6px 8px;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer}
 .sw-wind{height:5px;background:repeating-linear-gradient(90deg,#9fd0ff 0 6px,transparent 6px 9px)}
-.legend li button{min-height:38px;font-size:.88rem}
 .detail .dsum{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px}
 .detail .dsum li{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
 .detail .dsum li span:first-child{color:var(--muted)}
 .detail .dsum b{text-align:right}
 .detail .dsrc{margin:8px 0 0;color:var(--muted);font-size:.75rem}
-.legend .l{font-size:.85rem;line-height:1.2}
-.legend li button{min-height:34px;padding:2px 8px}
-.keybox summary{font-size:.9rem}
 
 /* Date button (opens the fire-history calendar) and the calendar's day strip */
 .datebtn{min-height:38px;padding:0 30px 0 12px;background:var(--raise) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2zM5 9h14v10H5z' fill='%23B4BEC9'/%3E%3C/svg%3E") right 8px center/16px no-repeat;
@@ -358,8 +356,6 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .hd-grid button{height:30px;border:0;border-radius:4px;color:#fff;font-size:.78rem;font-weight:600;text-shadow:0 0 2px #000,0 0 2px #000}
 .hd-grid button:hover{outline:2px solid #fff;outline-offset:-1px}
 .hd-grid button[aria-current]{outline:2px solid #4FA3FF;outline-offset:-1px}
-
-body:not(.selected) .fires .list:empty{display:none}
 
 /* Navigation From / To: a text field with a menu (Current location / Recommended, Set on map) */
 .navpts{display:grid;grid-template-columns:20px 1fr 36px;align-items:center;gap:8px;margin:10px 0 0}

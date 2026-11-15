@@ -24,8 +24,8 @@ const state = {
   filter: "", sort: ["closest", "size", "growth", "newest", "name"].includes(params.get("sort")) ? params.get("sort") : "closest",
   mode: "progression", step: 0, fc: null, compare: false,  // fc: forecast hour shown, or null (off)
   layers: {current: true, previous: true, forecast: true, worst: true, physics: false, hotspots: false, interior: false, detached: false, activity: false},
-  arm: params.get("arm") || "harm-all",
-  wind: params.get("wind") || "surface",  // wind particle height (wind.js): off, surface, or hPa  // which next-day prediction model (data/samples/predictions)
+  arm: params.get("arm") || "harm-all",  // which next-day prediction model (data/samples/predictions)
+  wind: params.get("wind") || "surface",  // wind particle height (wind.js): off, surface, or hPa
 };
 let fires = [], byId = new Map(), at = null, map = null, cur = null;
 
@@ -33,7 +33,8 @@ let fires = [], byId = new Map(), at = null, map = null, cur = null;
 let gps = null, gpsMarker = null, gpsWatch = null, gpsMessage = "Waiting for GPS";
 let connected = navigator.onLine;
 function freshness() {
-  $("#fresh").textContent = "Updated every 12 hours" + (connected ? "" : " · OFFLINE");
+  $("#fresh").textContent = "Updated every 12 h" + (connected ? "" : " · OFFLINE");
+  $("#fresh").classList.toggle("offline", !connected);
 }
 // A new version of the page waits in the service worker until told to take over. Switch at once (one reload) when it
 // is found as the page opens; one found later waits for the next open, so the page never reloads under someone.
@@ -181,7 +182,7 @@ let fedsDays = {}, firstFeds = null;  // "YYYY-MM-DD" -> its latest FEDS snapsho
 const pageDay = () => (state.t === "now" ? new Date().toISOString() : state.t || DEMO_DAY).slice(0, 10);
 function setDateButton() {
   const [y, m, d] = pageDay().split("-");
-  $("#d-pick").textContent = state.t === "now" ? "Today" : `${MONTHS[+m - 1]} ${+d}, ${y}`;
+  $("#d-pick").textContent = `${MONTHS[+m - 1]} ${+d}, ${y}`;  // the date itself; the pressed Today button says it is today
   $("#d-today").setAttribute("aria-pressed", state.t === "now");
 }
 function goDay(day) {  // a FEDS day opens at its latest snapshot; any other day at 18:00 UTC (afternoon passes), with no fire open
