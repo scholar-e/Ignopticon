@@ -178,3 +178,165 @@ Results on the 14 passes after the update:
   - Pooled CSI: A 0.255 (unchanged), B 0.306 (0.305 unmasked).
   - A's full-horizon pooled CSI by multiplier rises slightly, and ×0.02 stays best (0.268).
   - The A < B result is not a cloud artifact on this fire. Smoke isn't flagged as cloud by the mask, so smoke-obscured fire is still not accounted for.
+
+### 10. MODIS/VIIRS harmonization, first fit
+- **Question per 0.1° cell-day:** would VIIRS S-NPP (VNP14A1) have detected fire, given what MODIS Terra + Aqua (MOD14A1 + MYD14A1) saw? The answer, `p_viirs`, puts 2000–2011 on VIIRS's footing (PLAN.md M7, `scripts/harmonize.py`).
+- **Label:** VIIRS saw ≥ 1 fire pixel in the cell that day. Only cell-days VIIRS saw clearly count, so cloud is never read as "no fire". `p_viirs` is therefore conditional on a clear VIIRS look.
+- **Features (MODIS only):**
+  - fire pixels, nominal/high-confidence fire pixels, summed MaxFRP and clear looks;
+  - fire and FRP summed over the 3×3 cells;
+  - fire the day before and the day after, and their 3×3 sums;
+  - days since MODIS fire within the 3×3 (capped at 30);
+  - MODIS-clear flag, month, latitude and longitude.
+  - `elev` adds elevation and roughness. `all` adds gridMET wind, u, v, VPD, ERC, FM100 and precipitation.
+  - "Next day" features need the day after, so this is a retrospective record, not a real-time one. Without them (previous day only), 2013 held-out log loss was 0.00399 vs 0.00414 on a 3-year sample, so they aren't what carries the skill.
+- **Model:** boosted trees (HistGradientBoosting). Kept: every cell-day with MODIS or VIIRS fire within one cell and one day, plus 1% of the rest, weighted ×100.
+- **Evaluation:** every third overlap year is held out whole. Two baselines:
+  - MODIS fire as-is (p = 1 if MODIS saw fire);
+  - per-month logistic rescaling of log(1 + MODIS fire pixels) plus the clear flag.
+- **Bugs fixed before the first run:**
+  - The original settings (rate 0.08, 63 leaves, early stopping) diverged on a 0.1%-positive problem: 10 trees, held-out AUC 0.52 (base) / 0.89 (elev), and elev expected 75,872 fire cell-days against 43,799.
+  - Rate 0.03 with L2 = 1 ran, but gave p ≈ 0.99 where VIIRS saw fire 71–76% of the time, in the training years as well. Newton steps from p ≈ 0.001 overshoot.
+  - Fixed with L2 = 50, 600 trees and no early stopping. These settings were chosen on 2017–2018 as validation, with 2012/14/15/20/21 as training (no test year used).
+  - `apply` built a 56 M × 15 float32 matrix per year (~3.5 GB). It now predicts 16 days at a time.
+  - `apply` now writes annual totals both over all cell-days and over clear looks only. Its `observed` field (0 none, 1 MODIS-clear, 2 VIIRS-clear) was right.
+  - The fit now saves the held-out model (`model_holdout.pkl`) before refitting on all years for `apply`.
+  - The 3×3 sum replaced `uniform_filter` with exact shifted sums. On checking, `uniform_filter` had no residue on these data, so this was a no-op.
+
+Held-out results, 13 overlap years 2012–2024: train on 9 years, test on 2013, 2016, 2019 and 2022 (sampled cell-days, weighted back up; observed 183,677 VIIRS fire cell-days):
+
+| Model | Brier | Log loss | AUC | Expected fire cell-days |
+|---|---|---|---|---|
+| MODIS fire as-is | 0.001255 | 0.01733 | 0.739 | 235,121 |
+| MODIS rescaled (logistic) | 0.000809 | 0.00543 | 0.783 | 180,007 |
+| Harmonized, base | 0.000709 | 0.00393 | 0.961 | 179,844 |
+| Harmonized, elev | 0.000707 | 0.00389 | 0.963 | 179,667 |
+| Harmonized, all (weather) | 0.000707 | 0.00386 | 0.966 | 178,762 |
+
+- **First fit, 3 years** (train 2012 + 2014, test 2013, final settings; observed 43,799):
+  - rescaled: Brier 0.000802, log loss 0.00546, AUC 0.772, expected 47,263;
+  - base: 0.000671, 0.0037, 0.961, 43,771;
+  - elev: 0.000669, 0.0037, 0.964, 43,723;
+  - all: 0.000670, 0.0037, 0.965, 42,900.
+- **Reliability (13-year base, held out; mean p → observed rate per bin):** 0.145→0.142, 0.249→0.239, 0.349→0.349, 0.447→0.455, 0.546→0.560, 0.647→0.662, 0.747→0.774, 0.845→0.864, 0.963→0.960. Calibrated.
+  - The rescaling baseline is not: 0.976→0.704 and 0.168→0.363.
+  - MODIS as-is: a MODIS fire cell-day is a VIIRS fire cell-day only 37% of the time.
+- **Annual totals of held-out years (base vs observed):**
+  - 2013: 43,877 vs 43,799.
+  - 2016: 49,435 vs 49,729.
+  - 2019: 41,972 vs 41,912.
+  - 2022: 44,558 vs 48,237 (−7.6%). The rescaling gives 44,494, so 2022 had more VIIRS-only fire than MODIS implies.
+- **Where the skill comes from** (2013 held out, 3-year sample, trees with the same settings):
+
+  | Features | Log loss | AUC |
+  |---|---|---|
+  | fire, month, clear flag (a flexible rescaling) | 0.00513 | 0.767 |
+  | + same-cell FRP and confidence | 0.00477 | 0.852 |
+  | + lat/lon | 0.00421 | 0.936 |
+  | + previous day | 0.00399 | 0.952 |
+
+  Location is the largest single gain: VIIRS-only small fires (agricultural burning, the Southeast) recur in the same places.
+- **Small fires (VIIRS fire, no MODIS fire in the cell; 2013 held out, full grid):**
+  - 22,861 such cell-days among 48.8 M. The model puts 22,625 expected fire cell-days on MODIS-no-fire cells in total, so the count is right, but only 407 (1.8%) lands on the actual cells.
+  - Ranking: AUC 0.92. The top-N cells hold 8% of the hits, the top-10N 27%.
+  - So small fires are recovered as a calibrated, spread-out probability in the right regions and seasons, not as located detections. Daily maps of `p_viirs` without MODIS fire are a smeared likelihood. Totals over regions and months are what is trustworthy.
+  - Where MODIS saw fire in an adjacent cell or day, it recovers 8,913 expected against 9,247 observed. The rescaling gets 527.
+- **Elevation and weather:** each helps by under 1% of log loss on held-out years (13-year: 0.00393 → 0.00389 → 0.00386).
+  - Weather is not learning a strong fire-weather signal where MODIS saw nothing. In the "no MODIS fire near" stratum (2013 held out), the expected count with weather is 13,328 vs 13,760 without (observed 13,614). corr(log p, ERC) is −0.04 to −0.09 for all sets.
+  - By ERC class, weather moves expectations towards observed (ERC 0–20: elev 2,135, all 1,388, observed 1,375).
+  - Even so, a harmonized sensor record shouldn't depend on weather, and the gain is tiny. **Ship base.**
+- **Seam at 2012** (base, 13-year model; expected fire cell-days on MODIS-clear cell-days against raw MODIS fire cell-days):
+
+  | Year | 2003 | 2005 | 2007 | 2009 | 2010 | 2011 | 2012 | 2013 | 2014 |
+  |---|---|---|---|---|---|---|---|---|---|
+  | Harmonized (expected) | 47,779 | 51,429 | 54,616 | 45,046 | 48,549 | 58,000 | 54,159 | 44,377 | 44,535 |
+  | Raw MODIS | 61,154 | 68,754 | 71,628 | 58,313 | 63,664 | 74,565 | 69,070 | 56,033 | 57,233 |
+  | Observed VIIRS (clear looks) | | | | | | | 50,294 | 43,799 | 44,443 |
+
+  - On VIIRS-clear cell-days the expected counts are 51,164 (2012), 44,165 (2013) and 44,227 (2014). These overlap years are in the model's training data (in-sample).
+  - Harmonized / raw MODIS is 0.75–0.80 in every year from 2003 to 2013, so there is no step at 2012 by construction. At annual national scale the harmonized series is nearly a constant rescaling of MODIS fire cell-days (about ×0.78); the model's value is in where and when, not the annual total.
+  - Raw MODIS overstates VIIRS fire cell-days by ~27% in every year, because MODIS fire pixels smear across 0.1° cells (below).
+- **Rim Fire check: why MODIS has more fire pixels than VIIRS in big fires.**
+  - At col 52, row 121 on 2013-08-28: Aqua 51 fire pixels and 20.4 GW summed MaxFRP, Terra 55, VIIRS 39 and 8.4 GW.
+  - Nationally per fire cell-day: MODIS 3.4–3.6 pixels, VIIRS 2.0. Per fire pixel: MODIS 77–88 MW, VIIRS 49 MW.
+  - Not a gridding bug, as far as checked: the clear counts agree (114 per cell for every product), and the 0.1° cells hold up to 132 pixels (144·cos lat).
+  - The likely cause is the L3 gridding of the products. MOD14A1 maps each swath pixel, which grows off-nadir to about 2 × 5 km, onto every 1 km grid cell it covers, so one large hot pixel paints several cells. Each of those cells also carries the same MaxFRP, so summed MaxFRP double counts.
+  - VIIRS pixels grow much less across the scan.
+  - VNP14A1 C2 may come from the 750 m M-band fire product rather than 375 m. Its InputPointer is VNP14GD/VNP14GN, which needs checking against the user guide. docs/DATASETS.md says "from 375 m".
+  - So "fire pixels" and summed FRP are not comparable across sensors for large fires. Fire cell-days (presence) are. That is why the label is presence, not counts.
+- **Caveats:**
+  - Each year is built separately, so "previous day" and "days since fire" restart on Jan 1.
+  - 2012 VIIRS starts on Jan 19.
+  - The weather sets used gridMET for all years.
+  - `p_viirs` sums over every cell-day include cloudy ones, where VIIRS would have counted nothing. Use the clear-look sums for comparisons.
+  - VJ114A1 (NOAA-20) is gridded but unused. The model targets S-NPP only.
+  - Overlap years still ungridded: VNP14A1 2025–2026 (gridding queued). The final model uses 2012–2024 minus nothing; the held-out evaluation uses 2013/16/19/22.
+
+
+### 11. National next-day fire activity model
+- **Question:** for each 0.1° cell-day t in the lower 48, will VIIRS S-NPP (VNP14A1) see fire in the cell on day t+1?
+  - Only cell-days S-NPP sees clearly on t+1 (and land cells) count. Cloud is not "no fire", so the probability assumes S-NPP gets a clear look on t+1.
+  - **New-activity sub-target:** the same label, restricted to cells with no fire from any sensor (S-NPP, NOAA-20, Terra, Aqua) in their 3×3 neighbourhood on days t-2..t. That is spread into new cells, or new ignitions.
+  - 57% of positives are new activity: most VIIRS fire cell-days at this scale are fires that last a single day, such as agricultural or prescribed burns.
+  - Persistence is weak. Of cells with VIIRS fire on t, 13% have fire on t+1; for cells with 10 or more fire pixels on t, it's 69%.
+- **Script:** `scripts/activity_model.py` (`build`, then `train`). Outputs are in `data/harmonize/activity/` (`results.md`, `results.json`, models, test predictions).
+- **Data:**
+  - VNP14A1 2012–2024 (2025–26 weren't gridded yet), VJ114A1 2018–2024, MOD14A1 and MYD14A1 for the same years.
+  - gridMET weather, elevation.npz, and fuel.npz (7 fuel-group fractions, canopy cc/ch/cbh/cbd, FBFM40 mode, valid fraction).
+- **Features (91):**
+  - **Hotspots:** each sensor's fire pixels, FRP and clear looks on t, t-1 and t-2 (NaN before the sensor existed). VIIRS and MODIS fire summed over the 3×3 and 5×5 on each of those days. Days since any sensor saw fire in the 3×3.
+  - **Weather:** gridMET on t and t+1. Upwind-neighbour fire (fire in the 8 neighbours, weighted by the cosine of the wind direction).
+  - **Static and calendar:** elevation, fuel, day of year, month, lat/lon.
+  - **Weather on t+1 is perfect-forecast weather:** the observed gridMET stands in for a next-day forecast, so those rows overstate what an operational model, which would use a forecast, can do. The "day-t weather only" row has no look-ahead.
+- **Sampling and weights:**
+  - Every clear cell-day with fire from any sensor in its 5×5 on t-2..t, or with a positive label, plus 0.5% of the rest, weighted ×200.
+  - For fitting only, 30% of the near-fire negatives are kept, weighted ×1/0.3. Test rows are never thinned.
+  - Metrics are weighted, so they estimate the whole population of clear land cell-days.
+- **Split by whole years:**
+  - Train: 2012–15, 2017, 2019, 2021, 2022, 2024 (8.8M rows).
+  - 2018 is used for early stopping only.
+  - **Test, held out: 2016, 2020, 2023** (9.35M rows).
+  - Every number below is on the held-out test years. The feature-set choices (which ablation rows to read as "best") were made after seeing them.
+- **Model:** LightGBM (63 leaves, learning rate 0.05, early stopping on validation log loss). Baselines are mapped to probabilities by their training-year frequencies.
+
+Held-out test years. AP = average precision; "new" = new-activity cell-days (base rate 0.00084).
+
+| Model | AUC | AP | Brier | AUC new | AP new |
+|---|---|---|---|---|---|
+| Persistence (VIIRS fire on t) | 0.585 | 0.024 | 0.001493 | 0.500 | 0.0008 |
+| Persistence + neighbourhood | 0.746 | 0.028 | 0.001492 | 0.552 | 0.0013 |
+| Logistic regression, all features | 0.881 | 0.105 | 0.001441 | 0.816 | 0.0060 |
+| LightGBM: hotspots (+ calendar, lat/lon) | 0.897 | 0.111 | 0.001436 | 0.853 | 0.0095 |
+| + weather t | 0.902 | 0.117 | 0.001432 | 0.861 | 0.0127 |
+| + weather t+1 (perfect forecast) | 0.910 | 0.126 | 0.001425 | 0.872 | 0.0143 |
+| + elevation | 0.904 | 0.118 | 0.001438 | 0.875 | 0.0136 |
+| **+ fuel (all features)** | **0.919** | **0.132** | 0.001420 | **0.887** | **0.0179** |
+| All, day-t weather only (no look-ahead) | 0.911 | 0.124 | 0.001429 | 0.879 | 0.0169 |
+| LightGBM fitted on new-activity rows only | | | | 0.885 | 0.0161 |
+
+- **AP for the full model by test year:** 2016 0.106, 2020 0.185, 2023 0.098 (persistence: 0.019, 0.037, 0.017). It beats persistence in every year.
+- **It beats persistence about 5 times over on AP.** On new activity, persistence can't predict at all by definition, and the model's AP is about 21 times the base rate.
+  - Absolute skill on new activity is still low. At P ≥ 0.2, new-activity precision is 0.25 but recall is 0.7%. At P ≥ 0.05, precision is 0.08 and recall 3.4%.
+- **The operational-style model already gets most of the gain.**
+  - The all-features model with day-t weather only reaches AP 0.124 and new AP 0.0169.
+  - Perfect-forecast t+1 weather adds +0.008 AP and +0.001 new AP on top of it.
+- **Calibration:** good below P = 0.2. Above it the model is overconfident: predicted 0.38, 0.58 and 0.80 against observed 0.29, 0.42 and 0.48.
+- **Permutation importance** (full model, 600k test rows, drop in AP when a group is shuffled; all / new):
+  - S-NPP cell history (t..t-2): 0.091 / 0.013. Its FRP on t alone: 0.083.
+  - Weather t+1: 0.066 / 0.008, mostly ERC and VPD.
+  - Elevation: 0.041 / 0.008.
+  - Fuel: 0.036 / 0.013.
+  - Days since fire: 0.021 / 0.009.
+  - Lat/lon: 0.014 / 0.012.
+  - Day of year: 0.014 / 0.007.
+  - VIIRS neighbourhood: 0.015 / 0.001.
+  - NOAA-20: 0.011 / 0.004.
+  - Weather t: 0.007 / 0.003. It overlaps with t+1.
+  - MODIS Terra and Aqua (cell and neighbourhood): 0.002–0.006 / ~0. MODIS adds almost nothing once VIIRS is in.
+  - Upwind fire: ~0.
+- **Caveats:**
+  - One fit (one seed) per row. The step from + weather t+1 to + elevation went down (0.126 → 0.118), which is within what I'd expect from fit-to-fit variation plus location memorisation. Read differences under ~0.01 AP as noise. The fuel gain (+0.014 AP, +0.004 new AP over + elevation) is larger.
+  - Static features (elevation, fuel, lat/lon) partly act as "where fires usually happen" priors, not physics.
+  - The hyperparameters are not tuned.
+  - Upwind fire has no measurable value at 0.1° daily. Spread across a 10 km cell boundary in a day is rare compared with new single-day fires.
+- **GPU / Tillicum:** not prepared and not recommended. The trees get most of the signal, logistic regression gets 80% of the tree's AP, and the hand-made spatial features (neighbourhood, upwind) add little. A patch CNN would mostly re-learn those same features. The remaining error is dominated by new small fires that these layers can't foresee.
