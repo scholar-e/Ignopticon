@@ -850,6 +850,10 @@ app.get("/api/fires/:id", apiFire);
 app.get("/api/fires/:id/weather", apiWeather);
 // Radio coverage (SPLAT!) for navigation: cell towers in the fire packages and user-added repeaters (coverage.js).
 app.get("/api/coverage", require("./coverage")({sourceTile: sourceTile, cacheDir: TILE_CACHE}));
+// Daily MODIS/VIIRS/harmonized layers 2000-2026 and their regional calendars (history.js).
+var fireHistory = require("./history")({cacheDir: TILE_CACHE});
+app.get("/api/history", fireHistory.api);
+if (fireHistory.root && fireHistory.root !== path.join(__dirname, "public", "data", "history")) app.use("/data/history", express.static(fireHistory.root));
 app.all("/api/*", function(req, res) { apiError(res, 404, "No API endpoint " + req.path); });
 app.use(i4Tile);
 // The fire-watch (ops) page is the front page, served at / (and still at /ops/); the globe stays at /index.html and

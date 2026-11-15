@@ -27,7 +27,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=splat /usr/local/bin/splat /usr/local/bin/splat
-COPY dev-server.js coverage.js ./
+COPY dev-server.js coverage.js history.js ./
 COPY public ./public
 
 # The tile cache (also SPLAT! terrain tiles and coverage results) is the only thing written at runtime; mount a

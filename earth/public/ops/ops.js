@@ -1,4 +1,5 @@
 import {createNav} from "./nav.js";
+import {createHistory} from "./history.js";
 import {registerOffline, applyUpdate, saveArea, listAreas} from "./offline.js";
 import {setActivity} from "./predictions.js";
 import {windLayer} from "./wind.js";
@@ -588,6 +589,7 @@ function savedDispatch(provided) {
   }
   return null;
 }
+const fireHistory = createHistory({$, esc, getMap: () => map, getFire: () => cur && cur.fire});
 const nav = createNav({$, esc, say: (m) => say(m), fit: (b) => fit(b), getMap: () => map, getFire: () => cur && cur.fire, getDetail: () => cur && cur.detail,
   query: () => query(), requestGps: () => requestGps(),
   accessPoint: () => { try { const p = JSON.parse(localStorage.getItem(routeKey() + ".point")); return Array.isArray(p) && p.length === 2 && p.every(Number.isFinite) ? p : null; } catch { return null; } },
@@ -697,7 +699,7 @@ function initMap() {
   map.on("style.load", () => {
     addImages();
     listReady.then(() => {
-      setFires(); applyView(); updateWind(); nav.styleLoaded();
+      setFires(); applyView(); updateWind(); nav.styleLoaded(); fireHistory.styleLoaded();
       if (cur && cur.detail) setDetail(cur.detail);
       if (state.view === "3d") setView("3d");
     });
