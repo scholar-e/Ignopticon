@@ -782,3 +782,33 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
   Keep the old constant as default. Caveats: one issue date, 12 fires, per-case (not per-cell) moisture.
 - Reproduce: `scripts/physics_mw.py {grid,select,heldout}`; `uv run scripts/edge_pilot_score.py data/physics_mw/heldout
   --manifest data/edge_causal/front_weighted/manifest.json --arms control,physics_mw`; `uv run scripts/edge_heldout_table.py data/physics_mw/heldout`.
+
+### 24. 2026-11-15 — Area-constrained ELMFIRE: a growth model decides how much, ELMFIRE where
+- Idea: ELMFIRE over-predicts area (control area ratio median 2.7, mean 37 on the 12 held-out fires). Train a model on the
+  harmonized MODIS/VIIRS record to say how much a fire grows in a day, convert to km2, and cut ELMFIRE's arrival map at the
+  isochrone that gives that area (start footprint kept). Code: `scripts/growth_dataset.py`, `growth_train.py`, `growth_report.py`,
+  `area_constrain.py`; notes `data/growth/NOTES.md`.
+- Dataset: events = space-time clusters on the 0.1 deg daily grid (gap 2 days, 8-neighbour, catalog persistent-heat rule), from the
+  tensors (viirs 2012-24, raw and harm 2003-11; harm = strict p_viirs >= 0.5). No pixel counts exist, so the peak filter is >= 5
+  cells (catalog: 30 pixels) and the density filter is dropped. One row per event-day t (first day to 2 days after the last fire
+  day); target = new fire cells on t+1 (clear-looked, none burned in t-29..t, within 2 cells of the footprint so far). Features:
+  size, last three days' footprint and new cells, days active/since fire, gridMET on t and t+1 (t0 variant drops t+1), fuel
+  fractions/canopy/elevation/roughness over the recent edge, season, lat/lon. Rows (train 2003-19 / val 2020 / test 2021-24):
+  harm 9009/934/2903 (events 491 in train), raw 10268/934/2903, viirs-only 5134/934/2903. Mean target 0.52 new cells per day, 71% zero
+  (viirs); a cell is ~95 km2, so most growth is below one cell and the task is weak by construction.
+- Model: LightGBM (tweedie or log1p regression; separate zero-growth classifier), 2x2 grid (objective, leaves 15/63), 3 seeds, picked by validation MAE.
+  Test (2021-24, same rows every arm, t1 = Aug 2-style next-day weather as perfect forecast): see `data/growth/test_table.md`.
+  harm MAE 0.556, Spearman 0.399, zero-growth AUC 0.760; raw 0.560 / 0.414 / 0.767; viirs-only 0.571 / 0.395 / 0.757 (t0 variant: 0.394-0.410,
+  almost the same). Predicting zero has MAE 0.519, i.e. no arm beats it on MAE (zero-inflated target); the signal is in ranking (single-feature
+  Spearman: g0 0.26, n_t 0.26). Extra history helps (both pre-2012 arms beat viirs-only by ~0.015 MAE), but raw >= harm on rank
+  and AUC by 0.003-0.015 (seed sd 0.002-0.004): no benefit of harmonization here, unlike nothing to claim. Exploratory: test years were scored once but the grid was small.
+- Area conversion (`data/growth/area_conversion.json`, in-sample, 8 FEDS-archive fires, 6 matched, 82 event-days): FEDS daily growth km2 / observed new cells =
+  45.7 km2 per cell (r2 through the origin 0.22, Spearman 0.58). Forecast area = 45.7 x predicted cells x 0.5 (12 h of the day; uniform-growth assumption).
+- Held-out (12 frozen fires, issue 2026-08-02T12, truth FEDS +12 h; features from Aug 1 VIIRS history and gridMET; t1 uses Aug 2 gridMET, a
+  perfect-forecast stand-in; t0 does not; oracle = true FEDS growth area, upper bound, uses truth): `data/growth/heldout_eval/comparison.md`.
+  Growth IoU mean/median: no growth 0 / 0 (n=10), control 0.058 / 0.024, areacon_t1 0.061 / 0.000, areacon_t0 0.062 / 0.000, oracle 0.082 / 0.067.
+  Whole IoU: control 0.760, areacon_t1 0.858, t0 0.859, oracle 0.865, no growth 0.910. Area ratio median: control 2.71, t1 0.12, oracle 1.00.
+  Better than control on growth IoU in 3 of 12 (t1, t0), 5 (oracle). Hotspot hits 15/23 vs control 19/23.
+- Reading: the cut fixes ELMFIRE's over-area (whole IoU +0.10) but the predicted areas are tiny (0.0-12 km2) because the model predicts ~0.4
+  cells for every fire, so it lands near no growth (whole IoU 0.91) and loses hotspot hits; even with the true area the growth IoU is only 0.08 (where, not how much, is the limit) .
+  Caveats: 12 fires, one date; 6 of 12 fires have no VIIRS cluster at 0.1 deg on Aug 1 (zero predicted growth); k fitted in-sample on few fires.

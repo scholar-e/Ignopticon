@@ -1,0 +1,86 @@
+{
+ "map20260802-66433": {
+  "cluster_found": true,
+  "event": "2026-10733",
+  "size_cells": 10,
+  "n_t": 10,
+  "g0": 2,
+  "n_new_t1": 0.4085611118799935,
+  "n_new_t0": 0.49275759315429035
+ },
+ "map20260802-65395": {
+  "cluster_found": true,
+  "event": "2026-10648",
+  "size_cells": 25,
+  "n_t": 7,
+  "g0": 0,
+  "n_new_t1": 0.4362241856607866,
+  "n_new_t0": 0.28310777000470805
+ },
+ "map20260802-65682": {
+  "cluster_found": true,
+  "event": "2026-10671",
+  "size_cells": 1,
+  "n_t": 1,
+  "g0": 0,
+  "n_new_t1": 0.349058225898652,
+  "n_new_t0": 0.303974841826369
+ },
+ "map20260802-65080": {
+  "cluster_found": true,
+  "event": "2026-10961",
+  "size_cells": 1,
+  "n_t": 0,
+  "g0": 0,
+  "n_new_t1": 0.30325877006170826,
+  "n_new_t0": 0.28988632243314527
+ },
+ "map20260802-20036": {
+  "cluster_found": false,
+  "n_new_t1": 0.0,
+  "n_new_t0": 0.0
+ },
+ "map20260802-66055": {
+  "cluster_found": true,
+  "event": "2026-10749",
+  "size_cells": 6,
+  "n_t": 2,
+  "g0": 0,
+  "n_new_t1": 0.18114205392037805,
+  "n_new_t0": 0.1504996745004385
+ },
+ "map20260802-64816": {
+  "cluster_found": false,
+  "n_new_t1": 0.0,
+  "n_new_t0": 0.0
+ },
+ "map20260802-340": {
+  "cluster_found": false,
+  "n_new_t1": 0.0,
+  "n_new_t0": 0.0
+ },
+ "map20260802-19": {
+  "cluster_found": false,
+  "n_new_t1": 0.0,
+  "n_new_t0": 0.0
+ },
+ "map20260802-62041": {
+  "cluster_found": true,
+  "event": "2026-10994",
+  "size_cells": 1,
+  "n_t": 1,
+  "g0": 0,
+  "n_new_t1": 0.5383650180417932,
+  "n_new_t0": 0.5434212692928952
+ },
+ "map20260802-53363": {
+  "cluster_found": false,
+  "n_new_t1": 0.0,
+  "n_new_t0": 0.0
+ },
+ "map20260802-53095": {
+  "cluster_found": false,
+  "n_new_t1": 0.0,
+  "n_new_t0": 0.0
+ }
+}

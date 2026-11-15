@@ -1,0 +1,302 @@
+{
+ "map20260802-66433": {
+  "pred_area_km2": {
+   "areacon_t1": 9.342988901917982,
+   "areacon_t0": 11.268396796238973,
+   "areacon_oracle": 38.885625
+  },
+  "areacon_t1": {
+   "target_cells": 6643.903219141676,
+   "available_growth_cells": 58767,
+   "tau_h": 2.7874701023101807,
+   "kept_growth_cells": 6671
+  },
+  "areacon_t0": {
+   "target_cells": 8013.082166214381,
+   "available_growth_cells": 58767,
+   "tau_h": 3.2865631580352783,
+   "kept_growth_cells": 8049
+  },
+  "areacon_oracle": {
+   "target_cells": 27652.0,
+   "available_growth_cells": 58767,
+   "tau_h": 7.6879072189331055,
+   "kept_growth_cells": 27684
+  }
+ },
+ "map20260802-65395": {
+  "pred_area_km2": {
+   "areacon_t1": 9.975588980123183,
+   "areacon_t0": 6.474117766689631,
+   "areacon_oracle": 10.783125
+  },
+  "areacon_t1": {
+   "target_cells": 1773.438040910788,
+   "available_growth_cells": 18090,
+   "tau_h": 2.4867005348205566,
+   "kept_growth_cells": 1779
+  },
+  "areacon_t0": {
+   "target_cells": 1150.954269633712,
+   "available_growth_cells": 18090,
+   "tau_h": 1.6954220533370972,
+   "kept_growth_cells": 1154
+  },
+  "areacon_oracle": {
+   "target_cells": 1917.0,
+   "available_growth_cells": 18090,
+   "tau_h": 2.6634888648986816,
+   "kept_growth_cells": 1941
+  }
+ },
+ "map20260802-65682": {
+  "pred_area_km2": {
+   "areacon_t1": 7.98227495438237,
+   "areacon_t0": 6.951306649273663,
+   "areacon_oracle": 0.0
+  },
+  "areacon_t1": {
+   "target_cells": 5676.284412005241,
+   "available_growth_cells": 3798,
+   "tau_h": null,
+   "kept_growth_cells": 3798
+  },
+  "areacon_t0": {
+   "target_cells": 4943.151395039049,
+   "available_growth_cells": 3798,
+   "tau_h": null,
+   "kept_growth_cells": 3798
+  },
+  "areacon_oracle": {
+   "target_cells": 0.0,
+   "available_growth_cells": 3798,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  }
+ },
+ "map20260802-65080": {
+  "pred_area_km2": {
+   "areacon_t1": 6.934931496681638,
+   "areacon_t0": 6.629129925870753,
+   "areacon_oracle": 4.336875
+  },
+  "areacon_t1": {
+   "target_cells": 4931.50684208472,
+   "available_growth_cells": 12827,
+   "tau_h": 7.075231552124023,
+   "kept_growth_cells": 4938
+  },
+  "areacon_t0": {
+   "target_cells": 4714.047947285869,
+   "available_growth_cells": 12827,
+   "tau_h": 6.929577350616455,
+   "kept_growth_cells": 4723
+  },
+  "areacon_oracle": {
+   "target_cells": 3084.0,
+   "available_growth_cells": 12827,
+   "tau_h": 5.385470390319824,
+   "kept_growth_cells": 3089
+  }
+ },
+ "map20260802-20036": {
+  "pred_area_km2": {
+   "areacon_t1": 0.0,
+   "areacon_t0": 0.0,
+   "areacon_oracle": 0.10124999999999999
+  },
+  "areacon_t1": {
+   "target_cells": 0.0,
+   "available_growth_cells": 24727,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_t0": {
+   "target_cells": 0.0,
+   "available_growth_cells": 24727,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_oracle": {
+   "target_cells": 72.0,
+   "available_growth_cells": 24727,
+   "tau_h": 0.07536651939153671,
+   "kept_growth_cells": 79
+  }
+ },
+ "map20260802-66055": {
+  "pred_area_km2": {
+   "areacon_t1": 4.14236242813494,
+   "areacon_t0": 3.441631490891585,
+   "areacon_oracle": 5.0596875
+  },
+  "areacon_t1": {
+   "target_cells": 2945.6799488959578,
+   "available_growth_cells": 11862,
+   "tau_h": 6.3982834815979,
+   "kept_growth_cells": 2947
+  },
+  "areacon_t0": {
+   "target_cells": 2447.3823935229047,
+   "available_growth_cells": 11862,
+   "tau_h": 5.740096092224121,
+   "kept_growth_cells": 2453
+  },
+  "areacon_oracle": {
+   "target_cells": 3598.0,
+   "available_growth_cells": 11862,
+   "tau_h": 7.059575080871582,
+   "kept_growth_cells": 3599
+  }
+ },
+ "map20260802-64816": {
+  "pred_area_km2": {
+   "areacon_t1": 0.0,
+   "areacon_t0": 0.0,
+   "areacon_oracle": 0.86625
+  },
+  "areacon_t1": {
+   "target_cells": 0.0,
+   "available_growth_cells": 2387,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_t0": {
+   "target_cells": 0.0,
+   "available_growth_cells": 2387,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_oracle": {
+   "target_cells": 616.0,
+   "available_growth_cells": 2387,
+   "tau_h": 6.5377516746521,
+   "kept_growth_cells": 639
+  }
+ },
+ "map20260802-340": {
+  "pred_area_km2": {
+   "areacon_t1": 0.0,
+   "areacon_t0": 0.0,
+   "areacon_oracle": 0.00421875
+  },
+  "areacon_t1": {
+   "target_cells": 0.0,
+   "available_growth_cells": 0,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_t0": {
+   "target_cells": 0.0,
+   "available_growth_cells": 0,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_oracle": {
+   "target_cells": 3.0000000000000004,
+   "available_growth_cells": 0,
+   "tau_h": null,
+   "kept_growth_cells": 0
+  }
+ },
+ "map20260802-19": {
+  "pred_area_km2": {
+   "areacon_t1": 0.0,
+   "areacon_t0": 0.0,
+   "areacon_oracle": 0.0
+  },
+  "areacon_t1": {
+   "target_cells": 0.0,
+   "available_growth_cells": 6,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_t0": {
+   "target_cells": 0.0,
+   "available_growth_cells": 6,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_oracle": {
+   "target_cells": 0.0,
+   "available_growth_cells": 6,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  }
+ },
+ "map20260802-62041": {
+  "pred_area_km2": {
+   "areacon_t1": 12.311348883891792,
+   "areacon_t0": 12.426975403280725,
+   "areacon_oracle": 6.38296875
+  },
+  "areacon_t1": {
+   "target_cells": 8754.736984100831,
+   "available_growth_cells": 5465,
+   "tau_h": null,
+   "kept_growth_cells": 5465
+  },
+  "areacon_t0": {
+   "target_cells": 8836.960286777405,
+   "available_growth_cells": 5465,
+   "tau_h": null,
+   "kept_growth_cells": 5465
+  },
+  "areacon_oracle": {
+   "target_cells": 4539.0,
+   "available_growth_cells": 5465,
+   "tau_h": 10.692886352539062,
+   "kept_growth_cells": 4542
+  }
+ },
+ "map20260802-53363": {
+  "pred_area_km2": {
+   "areacon_t1": 0.0,
+   "areacon_t0": 0.0,
+   "areacon_oracle": 0.08296875
+  },
+  "areacon_t1": {
+   "target_cells": 0.0,
+   "available_growth_cells": 30,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_t0": {
+   "target_cells": 0.0,
+   "available_growth_cells": 30,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_oracle": {
+   "target_cells": 59.0,
+   "available_growth_cells": 30,
+   "tau_h": null,
+   "kept_growth_cells": 30
+  }
+ },
+ "map20260802-53095": {
+  "pred_area_km2": {
+   "areacon_t1": 0.0,
+   "areacon_t0": 0.0,
+   "areacon_oracle": 0.05765625
+  },
+  "areacon_t1": {
+   "target_cells": 0.0,
+   "available_growth_cells": 67,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_t0": {
+   "target_cells": 0.0,
+   "available_growth_cells": 67,
+   "tau_h": 0.0,
+   "kept_growth_cells": 0
+  },
+  "areacon_oracle": {
+   "target_cells": 41.0,
+   "available_growth_cells": 67,
+   "tau_h": 7.423694133758545,
+   "kept_growth_cells": 41
+  }
+ }
+}

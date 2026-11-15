@@ -1,0 +1,1565 @@
+{
+ "fires": {
+  "map20260802-66433": {
+   "control": {
+    "iou": 0.7937128447447961,
+    "growth_iou": 0.11384785914984662,
+    "no_growth_iou": 0.9000967117988394,
+    "predicted_growth_cells": 58767,
+    "observed_growth_cells": 27652,
+    "area_ratio": 2.125235064371474,
+    "boundary_mean_m": 464.25455595238844,
+    "false_growth_cells": 49934,
+    "false_growth_fraction": 0.8496945564687665,
+    "hotspots": {
+     "targets": 12,
+     "hits": 10,
+     "false_alarm_cells": 1103,
+     "model_cells": 1141,
+     "hit_rate": 0.8333333333333334,
+     "csi": 0.008968609865470852
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.7598039215686274,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 6045,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.8895593300867086,
+    "growth_iou": 0.04652864591273592,
+    "no_growth_iou": 0.9000967117988394,
+    "predicted_growth_cells": 6671,
+    "observed_growth_cells": 27652,
+    "area_ratio": 0.2412483726312744,
+    "boundary_mean_m": 298.6817873417445,
+    "false_growth_cells": 5145,
+    "false_growth_fraction": 0.7712486883525709,
+    "hotspots": {
+     "targets": 12,
+     "hits": 8,
+     "false_alarm_cells": 493,
+     "model_cells": 515,
+     "hit_rate": 0.6666666666666666,
+     "csi": 0.015841584158415842
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.7598039215686274,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 6045,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.8871078984914361,
+    "growth_iou": 0.052816278383957534,
+    "no_growth_iou": 0.9000967117988394,
+    "predicted_growth_cells": 8049,
+    "observed_growth_cells": 27652,
+    "area_ratio": 0.2910820193837697,
+    "boundary_mean_m": 305.15099289723884,
+    "false_growth_cells": 6258,
+    "false_growth_fraction": 0.7774878866939993,
+    "hotspots": {
+     "targets": 12,
+     "hits": 8,
+     "false_alarm_cells": 522,
+     "model_cells": 545,
+     "hit_rate": 0.6666666666666666,
+     "csi": 0.0149812734082397
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.7598039215686274,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 6045,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.8505233221025122,
+    "growth_iou": 0.09863405336721728,
+    "no_growth_iou": 0.9000967117988394,
+    "predicted_growth_cells": 27684,
+    "observed_growth_cells": 27652,
+    "area_ratio": 1.0011572399826414,
+    "boundary_mean_m": 360.8266286977439,
+    "false_growth_cells": 22716,
+    "false_growth_fraction": 0.8205461638491548,
+    "hotspots": {
+     "targets": 12,
+     "hits": 8,
+     "false_alarm_cells": 763,
+     "model_cells": 794,
+     "hit_rate": 0.6666666666666666,
+     "csi": 0.01032258064516129
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.7598039215686274,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 6045,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.9035295749254559,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9035295749254559,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 27652,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 234.08628756856479,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 12,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-65395": {
+   "control": {
+    "iou": 0.899414046736364,
+    "growth_iou": 0.03749222153080274,
+    "no_growth_iou": 0.9878326725386387,
+    "predicted_growth_cells": 18090,
+    "observed_growth_cells": 1917,
+    "area_ratio": 9.43661971830986,
+    "boundary_mean_m": 204.90882691537823,
+    "false_growth_cells": 17367,
+    "false_growth_fraction": 0.9600331674958541,
+    "hotspots": {
+     "targets": 3,
+     "hits": 3,
+     "false_alarm_cells": 1073,
+     "model_cells": 1092,
+     "hit_rate": 1.0,
+     "csi": 0.0027881040892193307
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.16188426590148255,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 2031,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.980419144418368,
+    "growth_iou": 0.07254788160185723,
+    "no_growth_iou": 0.9878326725386387,
+    "predicted_growth_cells": 1779,
+    "observed_growth_cells": 1917,
+    "area_ratio": 0.9280125195618153,
+    "boundary_mean_m": 35.742947432052446,
+    "false_growth_cells": 1529,
+    "false_growth_fraction": 0.8594716132658797,
+    "hotspots": {
+     "targets": 3,
+     "hits": 2,
+     "false_alarm_cells": 326,
+     "model_cells": 330,
+     "hit_rate": 0.6666666666666666,
+     "csi": 0.0060790273556231
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.16188426590148255,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 2031,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.9834277620396601,
+    "growth_iou": 0.06891750783153498,
+    "no_growth_iou": 0.9878326725386387,
+    "predicted_growth_cells": 1154,
+    "observed_growth_cells": 1917,
+    "area_ratio": 0.6019822639540949,
+    "boundary_mean_m": 30.666154178184495,
+    "false_growth_cells": 956,
+    "false_growth_fraction": 0.82842287694974,
+    "hotspots": {
+     "targets": 3,
+     "hits": 2,
+     "false_alarm_cells": 271,
+     "model_cells": 273,
+     "hit_rate": 0.6666666666666666,
+     "csi": 0.0072992700729927005
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.16188426590148255,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 2031,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.9796603196991067,
+    "growth_iou": 0.0737545226829947,
+    "no_growth_iou": 0.9878326725386387,
+    "predicted_growth_cells": 1941,
+    "observed_growth_cells": 1917,
+    "area_ratio": 1.0125195618153364,
+    "boundary_mean_m": 37.0401843284201,
+    "false_growth_cells": 1676,
+    "false_growth_fraction": 0.863472436888202,
+    "hotspots": {
+     "targets": 3,
+     "hits": 2,
+     "false_alarm_cells": 335,
+     "model_cells": 339,
+     "hit_rate": 0.6666666666666666,
+     "csi": 0.005917159763313609
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.16188426590148255,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 2031,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.9878326725386387,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9878326725386387,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 1917,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 22.650248263108058,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 3,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-65682": {
+   "control": {
+    "iou": 0.8664087231797397,
+    "growth_iou": 0.0,
+    "no_growth_iou": 1.0,
+    "predicted_growth_cells": 3798,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 226.61090111918367,
+    "false_growth_cells": 3798,
+    "false_growth_fraction": 1.0,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 75,
+     "model_cells": 82,
+     "hit_rate": 1.0,
+     "csi": 0.013157894736842105
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3970722781335773,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 434,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.8664087231797397,
+    "growth_iou": 0.0,
+    "no_growth_iou": 1.0,
+    "predicted_growth_cells": 3798,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 226.61090111918367,
+    "false_growth_cells": 3798,
+    "false_growth_fraction": 1.0,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 75,
+     "model_cells": 82,
+     "hit_rate": 1.0,
+     "csi": 0.013157894736842105
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3970722781335773,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 434,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.8664087231797397,
+    "growth_iou": 0.0,
+    "no_growth_iou": 1.0,
+    "predicted_growth_cells": 3798,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 226.61090111918367,
+    "false_growth_cells": 3798,
+    "false_growth_fraction": 1.0,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 75,
+     "model_cells": 82,
+     "hit_rate": 1.0,
+     "csi": 0.013157894736842105
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3970722781335773,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 434,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 1.0,
+    "growth_iou": null,
+    "no_growth_iou": 1.0,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 0.0,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 1,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3970722781335773,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 434,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 1.0,
+    "growth_iou": null,
+    "no_growth_iou": 1.0,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 0.0,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 1,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-65080": {
+   "control": {
+    "iou": 0.5072106771766391,
+    "growth_iou": 0.18712228605536074,
+    "no_growth_iou": 0.7341993504871347,
+    "predicted_growth_cells": 12827,
+    "observed_growth_cells": 3084,
+    "area_ratio": 4.159208819714657,
+    "boundary_mean_m": 497.5144003694148,
+    "false_growth_cells": 10319,
+    "false_growth_fraction": 0.8044749356825446,
+    "hotspots": {
+     "targets": 2,
+     "hits": 2,
+     "false_alarm_cells": 208,
+     "model_cells": 223,
+     "hit_rate": 1.0,
+     "csi": 0.009523809523809525
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.6292016806722689,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 599,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.6498463114754098,
+    "growth_iou": 0.1989239276640263,
+    "no_growth_iou": 0.7341993504871347,
+    "predicted_growth_cells": 4938,
+    "observed_growth_cells": 3084,
+    "area_ratio": 1.6011673151750974,
+    "boundary_mean_m": 285.28734100544295,
+    "false_growth_cells": 3607,
+    "false_growth_fraction": 0.7304576751721344,
+    "hotspots": {
+     "targets": 2,
+     "hits": 2,
+     "false_alarm_cells": 107,
+     "model_cells": 118,
+     "hit_rate": 1.0,
+     "csi": 0.01834862385321101
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.6292016806722689,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 599,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.6538710512687727,
+    "growth_iou": 0.19684194389084778,
+    "no_growth_iou": 0.7341993504871347,
+    "predicted_growth_cells": 4723,
+    "observed_growth_cells": 3084,
+    "area_ratio": 1.5314526588845656,
+    "boundary_mean_m": 277.418611966872,
+    "false_growth_cells": 3439,
+    "false_growth_fraction": 0.7281388947702732,
+    "hotspots": {
+     "targets": 2,
+     "hits": 2,
+     "false_alarm_cells": 105,
+     "model_cells": 116,
+     "hit_rate": 1.0,
+     "csi": 0.018691588785046728
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.6292016806722689,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 599,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.6893896580955072,
+    "growth_iou": 0.1800802905754158,
+    "no_growth_iou": 0.7341993504871347,
+    "predicted_growth_cells": 3089,
+    "observed_growth_cells": 3084,
+    "area_ratio": 1.001621271076524,
+    "boundary_mean_m": 235.97386037723166,
+    "false_growth_cells": 2147,
+    "false_growth_fraction": 0.6950469407575267,
+    "hotspots": {
+     "targets": 2,
+     "hits": 2,
+     "false_alarm_cells": 81,
+     "model_cells": 92,
+     "hit_rate": 1.0,
+     "csi": 0.024096385542168676
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.6292016806722689,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 599,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.7341993504871347,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.7341993504871347,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 3084,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 214.03245319935485,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 2,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-20036": {
+   "control": {
+    "iou": 0.31006217414336296,
+    "growth_iou": 0.002830684621294836,
+    "no_growth_iou": 0.9858162355040143,
+    "predicted_growth_cells": 24727,
+    "observed_growth_cells": 72,
+    "area_ratio": 343.43055555555554,
+    "boundary_mean_m": 1320.9423625415,
+    "false_growth_cells": 24657,
+    "false_growth_fraction": 0.9971690864237474,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 326,
+     "model_cells": 326,
+     "hit_rate": null,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.7147335423197492,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 684,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.9858162355040143,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9858162355040143,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 72,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 11.51257361939313,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.7147335423197492,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 684,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.9858162355040143,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9858162355040143,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 72,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 11.51257361939313,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.7147335423197492,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 684,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.9799698661703448,
+    "growth_iou": 0.041379310344827586,
+    "no_growth_iou": 0.9858162355040143,
+    "predicted_growth_cells": 79,
+    "observed_growth_cells": 72,
+    "area_ratio": 1.0972222222222223,
+    "boundary_mean_m": 15.638482036062445,
+    "false_growth_cells": 73,
+    "false_growth_fraction": 0.9240506329113924,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 22,
+     "model_cells": 22,
+     "hit_rate": null,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.7147335423197492,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 684,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.9858162355040143,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9858162355040143,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 72,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 11.51257361939313,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-66055": {
+   "control": {
+    "iou": 0.8936241375823526,
+    "growth_iou": 0.06503168917057041,
+    "no_growth_iou": 0.9685324493178631,
+    "predicted_growth_cells": 11862,
+    "observed_growth_cells": 3598,
+    "area_ratio": 3.2968315730961644,
+    "boundary_mean_m": 371.0845502920044,
+    "false_growth_cells": 10918,
+    "false_growth_fraction": 0.9204181419659416,
+    "hotspots": {
+     "targets": 3,
+     "hits": 1,
+     "false_alarm_cells": 170,
+     "model_cells": 177,
+     "hit_rate": 0.3333333333333333,
+     "csi": 0.005780346820809248
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.08993710691823899,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 286,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.9575414611346204,
+    "growth_iou": 0.13549618320610687,
+    "no_growth_iou": 0.9685324493178631,
+    "predicted_growth_cells": 2947,
+    "observed_growth_cells": 3598,
+    "area_ratio": 0.8190661478599222,
+    "boundary_mean_m": 139.42244214404033,
+    "false_growth_cells": 2166,
+    "false_growth_fraction": 0.7349847302341365,
+    "hotspots": {
+     "targets": 3,
+     "hits": 1,
+     "false_alarm_cells": 54,
+     "model_cells": 61,
+     "hit_rate": 0.3333333333333333,
+     "csi": 0.017543859649122806
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.08993710691823899,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 286,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.9608156904799806,
+    "growth_iou": 0.13911897590361447,
+    "no_growth_iou": 0.9685324493178631,
+    "predicted_growth_cells": 2453,
+    "observed_growth_cells": 3598,
+    "area_ratio": 0.6817676486937188,
+    "boundary_mean_m": 121.62541130449779,
+    "false_growth_cells": 1714,
+    "false_growth_fraction": 0.6987362413371382,
+    "hotspots": {
+     "targets": 3,
+     "hits": 1,
+     "false_alarm_cells": 48,
+     "model_cells": 55,
+     "hit_rate": 0.3333333333333333,
+     "csi": 0.0196078431372549
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.08993710691823899,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 286,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.9528451504155838,
+    "growth_iou": 0.1269965549639837,
+    "no_growth_iou": 0.9685324493178631,
+    "predicted_growth_cells": 3599,
+    "observed_growth_cells": 3598,
+    "area_ratio": 1.000277932184547,
+    "boundary_mean_m": 158.60334128955742,
+    "false_growth_cells": 2788,
+    "false_growth_fraction": 0.774659627674354,
+    "hotspots": {
+     "targets": 3,
+     "hits": 1,
+     "false_alarm_cells": 62,
+     "model_cells": 69,
+     "hit_rate": 0.3333333333333333,
+     "csi": 0.015384615384615385
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.08993710691823899,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 286,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.9685324493178631,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9685324493178631,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 3598,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 77.5504540723241,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 3,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-64816": {
+   "control": {
+    "iou": 0.11349939734833267,
+    "growth_iou": 0.010090817356205853,
+    "no_growth_iou": 0.2041205646699733,
+    "predicted_growth_cells": 2387,
+    "observed_growth_cells": 616,
+    "area_ratio": 3.875,
+    "boundary_mean_m": 8886.401514983425,
+    "false_growth_cells": 2357,
+    "false_growth_fraction": 0.9874319229157938,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 62,
+     "model_cells": 68,
+     "hit_rate": 1.0,
+     "csi": 0.015873015873015872
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3577586206896552,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 83,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.2041205646699733,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.2041205646699733,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 616,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 7785.531941720205,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 1,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3577586206896552,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 83,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.2041205646699733,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.2041205646699733,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 616,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 7785.531941720205,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 1,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3577586206896552,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 83,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.17165791911083667,
+    "growth_iou": 0.017017828200972446,
+    "no_growth_iou": 0.2041205646699733,
+    "predicted_growth_cells": 639,
+    "observed_growth_cells": 616,
+    "area_ratio": 1.0373376623376624,
+    "boundary_mean_m": 8014.8662895113985,
+    "false_growth_cells": 618,
+    "false_growth_fraction": 0.9671361502347418,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 54,
+     "model_cells": 60,
+     "hit_rate": 1.0,
+     "csi": 0.01818181818181818
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3577586206896552,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 83,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.4381654381654382,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.4381654381654382,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 616,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 1221.9034389404187,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 1,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-340": {
+   "control": {
+    "iou": 0.9778969957081545,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9778969957081545,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 3,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 1531.6681788141311,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.13777777777777778,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 62,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.9778969957081545,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9778969957081545,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 3,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 1531.6681788141311,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.13777777777777778,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 62,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.9778969957081545,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9778969957081545,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 3,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 1531.6681788141311,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.13777777777777778,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 62,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.9778969957081545,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9778969957081545,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 3,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 1531.6681788141311,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.13777777777777778,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 62,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.9993421052631579,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9993421052631579,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 3,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 0.4934210526315789,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-19": {
+   "control": {
+    "iou": 0.9042175456828614,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9046876353868816,
+    "predicted_growth_cells": 6,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 2029.8743709019366,
+    "false_growth_cells": 6,
+    "false_growth_fraction": 1.0,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 2,
+     "model_cells": 2,
+     "hit_rate": null,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.38987043580683156,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 331,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.9046876353868816,
+    "growth_iou": null,
+    "no_growth_iou": 0.9046876353868816,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 2031.578953103109,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.38987043580683156,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 331,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.9046876353868816,
+    "growth_iou": null,
+    "no_growth_iou": 0.9046876353868816,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 2031.578953103109,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.38987043580683156,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 331,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.9046876353868816,
+    "growth_iou": null,
+    "no_growth_iou": 0.9046876353868816,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 2031.578953103109,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.38987043580683156,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 331,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 1.0,
+    "growth_iou": null,
+    "no_growth_iou": 1.0,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 0,
+    "area_ratio": null,
+    "boundary_mean_m": 0.0,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-62041": {
+   "control": {
+    "iou": 0.9380869498689822,
+    "growth_iou": 0.22044650481883615,
+    "no_growth_iou": 0.9541859911999049,
+    "predicted_growth_cells": 5465,
+    "observed_growth_cells": 4539,
+    "area_ratio": 1.2040096937651465,
+    "boundary_mean_m": 109.46775028949249,
+    "false_growth_cells": 3658,
+    "false_growth_fraction": 0.6693504117108875,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 115,
+     "model_cells": 121,
+     "hit_rate": 1.0,
+     "csi": 0.008620689655172414
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.06919518963922294,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 374,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.9380869498689822,
+    "growth_iou": 0.22044650481883615,
+    "no_growth_iou": 0.9541859911999049,
+    "predicted_growth_cells": 5465,
+    "observed_growth_cells": 4539,
+    "area_ratio": 1.2040096937651465,
+    "boundary_mean_m": 109.46775028949249,
+    "false_growth_cells": 3658,
+    "false_growth_fraction": 0.6693504117108875,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 115,
+     "model_cells": 121,
+     "hit_rate": 1.0,
+     "csi": 0.008620689655172414
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.06919518963922294,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 374,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.9380869498689822,
+    "growth_iou": 0.22044650481883615,
+    "no_growth_iou": 0.9541859911999049,
+    "predicted_growth_cells": 5465,
+    "observed_growth_cells": 4539,
+    "area_ratio": 1.2040096937651465,
+    "boundary_mean_m": 109.46775028949249,
+    "false_growth_cells": 3658,
+    "false_growth_fraction": 0.6693504117108875,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 115,
+     "model_cells": 121,
+     "hit_rate": 1.0,
+     "csi": 0.008620689655172414
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.06919518963922294,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 374,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.9437592738905055,
+    "growth_iou": 0.22434946743966563,
+    "no_growth_iou": 0.9541859911999049,
+    "predicted_growth_cells": 4542,
+    "observed_growth_cells": 4539,
+    "area_ratio": 1.0006609385327165,
+    "boundary_mean_m": 101.59351645959413,
+    "false_growth_cells": 2878,
+    "false_growth_fraction": 0.6336415675913695,
+    "hotspots": {
+     "targets": 1,
+     "hits": 1,
+     "false_alarm_cells": 101,
+     "model_cells": 107,
+     "hit_rate": 1.0,
+     "csi": 0.00980392156862745
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.06919518963922294,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 374,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.9541859911999049,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9541859911999049,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 4539,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 59.73807710172544,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 1,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": 0.0,
+     "csi": 0.0
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-53363": {
+   "control": {
+    "iou": 0.9548929663608563,
+    "growth_iou": 0.05952380952380952,
+    "no_growth_iou": 0.9621767657275183,
+    "predicted_growth_cells": 30,
+    "observed_growth_cells": 59,
+    "area_ratio": 0.5084745762711864,
+    "boundary_mean_m": 22.25314544087627,
+    "false_growth_cells": 25,
+    "false_growth_fraction": 0.8333333333333334,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 6,
+     "model_cells": 6,
+     "hit_rate": null,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3585434173669468,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 128,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.9621767657275183,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9621767657275183,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 59,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 19.018548858777798,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3585434173669468,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 128,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.9621767657275183,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9621767657275183,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 59,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 19.018548858777798,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3585434173669468,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 128,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.9548929663608563,
+    "growth_iou": 0.05952380952380952,
+    "no_growth_iou": 0.9621767657275183,
+    "predicted_growth_cells": 30,
+    "observed_growth_cells": 59,
+    "area_ratio": 0.5084745762711864,
+    "boundary_mean_m": 22.25314544087627,
+    "false_growth_cells": 25,
+    "false_growth_fraction": 0.8333333333333334,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 6,
+     "model_cells": 6,
+     "hit_rate": null,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.3585434173669468,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 128,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.9621767657275183,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9621767657275183,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 59,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 19.018548858777798,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_edge_coverage": 0.0
+   }
+  },
+  "map20260802-53095": {
+   "control": {
+    "iou": 0.9623131903833658,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9837263367651943,
+    "predicted_growth_cells": 67,
+    "observed_growth_cells": 41,
+    "area_ratio": 1.6341463414634145,
+    "boundary_mean_m": 15.232041386423,
+    "false_growth_cells": 67,
+    "false_growth_fraction": 1.0,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 10,
+     "model_cells": 10,
+     "hit_rate": null,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.2908366533864542,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 146,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t1": {
+    "iou": 0.9837263367651943,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9837263367651943,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 41,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 6.8628583176023925,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.2908366533864542,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 146,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_t0": {
+    "iou": 0.9837263367651943,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9837263367651943,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 41,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 6.8628583176023925,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.2908366533864542,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 146,
+     "whole_edge_fallback": false
+    }
+   },
+   "areacon_oracle": {
+    "iou": 0.9705111402359109,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9837263367651943,
+    "predicted_growth_cells": 41,
+    "observed_growth_cells": 41,
+    "area_ratio": 1.0,
+    "boundary_mean_m": 12.285105684639635,
+    "false_growth_cells": 41,
+    "false_growth_fraction": 1.0,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 8,
+     "model_cells": 8,
+     "hit_rate": null,
+     "csi": 0.0
+    },
+    "active_mode": "detections",
+    "active_edge_coverage": 0.2908366533864542,
+    "front": {
+     "front_km": null,
+     "active_hours": 6.0,
+     "detection_edge_cells": 146,
+     "whole_edge_fallback": false
+    }
+   },
+   "no_growth": {
+    "iou": 0.9837263367651943,
+    "growth_iou": 0.0,
+    "no_growth_iou": 0.9837263367651943,
+    "predicted_growth_cells": 0,
+    "observed_growth_cells": 41,
+    "area_ratio": 0.0,
+    "boundary_mean_m": 6.8628583176023925,
+    "false_growth_cells": 0,
+    "false_growth_fraction": null,
+    "hotspots": {
+     "targets": 0,
+     "hits": 0,
+     "false_alarm_cells": 0,
+     "model_cells": 0,
+     "hit_rate": null,
+     "csi": null
+    },
+    "active_edge_coverage": 0.0
+   }
+  }
+ },
+ "failures": {}
+}
