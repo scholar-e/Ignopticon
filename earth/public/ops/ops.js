@@ -13,8 +13,13 @@ const params = new URLSearchParams(location.search);
 const BASEMAPS = ["satellite"];
 // Demo day: the page opens on Aug 2, 2026 18Z, the day with ELMFIRE forecasts for its fires. ?t=now shows the latest.
 const DEMO_DAY = "2026-08-02T18:00Z";
+// Demo default fire, used only when no ?fire= is given on the demo day: SINLAHEKIN (FEDS 66433, WA). A real wildfire (WFIGS incident),
+// uncontained at issue, with bounded forecasts and FEDS truth at +12 h; the observed +12 h growth (38.9 km2) lies between the most
+// likely (11.3 km2) and worst case (45.7 km2) areas (data/bounds/heldout_per_fire.csv). A demo pick with visible growth, not a claim about accuracy.
+const DEMO_FIRE = 66433;
+const demoOpen = !params.get("fire") && (!params.get("t") || params.get("t") === DEMO_DAY);
 const state = {
-  t: params.get("t") || DEMO_DAY, fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
+  t: params.get("t") || DEMO_DAY, fire: +params.get("fire") || (demoOpen ? DEMO_FIRE : null), view: params.get("view") === "3d" ? "3d" : "2d",
   base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") !== "off",
   filter: "", sort: ["closest", "size", "growth", "newest", "name"].includes(params.get("sort")) ? params.get("sort") : "closest",
   mode: "progression", step: 0, fc: null, compare: false,  // fc: forecast hour shown, or null (off)
@@ -518,7 +523,15 @@ function buildStops(d) {
 }
 function fcStops(fc) {
   let acres = 0;  // predicted front growth since issue; the model's start area can differ from FEDS's
-  return fc.hours.map((h) => ({hours: h, time: new Date(Date.parse(fc.issued) + h * 3600e3).toISOString(), acres: acres += bandAcres(fc, h, "front")}));
+  // Bounded forecasts: "most likely" growth, the same figure as the fire panel. +12 h is the area-constrained bound; earlier hours
+  // are the drawn extent's acres minus the start area (what the map shows), never above the +12 h figure.
+  const last = fc.hours[fc.hours.length - 1], at = (kind, h) => (fc.features.find((x) => x.properties.kind === kind && (h == null || x.properties.hours === h)) || {properties: {}}).properties.acres;
+  const likely = (h) => {
+    if (h === last) return Math.round(fc.bound.area_km2 * 247.105);
+    const e = at("extent", h), s = at("start");
+    return e != null && s != null ? Math.min(Math.max(0, Math.round(e - s)), Math.round(fc.bound.area_km2 * 247.105)) : acres;
+  };
+  return fc.hours.map((h) => ({hours: h, time: new Date(Date.parse(fc.issued) + h * 3600e3).toISOString(), acres: (acres += bandAcres(fc, h, "front"), fc.bound ? likely(h) : acres)}));
 }
 function renderTimeline() {
   const tl = $("#timeline");
@@ -542,7 +555,7 @@ function renderForecast() {
   const zone = zoneOf(cur.fire), stops = fcStops(fc);
   $("#fc-stops").innerHTML = [{hours: null}, ...stops].map((s, i) => {
     const label = s.hours == null ? "Issue" : `+${s.hours} h`, color = s.hours == null ? "transparent" : BANDS[Math.min(2, i - 1)];
-    const title = s.hours == null ? "Show the fire as of the forecast issue time (no forecast)" : `Predicted by ${when(s.time, zone)} · +${num(s.acres)} ac`;
+    const title = s.hours == null ? "Show the fire as of the forecast issue time (no forecast)" : `${fc.bound ? "Most likely" : "Predicted"} by ${when(s.time, zone)} · +${num(s.acres)} ac`;
     return `<li class="stop" style="--stop-color:${color}"><button type="button" data-fc="${s.hours ?? "off"}" aria-pressed="${state.fc === s.hours}" title="${title}">${label}</button></li>`;
   }).join("");
   const s = stops.find((x) => x.hours === state.fc), obs = s && (cur.detail.observed_after || []).find((o) => o.hours === s.hours);
@@ -551,7 +564,7 @@ function renderForecast() {
   compare.title = !s ? "Choose a forecast hour first" : obs ? `Draw the perimeter observed ${when(obs.time, zone)}` : `No perimeter mapped at ${when(s.time, zone)} (FEDS maps every 12 h)`;
   compare.setAttribute("aria-pressed", state.compare && !!obs);
   const nowAcres = cur.detail.history[cur.detail.history.length - 1].acres;
-  $("#fc-read").innerHTML = !s ? "" : `<span>Predicted by ${short(s.time, zone)}: <b>+${num(s.acres)} ac</b></span>` +
+  $("#fc-read").innerHTML = !s ? "" : `<span>${fc.bound ? "Most likely" : "Predicted"} by ${short(s.time, zone)}: <b>+${num(s.acres)} ac</b></span>` +
     (state.compare && obs ? `<span class="obs">Observed by ${short(obs.time, zone)}: <b>${obs.acres >= nowAcres ? "+" : "−"}${num(Math.abs(obs.acres - nowAcres))} ac</b></span>` : "");
 }
 function setStep(i, announce = true) {
