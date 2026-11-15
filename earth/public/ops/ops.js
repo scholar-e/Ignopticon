@@ -19,12 +19,10 @@ let fires = [], byId = new Map(), at = null, map = null, cur = null, playing = n
 let gps = null, gpsMarker = null, gpsWatch = null, gpsMessage = "Waiting for GPS";
 let connected = navigator.onLine;
 function freshness() {
-  const stamp = Date.parse(at?.snapshot);
-  const age = Math.max(0, Math.floor((Date.now() - stamp) / 1000));
-  $("#fresh").textContent = (Number.isFinite(age) ? "Updated " + age.toLocaleString() + " seconds ago" : "Snapshot unavailable") + (connected ? "" : " · OFFLINE");
+  $("#fresh").textContent = "Updated every 12 hours" + (connected ? "" : " · OFFLINE");
 }
 registerOffline({onStatus: status => { connected = status.online; freshness(); }}).catch(() => {});
-setInterval(freshness, 1000);
+freshness();
 function matchesFire(f) {
   const q = state.filter.trim().toLowerCase();
   return [label(f), f.place, f.state].join(" ").toLowerCase().includes(q);
@@ -65,7 +63,7 @@ async function cacheFire(f) {
       if (!cached) {
       if (!navigator.onLine) throw new Error("Reconnect to finish saving");
       const result = await saveArea({id:key, label:label(f), bbox:fireBounds(f), bufferKm:3,
-        sources:{[state.base]:[7,13]}, urls:["/api/fires"+query(), "/api/fires/"+f.id+query()],
+        sources:{[BASE_TILES[state.base].src]:[7,13]}, urls:["/api/fires"+query(), "/api/fires/"+f.id+query()],
         onProgress: p => report("Saving incident map · " + p.done + "/" + p.total)});
       if (!result.complete) throw new Error("Some tiles are missing. Reopen while online to retry");
       }
@@ -116,6 +114,17 @@ function detail(id) {
   return details.get(id);
 }
 const listReady = api(`/api/fires${query()}`);
+// #count only shows load errors.
+const showError = (msg) => $("#count").insertAdjacentHTML("beforeend", `<span class="error" role="alert">${esc(msg)}</span> `);
+// Date picker: "Today" is t=now; each past FEDS day opens at its latest snapshot (12:00 UTC).
+Promise.all([api("/data/fires/feds/index.json"), listReady.catch(() => null)]).then(([index, data]) => {
+  const latest = {};
+  for (const s of index.snapshots) latest[s.slice(0, 10)] = s + "Z";
+  $("#date").insertAdjacentHTML("beforeend", Object.keys(latest).reverse().map((d) => `<option value="${latest[d]}">${day(latest[d])}</option>`).join(""));
+  const shown = state.t === "now" ? "now" : (data?.time || state.t || "").slice(0, 10);
+  $("#date").value = shown && [...$("#date").options].find((o) => o.value.startsWith(shown))?.value || "";
+}).catch(() => {});
+$("#date").addEventListener("change", (e) => { const p = new URLSearchParams(location.search); p.set("t", e.target.value); location.search = "?" + p; });
 
 function writeUrl() {
   const p = new URLSearchParams();
@@ -143,7 +152,6 @@ function renderList() {
 <span class="r2"><span class="ac">${num(f.acres)}<small> ac</small></span><span class="gr ${g.cls}">${g.text}</span></span>
 <span class="r3">${f.forecast ? '<span class="badge">Forecast</span>' : ""}${f.contained != null && f.incident_as_of && f.incident_as_of <= at.time ? `<span>${f.contained}% contained (WFIGS)</span>` : ""}</span></button></li>`;
   }).join("");
-  $("#count").textContent = `${rows.length} of ${fires.length} fires · ${gps ? "Distance to fire center" : gpsMessage + " · Alphabetical"} · FEDS ${when(at.snapshot)}`;
 }
 
 function renderStatus() {
@@ -210,8 +218,19 @@ const front = ["==", ["get", "where"], "front"];
 // over the ocean and outside the US its closer tiles are empty or missing, so the stretched zoom-8 image shows there.
 // Tiles on the edge of USGS's coverage (borders, coasts) are part imagery, part opaque white, so the imagery basemaps
 // load through "keyed://", which makes pure white (and the near-white JPEG fringe touching it) transparent.
-const keyed = (b, maxzoom) => maxzoom > 8 && b !== "topo";
-const baseSource = (b, maxzoom = 16) => ({type: "raster", tiles: [`${keyed(b, maxzoom) ? "keyed://" : origin + "/"}tiles/${b}/{z}/{x}/{y}`], tileSize: 256, maxzoom, attribution: "USGS The National Map"});
+// Map types and their dev-server tile sources. Satellite is EOX's Sentinel-2 cloudless mosaic: one colour-matched,
+// cloud-free 10 m image of the whole world (land and sea), free for non-commercial use (CC BY-NC-SA 4.0).
+const BASE_TILES = {
+  satellite: {src: "s2cloudless", maxzoom: 14, attribution: "EOxCloudless 2024 by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2024)"},
+  imagerytopo: {src: "imagerytopo", maxzoom: 16, attribution: "USGS The National Map"},
+  topo: {src: "topo", maxzoom: 16, attribution: "USGS The National Map"},
+};
+const keyed = (b, maxzoom) => maxzoom > 8 && b === "imagerytopo";  // only USGS imagery has the white fill
+const baseSource = (b, maxzoom = 16) => {
+  const t = BASE_TILES[b];
+  return {type: "raster", tiles: [`${keyed(b, maxzoom) ? "keyed://" : origin + "/"}tiles/${t.src}/{z}/{x}/{y}`], tileSize: 256,
+    maxzoom: Math.min(maxzoom, t.maxzoom), attribution: t.attribution};
+};
 async function keyedTile(params, abort) {
   const res = await fetch(params.url.replace("keyed://", origin + "/"), {signal: abort.signal});
   if (!res.ok) throw new Error(`Tile ${res.status}`);
@@ -249,7 +268,8 @@ function style() {
     sources: {"base-low": baseSource(state.base, 8), base: baseSource(state.base), hydro: {type: "raster", tiles: [`${origin}/tiles/hydro/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16},
       fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo(), access: geo()},
     layers: [
-      L("base-low", "raster", "base-low", {}),
+      // Sentinel-2 has no gaps, so the fallback would only take request slots from the real tiles.
+      L("base-low", "raster", "base-low", {}, {visibility: state.base === "satellite" ? "none" : "visible"}),
       L("base", "raster", "base", {}),
       L("hydro", "raster", "hydro", {}, {visibility: state.labels ? "visible" : "none"}),
       L("fires-fill", "fill", "fires", {"fill-color": RED, "fill-opacity": 0.1}),
@@ -605,7 +625,7 @@ function setBase(b) {
   if (!map || !map.getLayer("base")) return;
   for (const id of ["base", "base-low"]) { map.removeLayer(id); map.removeSource(id); }
   map.addSource("base-low", baseSource(b, 8)); map.addSource("base", baseSource(b));
-  map.addLayer({id: "base-low", type: "raster", source: "base-low"}, "hydro");
+  map.addLayer({id: "base-low", type: "raster", source: "base-low", layout: {visibility: b === "satellite" ? "none" : "visible"}}, "hydro");
   map.addLayer({id: "base", type: "raster", source: "base"}, "hydro");
 }
 function setLabels(on) {
@@ -615,7 +635,7 @@ function setLabels(on) {
 }
 
 function initMap() {
-  if (!window.maplibregl) { $("#count").textContent += " · Map library failed to load"; return; }
+  if (!window.maplibregl) { showError("Map library failed to load"); return; }
   maplibregl.addProtocol("keyed", keyedTile);
   map = new maplibregl.Map({container: "map", style: style(), bounds: [[-125, 24], [-66, 50]], fitBoundsOptions: {padding: 40},
     attributionControl: {compact: true}, maxPitch: 70, fadeDuration: reduced ? 0 : 300});
@@ -731,11 +751,10 @@ listReady.then((data) => {
   at = data; fires = data.fires; byId = new Map(fires.map((f) => [f.id, f]));
   renderList(); renderStatus();
   performance.mark("ops-list");
-  if (hoursBetween(at.time, new Date()) > 24) $("#replay").textContent = `Replay: view time ${when(at.time)}`;
   if (state.fire && byId.has(state.fire)) select(state.fire);
   else if (map) { state.fire = null; fit(allBounds()); }
 }).catch((e) => {
-  $("#count").innerHTML = `<span class="error" role="alert">Could not load fires: ${esc(e.message)}</span>`;
+  showError("Could not load fires: " + e.message);
 });
 // The map library is a deferred script after this module; start the map once it has run.
 if (window.maplibregl) initMap(); else $('script[src$="maplibre-gl.js"]').addEventListener("load", initMap);

@@ -7,7 +7,7 @@
 // bbox is [west, south, east, north] in degrees; sources maps a /tiles/ source to [minZoom, maxZoom].
 
 // Defaults for one fire: about 130 MB for a 60 km box plus the 10 km buffer (from AVG_KB); topo is left out.
-export const DEFAULT_SOURCES = {satellite: [8, 14], imagerytopo: [8, 14], hydro: [8, 14], terrain: [8, 12]};
+export const DEFAULT_SOURCES = {s2cloudless: [8, 14], imagerytopo: [8, 14], hydro: [8, 14], terrain: [8, 12]};
 export const DEFAULT_BUFFER_KM = 10;
 // Mean tile size in KB, measured over Widemouth 2 (UT) at z8-15 in Nov 2026; terrain is the z8-12 mean.
 const AVG_KB = {satellite: 20, imagerytopo: 23, topo: 17, hydro: 2, terrain: 100};

@@ -66,6 +66,8 @@ var TILE_SOURCES = {
     relief: USGS + "USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}",
     hydro: USGS + "USGSHydroCached/MapServer/tile/{z}/{y}/{x}",  // transparent, drawn over relief
     satellite: USGS + "USGSImageryOnly/MapServer/tile/{z}/{y}/{x}",
+    // EOX Sentinel-2 cloudless 2024, 10 m, global and seamless; CC BY-NC-SA 4.0 (non-commercial), credit EOX + Copernicus.
+    s2cloudless: "https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2024_3857/default/g/{z}/{y}/{x}.jpg",
     imagerytopo: USGS + "USGSImageryTopo/MapServer/tile/{z}/{y}/{x}",  // imagery with contours, names, roads
     topo: USGS + "USGSTopo/MapServer/tile/{z}/{y}/{x}",
     terrain: "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",  // AWS Terrain Tiles, to z15
@@ -166,11 +168,65 @@ function tileProxy(req, res) {
     var source = TILE_SOURCES[req.params.source];
     var z = +req.params.z, x = +req.params.x, y = +req.params.y;
     if (!source || !isTile(z, x, y)) return res.send(404);
-    var file = path.join(TILE_CACHE, req.params.source, String(z), String(x), y + ".img");
-    var url = source.replace("{z}", z).replace("{x}", x).replace("{y}", y).replace("{bbox}", tileBbox(z, x, y));
-    cachedTile(file, url).then(function(body) {
+    if (req.params.source === "s2cloudless") warmS2();
+    sourceTile(req.params.source, z, x, y).then(function(body) {
         if (body) sendTile(res, body); else res.send(404);
-    }).catch(tileError(res, url));
+    }).catch(tileError(res, req.params.source + "/" + z + "/" + x + "/" + y));
+}
+
+function sourceTile(source, z, x, y) {
+    var file = path.join(TILE_CACHE, source, String(z), String(x), y + ".img");
+    var url = TILE_SOURCES[source].replace("{z}", z).replace("{x}", x).replace("{y}", y).replace("{bbox}", tileBbox(z, x, y));
+    return cachedTile(file, url);
+}
+
+/**
+ * EOX answers a tile it has not served recently in ~0.3 s, and the browser asks this server for only 6 at a time, so
+ * the first look at an area waits seconds. The first Sentinel-2 request therefore fetches, in the background, the
+ * lower 48 to zoom 8 and the area around every fire listed at the demo time and now to zoom 13; later views of
+ * them come from tile-cache in ~0.03 s. About 8,000 tiles, ~100 MB, a few minutes; tiles already cached are skipped.
+ */
+var S2_FIRE_ZOOMS = [9, 13], S2_FIRE_BUFFER = 0.08, s2Warming = false;  // buffer in degrees (~7-9 km)
+
+function tileRange(bbox, z) {
+    var n = Math.pow(2, z), col = function(λ) { return Math.floor((λ + 180) / 360 * n); };
+    var row = function(φ) { return Math.floor((1 - Math.log(Math.tan(Math.PI / 4 + φ * Math.PI / 360)) / Math.PI) / 2 * n); };
+    var tiles = [];
+    for (var x = col(bbox[0]); x <= col(bbox[2]); x++) for (var y = row(bbox[3]); y <= row(bbox[1]); y++) tiles.push([z, x, y]);
+    return tiles;
+}
+
+function warmS2() {
+    if (s2Warming) return;
+    s2Warming = true;
+    var seen = new Set(), queue = [];
+    function add(tiles) {
+        tiles.forEach(function(t) {
+            var key = t.join("/");
+            if (seen.has(key) || fs.existsSync(path.join(TILE_CACHE, "s2cloudless", String(t[0]), String(t[1]), t[2] + ".img"))) return;
+            seen.add(key); queue.push(t);
+        });
+    }
+    for (var z = 0; z <= WARM_ZOOM; z++) add(tileRange(WARM_BOUNDS, z));
+    var fires = [];
+    [new Date(DEFAULT_TIME), new Date()].forEach(function(t) { var at = firesAt(t); if (at) fires = fires.concat(at.fires); });
+    for (z = S2_FIRE_ZOOMS[0]; z <= S2_FIRE_ZOOMS[1]; z++) {  // coarse first everywhere, then finer
+        fires.forEach(function(f) {
+            var b = f.bbox, d = S2_FIRE_BUFFER;
+            add(tileRange([b[0] - d, b[1] - d, b[2] + d, b[3] + d], z));
+        });
+    }
+    var started = Date.now(), total = queue.length, running = WARM_CONCURRENCY;
+    function next() {
+        var t = queue.shift();
+        if (!t) {
+            if (--running === 0) console.log(new Date().toISOString() + " - warmed s2cloudless: " + total + " tiles in " + Math.round((Date.now() - started) / 1000) + " s");
+            return;
+        }
+        sourceTile("s2cloudless", t[0], t[1], t[2]).catch(function() {}).then(next);
+    }
+    console.log(new Date().toISOString() + " - warming s2cloudless: " + total + " tiles (lower 48 to z" + WARM_ZOOM + ", " + fires.length + " fire areas to z" + S2_FIRE_ZOOMS[1] + ")");
+    for (var i = 0; i < WARM_CONCURRENCY; i++) next();
 }
 
 function thermalTile(layer, date, z, x, y) {
@@ -523,7 +579,7 @@ function apiError(res, status, message) {
 }
 
 function parseTime(query) {
-    var time = new Date(query === undefined ? DEFAULT_TIME : query);
+    var time = query === "now" ? new Date() : new Date(query === undefined ? DEFAULT_TIME : query);  // "now": the ops "Today" option
     return isNaN(time) ? null : time;
 }
 

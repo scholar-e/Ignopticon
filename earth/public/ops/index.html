@@ -13,23 +13,24 @@
 <script src="vendor/maplibre-gl.js" defer></script>
 </head>
 <body>
-<div class="fresh"><span>IGNOPTICON / OPS</span><span id="fresh">Loading snapshot…</span></div>
+<div class="fresh"><span>IGNOPTICON / OPS</span><span id="fresh">Updated every 12 hours</span></div>
 <div class="sidebar">
   <header class="brand">
     <h1>Wildfires</h1>
-    <p class="replay" id="replay"></p>
   </header>
   <section id="detail" class="detail" aria-labelledby="detail-name" hidden></section>
   <nav class="fires" aria-label="Fires">
     
     <div class="order">
-      <label for="sort">Sort</label>
+      <span><label for="date">Select date</label>
+      <select id="date"><option value="now">Today</option></select></span>
+      <span><label for="sort">Sort</label>
       <select id="sort">
         <option value="distance">Nearest</option>
         <option value="growth">12 h growth</option>
         <option value="size">Size</option>
         <option value="name">Name</option>
-      </select></div><p id="count" class="count">Loading fires…</p>
+      </select></span></div><p id="count" class="count"></p>
     <ul id="list" class="list"></ul>
   </nav>
 <section class="conditions"><h3>Incident conditions</h3><dl><div><dt>Mapped fuel type</dt><dd id="fuel"></dd></div><div><dt>Wind at 10 m</dt><dd id="wind"></dd></div><div><dt>Weather</dt><dd id="weather"></dd></div></dl><p id="wx-source"></p></section>
