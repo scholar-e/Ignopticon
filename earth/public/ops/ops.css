@@ -146,7 +146,7 @@ body.selected{grid-template-rows:auto minmax(0,1fr) minmax(0,1fr)}
 .controls label,.controls select{position:absolute;left:-9999px}.controls select:focus{position:static}
 .controls input,.mapnav button,#locate{background:#15231ff2;color:white;border:1px solid #93a397;border-radius:12px;box-shadow:0 2px 12px #0005;min-height:46px}
 .controls input{padding:0 16px}.mapnav{display:none;gap:6px}.mapnav button,#locate{padding:0 14px}
-#locate{position:absolute;bottom:32px;right:12px}.gpsdot{width:19px;height:19px;border-radius:50%;background:#ff3636;border:3px solid white;box-shadow:0 0 0 5px #ca23234d}
+#locate.maplibregl-ctrl,.viewtoggle.maplibregl-ctrl{float:right;clear:both;margin:0 10px 8px 0;pointer-events:auto}.gpsdot{width:19px;height:19px;border-radius:50%;background:#ff3636;border:3px solid white;box-shadow:0 0 0 5px #ca23234d}
 .fieldnotes,.sidebar .status,.mapnav{display:none}.selected .fieldnotes,.selected .sidebar .status{display:block}
 .selected .mapnav{display:flex}.selected .controls,.selected .fires,.selected .brand h1,.selected #back{display:none}
 .sidebar .bottom{position:static;display:block;max-width:none;margin:0 16px 8px;pointer-events:auto}
@@ -182,3 +182,8 @@ body.selected{grid-template-rows:auto minmax(0,1fr) minmax(0,1fr)}
 #road-directions:not([hidden]){display:inline-block;padding:12px 4px}
 
 #pick-access{min-height:44px;border:1px solid var(--line);border-radius:6px;background:var(--raise);padding:8px 12px}.access-dot{width:20px;height:20px;background:#59dad0;border:3px solid #162c25;border-radius:3px}
+
+/* 2D / 3D switch on the map, styled like the GPS button. */
+.viewtoggle{display:flex;overflow:hidden;background:#15231ff2;border:1px solid #93a397;border-radius:12px;box-shadow:0 2px 12px #0005}
+.viewtoggle button{min-height:44px;min-width:46px;padding:0 12px;border:0;background:none;color:#fff;font-weight:600}
+.viewtoggle button[aria-pressed="true"]{background:#E8EDF3;color:#0E1116}

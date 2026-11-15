@@ -206,7 +206,34 @@ const halo = (color, w = 2) => ({"text-color": color, "text-halo-color": CASE, "
 const text = (field, size, extra) => ({"text-field": ["get", field], "text-font": FONT, "text-size": size, ...extra});
 const kind = (k) => ["==", ["get", "kind"], k];
 const front = ["==", ["get", "where"], "front"];
-const baseSource = (b) => ({type: "raster", tiles: [`${origin}/tiles/${b}/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16, attribution: "USGS The National Map"});
+// "base-low" is the same basemap capped at zoom 8 and drawn under "base". USGS has imagery everywhere to zoom 8, but
+// over the ocean and outside the US its closer tiles are empty or missing, so the stretched zoom-8 image shows there.
+// Tiles on the edge of USGS's coverage (borders, coasts) are part imagery, part opaque white, so the imagery basemaps
+// load through "keyed://", which makes pure white (and the near-white JPEG fringe touching it) transparent.
+const keyed = (b, maxzoom) => maxzoom > 8 && b !== "topo";
+const baseSource = (b, maxzoom = 16) => ({type: "raster", tiles: [`${keyed(b, maxzoom) ? "keyed://" : origin + "/"}tiles/${b}/{z}/{x}/{y}`], tileSize: 256, maxzoom, attribution: "USGS The National Map"});
+async function keyedTile(params, abort) {
+  const res = await fetch(params.url.replace("keyed://", origin + "/"), {signal: abort.signal});
+  if (!res.ok) throw new Error(`Tile ${res.status}`);
+  const bytes = await res.arrayBuffer(), bmp = await createImageBitmap(new Blob([bytes]));
+  const c = new OffscreenCanvas(bmp.width, bmp.height), g = c.getContext("2d");
+  g.drawImage(bmp, 0, 0);
+  const img = g.getImageData(0, 0, c.width, c.height), d = img.data, w = c.width;
+  let cleared = 0;
+  for (let i = 0; i < d.length; i += 4) if (d[i] >= 253 && d[i + 1] >= 253 && d[i + 2] >= 253) { d[i + 3] = 0; cleared++; }
+  if (!cleared) return {data: bytes};
+  for (let pass = 0; pass < 3; pass++) {  // JPEG smears the fill into a near-white fringe: clear it where it touches cleared pixels
+    const fringe = [];
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i + 3] === 0 || d[i] < 215 || d[i + 1] < 215 || d[i + 2] < 215) continue;
+      const x = (i / 4) % w;
+      if ((x > 0 && d[i - 1] === 0) || (x < w - 1 && d[i + 7] === 0) || d[i - 4 * w + 3] === 0 || d[i + 4 * w + 3] === 0) fringe.push(i);
+    }
+    for (const i of fringe) d[i + 3] = 0;
+  }
+  g.putImageData(img, 0, 0);
+  return {data: await (await c.convertToBlob({type: "image/png"})).arrayBuffer()};
+}
 // Point markers show only while a fire is narrower than ~12 px (zh = that zoom, from the API's bbox).
 const smallOnly = ["step", ["zoom"], ...Array.from({length: 17}, (_, z) => [z, ["case", [">", ["get", "zh"], z + 0.5], 1, 0]]).flat().slice(1)];
 
@@ -219,9 +246,10 @@ function style() {
   return {
     version: 8, glyphs: new URL("vendor/fonts/", import.meta.url).href + "{fontstack}/{range}.pbf",
     sky: {"sky-color": "#6E9CC8", "horizon-color": "#D9E4EE", "fog-color": "#D9E4EE"},
-    sources: {base: baseSource(state.base), hydro: {type: "raster", tiles: [`${origin}/tiles/hydro/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16},
+    sources: {"base-low": baseSource(state.base, 8), base: baseSource(state.base), hydro: {type: "raster", tiles: [`${origin}/tiles/hydro/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16},
       fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo(), access: geo()},
     layers: [
+      L("base-low", "raster", "base-low", {}),
       L("base", "raster", "base", {}),
       L("hydro", "raster", "hydro", {}, {visibility: state.labels ? "visible" : "none"}),
       L("fires-fill", "fill", "fires", {"fill-color": RED, "fill-opacity": 0.1}),
@@ -558,14 +586,15 @@ function overview() {
 function setView(v) {
   state.view = v; writeUrl();
   $("#view3d").setAttribute("aria-pressed", v === "3d");
+  for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === v);
   if (!map || !map.getLayer("base")) return;  // style.load applies the URL's view later
   if (v === "3d") {
-    map.addSource("dem", {type: "raster-dem", tiles: [`${origin}/tiles/terrain/{z}/{x}/{y}`], encoding: "terrarium", tileSize: 256, maxzoom: 15, attribution: "Terrain: AWS Terrain Tiles"});
+    if (!map.getSource("dem")) map.addSource("dem", {type: "raster-dem", tiles: [`${origin}/tiles/terrain/{z}/{x}/{y}`], encoding: "terrarium", tileSize: 256, maxzoom: 15, attribution: "Terrain: AWS Terrain Tiles"});
     map.setTerrain({source: "dem", exaggeration: 1.5});
     if (cur) fit(fireBounds(cur.fire)); else map.easeTo({pitch: 60, duration: reduced ? 0 : 500});
   } else {
     map.setTerrain(null);
-    map.removeSource("dem");  // 2D pays nothing for terrain
+    if (map.getSource("dem")) map.removeSource("dem");  // 2D pays nothing for terrain
     if (cur) fit(fireBounds(cur.fire)); else map.easeTo({pitch: 0, bearing: 0, duration: reduced ? 0 : 500});
   }
   map.once("idle", () => performance.mark("ops-view-" + v));
@@ -574,8 +603,9 @@ function setBase(b) {
   state.base = b; writeUrl();
   for (const x of document.querySelectorAll("[data-base]")) x.setAttribute("aria-pressed", x.dataset.base === b);
   if (!map || !map.getLayer("base")) return;
-  map.removeLayer("base"); map.removeSource("base");
-  map.addSource("base", baseSource(b));
+  for (const id of ["base", "base-low"]) { map.removeLayer(id); map.removeSource(id); }
+  map.addSource("base-low", baseSource(b, 8)); map.addSource("base", baseSource(b));
+  map.addLayer({id: "base-low", type: "raster", source: "base-low"}, "hydro");
   map.addLayer({id: "base", type: "raster", source: "base"}, "hydro");
 }
 function setLabels(on) {
@@ -586,12 +616,17 @@ function setLabels(on) {
 
 function initMap() {
   if (!window.maplibregl) { $("#count").textContent += " · Map library failed to load"; return; }
+  maplibregl.addProtocol("keyed", keyedTile);
   map = new maplibregl.Map({container: "map", style: style(), bounds: [[-125, 24], [-66, 50]], fitBoundsOptions: {padding: 40},
-    attributionControl: {compact: false}, maxPitch: 70, fadeDuration: reduced ? 0 : 300});
+    attributionControl: {compact: true}, maxPitch: 70, fadeDuration: reduced ? 0 : 300});
   window.opsMap = map; showPosition();
   if (at) fit(state.fire && byId.has(state.fire) ? fireBounds(byId.get(state.fire)) : allBounds());
   map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), "top-right");
   map.addControl(new maplibregl.ScaleControl({unit: "imperial"}), "bottom-right");
+  // GPS and the 2D/3D switch join MapLibre's bottom-right stack (added later = higher), so neither covers the scale bar.
+  const control = (el) => ({onAdd: () => { el.classList.add("maplibregl-ctrl"); return el; }, onRemove: () => {}});
+  map.addControl(control($("#locate")), "bottom-right");
+  map.addControl(control($("#viewtoggle")), "bottom-right");
   map.on("style.load", () => {
     addImages();
     listReady.then(() => {
@@ -601,6 +636,8 @@ function initMap() {
     });
   });
   map.once("idle", () => performance.mark("ops-map-idle"));
+  // The compact credit opens on load; start it closed (just the i button).
+  map.once("load", () => $(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"));
   const pick = (e) => {
     if (pickingAccess && state.fire) {
       accessPoint = [e.lngLat.wrap().lng,e.lngLat.lat];
@@ -658,6 +695,7 @@ window.addEventListener("resize", () => placeLegend(document.body.classList.cont
 $("#legend-toggle").addEventListener("click", () => setLegend(!$("#legend").classList.contains("open")));
 $("#basemaps").addEventListener("click", (e) => { const b = e.target.closest("[data-base]"); if (b) setBase(b.dataset.base); });
 $("#view3d").addEventListener("click", () => setView(state.view === "3d" ? "2d" : "3d"));
+$("#viewtoggle").addEventListener("click", (e) => { const b = e.target.closest("[data-view]"); if (b && b.dataset.view !== state.view) setView(b.dataset.view); });
 $("#labels").addEventListener("click", () => setLabels(!state.labels));
 $("#timeline").addEventListener("click", (e) => {
   const b = e.target.closest("button");
@@ -688,6 +726,7 @@ requestGps();
 for (const x of document.querySelectorAll("[data-base]")) x.setAttribute("aria-pressed", x.dataset.base === state.base);
 $("#labels").setAttribute("aria-pressed", state.labels);
 $("#view3d").setAttribute("aria-pressed", state.view === "3d");
+for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === state.view);
 listReady.then((data) => {
   at = data; fires = data.fires; byId = new Map(fires.map((f) => [f.id, f]));
   renderList(); renderStatus();
