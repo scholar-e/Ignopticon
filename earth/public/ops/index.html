@@ -106,26 +106,36 @@
     <p id="hist-daynote" class="hist-note" role="status"></p>
   </section>
   <div class="bottom">
-  <details class="keybox onmap" id="keybox"><summary>Key</summary>
+  <details class="keybox onmap" id="keybox"><summary>Layers and key</summary>
   <section class="legend open" id="legend" aria-labelledby="legend-h">
     <h2 id="legend-h" class="sr-only">Map layers</h2>
-    <ul id="legend-list">
-      <li><button type="button" aria-pressed="true" data-layer="current"><span class="sw sw-cur"></span><span class="s">Perimeter</span><span class="l">Current perimeter (FEDS)</span></button></li>
-      <li><button type="button" aria-pressed="true" data-layer="previous"><span class="sw sw-prev"></span><span class="s">Past</span><span class="l">Past perimeters (brown to yellow)</span></button></li>
-      <li><button type="button" aria-pressed="true" data-layer="forecast"><span class="sw-fc"><span class="sw sw-b0"></span><span class="sw sw-b1"></span><span class="sw sw-b2"></span></span><span class="s" id="fc-name">Forecast</span><span class="l" id="fc-legend">Predicted growth since now, at the chosen forecast hour (hatched)</span></button></li>
-      <li class="bnd" hidden><button type="button" aria-pressed="true" data-layer="worst"><span class="sw sw-worst"></span><span class="s">Worst case</span><span class="l">Worst case: 90th-percentile growth of similar past fires</span></button></li>
-      <li class="bnd" hidden><button type="button" aria-pressed="false" data-layer="physics"><span class="sw sw-phys"></span><span class="s">Physics (unconstrained)</span><span class="l">Physics (unconstrained): ELMFIRE as run, before the growth cut (off by default)</span></button></li>
+    <div id="legend-list">
+    <h3 class="kh">Now</h3>
+    <ul>
+      <li><button type="button" aria-pressed="true" data-layer="current"><span class="sw sw-cur"></span><span class="s">Perimeter</span><span class="l" title="Current perimeter (red, FEDS)">Current perimeter</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="previous"><span class="sw sw-prev"></span><span class="s">Past</span><span class="l" title="Previous perimeters (brown to yellow)">Previous perimeters</span></button></li>
+      <li><button type="button" aria-pressed="false" data-layer="hotspots"><span class="sw sw-hot"></span><span class="s">Hotspots</span><span class="l" title="Satellite hotspots, last 12 h (white dots)">Hotspots (last 12 h)</span></button></li>
+      <li><button type="button" id="wind-toggle" aria-pressed="true"><span class="sw sw-wind"></span><span class="s">Wind</span><span class="l" title="Wind arrows (pick the height under the map)">Wind</span></button></li>
+    </ul>
+    <h3 class="kh">Forecast</h3>
+    <ul>
+      <li><button type="button" aria-pressed="true" data-layer="forecast"><span class="sw-fc"><span class="sw sw-b0"></span><span class="sw sw-b1"></span><span class="sw sw-b2"></span></span><span class="s" id="fc-name">Forecast</span><span class="l" id="fc-legend">Predicted growth at the chosen hour (hatched)</span></button></li>
+      <li class="bnd" hidden><button type="button" aria-pressed="true" data-layer="worst"><span class="sw sw-worst"></span><span class="s">Worst case</span><span class="l" title="Worst case: bigger growth, as in the worst 1 in 10 similar fires (dashed outline)">Worst case: 1-in-10 big growth</span></button></li>
+      <li class="bnd" hidden><button type="button" aria-pressed="false" data-layer="physics"><span class="sw sw-phys"></span><span class="s">Physics (unconstrained)</span><span class="l" title="Physics (unconstrained): the fire model as run, before the history-based cut (dotted outline)">Physics, unconstrained (model before cut)</span></button></li>
+    </ul>
+    <p class="knote">Unsuppressed spread potential — firefighting not modelled.</p>
+    <details class="more"><summary>More layers</summary>
+    <ul>
       <li><button type="button" aria-pressed="false" data-layer="interior"><span class="sw sw-faint"></span><span class="s">Burnout</span><span class="l">Burnout inside perimeter (predicted)</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="detached"><span class="sw sw-faint"></span><span class="s">Detached</span><span class="l">Growth on hotspots &gt; 1 km from fire (predicted)</span></button></li>
-      <li><button type="button" aria-pressed="false" data-layer="hotspots"><span class="sw sw-hot"></span><span class="s">Hotspots</span><span class="l">VIIRS hotspots, last 12 h</span></button></li>
       <li><button type="button" id="nav-cov-toggle" aria-pressed="false"><span class="sw sw-dead"></span><span class="s">Dead zones</span><span class="l">No radio or phone coverage near the fire (lighter hatch: marginal)</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="activity"><span class="sw sw-act"></span><span class="s">Likely tomorrow</span><span class="l">Fire likely tomorrow: watch area, 10 km squares (not a perimeter)</span></button></li>
-
-    </ul>
+    </ul></details>
+  </div>
   </section>
 </details>
   <section id="forecast" class="tl-mini fcbar" aria-label="Spread forecast" hidden>
-    <span class="tl-h">Forecast</span>
+    <span class="tl-h">Time</span>
     <ol id="fc-stops" class="stops"></ol>
     <button type="button" id="compare" aria-pressed="false" title="Draw the perimeter observed at the chosen forecast hour">Compare actual</button>
     <p id="fc-read" class="fc-read" aria-live="polite"></p>

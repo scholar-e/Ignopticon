@@ -329,3 +329,19 @@ body:not(.selected) .fires .list{flex:1;min-height:0;overflow-y:auto;margin:0 16
 .hist-min{min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--raise);color:var(--text);font-size:.85rem}
 .hist.min .hist-body,.hist.min .hist-legend{display:none}
 .hist.min{width:min(560px,calc(100% - 24px))}
+
+/* ---- Layer key sections ---- */
+.kh{margin:8px 8px 0;color:var(--muted);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.knote{margin:0 8px 4px;color:var(--muted);font-size:.75rem}
+.legend .more{margin-top:4px;border-top:1px solid var(--line)}
+.legend .more summary{min-height:36px;padding:6px 8px;color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer}
+.sw-wind{height:5px;background:repeating-linear-gradient(90deg,#9fd0ff 0 6px,transparent 6px 9px)}
+.legend li button{min-height:38px;font-size:.88rem}
+.detail .dsum{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px}
+.detail .dsum li{display:flex;justify-content:space-between;gap:8px;font-size:.9rem}
+.detail .dsum li span:first-child{color:var(--muted)}
+.detail .dsum b{text-align:right}
+.detail .dsrc{margin:8px 0 0;color:var(--muted);font-size:.75rem}
+.legend .l{font-size:.85rem;line-height:1.2}
+.legend li button{min-height:34px;padding:2px 8px}
+.keybox summary{font-size:.9rem}

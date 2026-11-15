@@ -222,7 +222,7 @@ const bounded = (d) => !!(d && d.forecast_upper);
 function legendForecast(fc, d) {
   document.querySelectorAll(".legend .bnd").forEach((li) => { li.hidden = !bounded(d); });
   $("#fc-name").textContent = bounded(d) ? "Most likely" : "Forecast";
-  $("#fc-legend").textContent = bounded(d) ? "Most likely: ELMFIRE cut to the growth predicted from 2003-2024 fire history (hatched)" : fc || !cur ? "Predicted growth since now, at the chosen forecast hour (hatched)" : "No forecast for this fire";
+  $("#fc-legend").textContent = bounded(d) ? "Most likely growth (hatched, +3/+6/+12 h)" : fc || !cur ? "Predicted growth at the chosen hour (hatched)" : "No forecast for this fire";
   $("#fc-legend").closest("li").classList.toggle("none", !fc);
 }
 function containmentHtml(c, zone) {
@@ -231,16 +231,31 @@ function containmentHtml(c, zone) {
     : c.status === "uncontained" ? "not contained" : "no incident match";
   return `<p class="muted" title="From WFIGS dates at the forecast issue time${c.percent_contained_latest != null ? `; latest reported ${c.percent_contained_latest}% contained, not as of issue` : ""}">Containment as of forecast: ${txt}${c.status === "unmatched" ? "" : " (WFIGS)"}</p>`;
 }
+function sumHtml(f, d, g) {
+  const fc = d && d.forecast, row = (k, v) => `<li><span>${k}</span><b>${v}</b></li>`, rows = [row("Size now", `${num(f.acres)} ac · burning ${num(f.days)} days`)];
+  const gt = /^[+−]/.test(g.text) ? g.text.replace(/ \([^)]*\)/, "").replace(/ in 12 h$/, "") : "";
+  if (gt) rows.push(row("Last 12 h (observed)", `<span class="${g.cls}">${gt}</span>`));
+  if (!d) rows.push(row("Forecast", "loading…"));
+  else if (!fc) rows.push(row("Forecast", "none for this fire"));
+  else {
+    const h = fc.hours[fc.hours.length - 1];
+    if (d.forecast_upper) rows.push(row(`Growth by +${h} h`, `most likely ${num(Math.round(d.forecast.bound.area_km2 * 247.105))} ac<br>worst case ${num(Math.round(d.forecast_upper.bound.area_km2 * 247.105))} ac`));
+    else { let t = 0; fc.hours.forEach((x) => { t += bandAcres(fc, x, "front"); }); rows.push(row(`Growth by +${h} h`, `+${num(t)} ac`)); }
+    const o = (d.observed_after || []).find((x) => x.hours === h), now = d.history[d.history.length - 1].acres;
+    if (o) rows.push(row(`Observed by +${h} h`, `${o.acres >= now ? "+" : "−"}${num(Math.abs(o.acres - now))} ac`));
+  }
+  return `<ul class="dsum">${rows.join("")}</ul>`;
+}
 function renderDetail(f, d) {
   const zone = zoneOf(f), g = growthText(f), fc = d && d.forecast;
-  const fcHtml = !d ? `<p class="muted">Loading forecast…</p>` : fc ? `<div class="fc"><h3>Spread forecast</h3>${d.forecast_upper ? boundsHtml(d) : ""}${summary(fc, zone)}<p>Model: ${esc(fc.model)}</p><p>Issued ${when(fc.issued, zone)}</p>
+  const fcHtml = !d ? `<p class="muted">Loading forecast…</p>` : fc ? `<div class="fc"><details><summary>Forecast details</summary>${d.forecast_upper ? boundsHtml(d) : ""}${summary(fc, zone)}<p>Model: ${esc(fc.model)}</p><p>Issued ${when(fc.issued, zone)}</p></details>
 <p class="muted">Unsuppressed spread potential — firefighting not modelled</p>
+<p class="dsrc">Sources: NASA FEDS perimeters, VIIRS hotspots${fc ? ", ELMFIRE + fire-history forecast" : ""}${d && d.containment ? ", WFIGS" : ""}.</p>
 <p class="disclaimer">Experimental research forecast, not an official forecast. Do not use it alone for safety decisions.</p></div>` : `<div class="nofc"><h3>No spread forecast</h3><p>This fire has no forecast. The map shows observed perimeters only.</p></div>`;
   const hs = d && d.hotspots;
   $("#detail").innerHTML = `<button type="button" class="back" id="back">← All fires (Esc)</button>
 <h2 id="detail-name">${esc(label(f))}</h2><p class="muted">${esc(f.place || "")} · FEDS fire ${f.id}</p>
-${d ? containmentHtml(d.containment, zone) : ""}<dl class="stats"><div><dt>Mapped area</dt><dd class="big">${num(f.acres)} <small>ac</small></dd></div><div><dt>Burning</dt><dd class="big">${num(f.days)} <small>days</small></dd></div>
-<div class="growth"><dd class="${g.cls}">${/^[+−]/.test(g.text) ? g.text.replace(/ \([^)]*\)/, "").replace(/ in 12 h$/, " growth in 12h") : g.text}</dd></div></dl>${fcHtml}
+${d ? containmentHtml(d.containment, zone) : ""}${sumHtml(f, d, g)}${fcHtml}
 `;
   $("#sources").innerHTML = `<details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(f.perimeter_time, zone)}</li>
 <li>Hotspots: VIIRS S-NPP, NOAA-20, NOAA-21: ${hs ? `${num(hs.length)} detections in the 12 h to view time` : "none downloaded for this time"}</li>
@@ -526,8 +541,8 @@ function renderForecast() {
   if (!fc) return;
   const zone = zoneOf(cur.fire), stops = fcStops(fc);
   $("#fc-stops").innerHTML = [{hours: null}, ...stops].map((s, i) => {
-    const label = s.hours == null ? "Off" : `+${s.hours} h`, color = s.hours == null ? "transparent" : BANDS[Math.min(2, i - 1)];
-    const title = s.hours == null ? "Hide the forecast" : `Predicted by ${when(s.time, zone)} · +${num(s.acres)} ac`;
+    const label = s.hours == null ? "Issue" : `+${s.hours} h`, color = s.hours == null ? "transparent" : BANDS[Math.min(2, i - 1)];
+    const title = s.hours == null ? "Show the fire as of the forecast issue time (no forecast)" : `Predicted by ${when(s.time, zone)} · +${num(s.acres)} ac`;
     return `<li class="stop" style="--stop-color:${color}"><button type="button" data-fc="${s.hours ?? "off"}" aria-pressed="${state.fc === s.hours}" title="${title}">${label}</button></li>`;
   }).join("");
   const s = stops.find((x) => x.hours === state.fc), obs = s && (cur.detail.observed_after || []).find((o) => o.hours === s.hours);
@@ -646,6 +661,7 @@ async function select(id, {fitMap = true} = {}) {
     cur = {fire: f, detail: d, stops: buildStops(d)};
     nav.dispatch(savedDispatch(d.access_route)); nav.detail(d);
     state.step = d.history.length - 1;
+    if (d.forecast && state.fc == null) { const hs = d.forecast.hours; state.fc = hs.includes(12) ? 12 : hs[hs.length - 1]; }
     renderDetail(f, d); renderTimeline();
     if (map && map.getSource("fires")) setDetail(d);
     say(`Selected ${label(f)}, ${num(f.acres)} acres. ${d.forecast ? "Spread forecast available." : "No spread forecast."}`);
@@ -763,6 +779,11 @@ document.querySelector(".legend").addEventListener("click", (e) => {
   applyView();
   if (cur && cur.detail && /interior|detached/.test(b.dataset.layer)) renderDetail(cur.fire, cur.detail);
 });
+$("#wind-toggle").addEventListener("click", (e) => {
+  const on = state.wind === "off"; state.wind = on ? "surface" : "off"; $("#wind-level").value = state.wind;
+  e.currentTarget.setAttribute("aria-pressed", on); writeUrl(); updateWind();
+});
+$("#wind-toggle").setAttribute("aria-pressed", state.wind !== "off");
 $("#viewtoggle").addEventListener("click", (e) => { const b = e.target.closest("[data-view]"); if (b && b.dataset.view !== state.view) setView(b.dataset.view); });
 $("#labels").addEventListener("click", () => setLabels(!state.labels));
 $("#timeline").addEventListener("click", (e) => {
@@ -812,3 +833,4 @@ listReady.then((data) => {
 });
 // The map library is a deferred script after this module; start the map once it has run.
 if (window.maplibregl) initMap(); else $('script[src$="maplibre-gl.js"]').addEventListener("load", initMap);
+if (matchMedia("(min-width:821px)").matches) $("#keybox").open = true;

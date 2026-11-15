@@ -2,7 +2,7 @@
 // Caches: ops-shell-VERSION (app shell, cache-first), ops-api (network-first), ops-tiles (cache-first, trimmed),
 // ops-area-{id} (tiles and data of areas saved by offline.js, never trimmed), ops-data (/data/, stale-while-revalidate).
 // Bump VERSION whenever a shell file changes: the new worker precaches, then waits until the page asks it to take over.
-const VERSION = "v42";
+const VERSION = "v43";
 const SHELL = "ops-shell-" + VERSION;
 const SHELL_FILES = [
   "/", "/ops/", "/ops/index.html", "/ops/ops.css", "/ops/ops.js", "/ops/nav.js", "/ops/history.js", "/ops/predictions.js", "/ops/wind.js", "/ops/offline.js", "/ops/storage.html",
