@@ -299,11 +299,11 @@ function renderDetail(f, d) {
   const hs = d && d.hotspots;
   $("#detail").innerHTML = `<button type="button" class="back" id="back">← All fires (Esc)</button>
 <h2 id="detail-name">${esc(label(f))}</h2><p class="muted">${esc(f.place || "")} · FEDS fire ${f.id}</p>
-${d ? containmentHtml(d.containment, zone) : ""}${sumHtml(f, d, g)}<button type="button" class="nav-open" data-nav-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z" fill="currentColor"/></svg>Navigate to this fire</button>${fcHtml}
+${d ? containmentHtml(d.containment, zone) : ""}${sumHtml(f, d, g)}<button type="button" class="nav-open" data-nav-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z" fill="currentColor"/></svg>Navigate to this fire</button>${exposureHtml(f, d)}${fcHtml}
 `;
   $("#sources").innerHTML = `<details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(f.perimeter_time, zone)}</li>
 <li>Hotspots: VIIRS S-NPP, NOAA-20, NOAA-21: ${hs ? `${num(hs.length)} detections in the 12 h to view time` : "none downloaded for this time"}</li>
-${fc ? `<li>Forecast: ELMFIRE + fire-history growth model · ${esc(fc.source || fc.model)}</li>` : ""}${d && d.containment ? "<li>Containment: NIFC WFIGS incident records</li>" : ""}<li id="nav-src"${nav.sourceText() ? "" : " hidden"}>${esc(nav.sourceText())}</li><li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
+${fc ? `<li>Forecast: ELMFIRE + fire-history growth model · ${esc(fc.source || fc.model)}</li>` : ""}${d && d.containment ? "<li>Containment: NIFC WFIGS incident records</li>" : ""}<li id="nav-src"${nav.sourceText() ? "" : " hidden"}>${esc(nav.sourceText())}</li><li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}${popOn ? "<li>Population: GHS-POP 2025, European Commission JRC (CC BY 4.0)</li>" : ""}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
   $("#detail").hidden = false; $("#sources").hidden = false;
   weekLine(f).then((h) => { const p = $("#detail-name"); if (h && p && p.textContent === label(f) && !$("#weekline")) p.nextElementSibling.insertAdjacentHTML("afterend", h); }).catch(() => {});
   if (d) legendForecast(fc, d);
@@ -535,6 +535,35 @@ function applyView() {
   vis(["hot"], L.hotspots && !past);
   vis(["obs-case", "obs-line", "obs-label"], state.compare && h >= 0);
   updateActivity();
+}
+// Population density (GHS-POP 2025, ~1 km): one pre-coloured PNG over CONUS, drawn under the fire layers. Off by default.
+let popOn = false, popMeta = null;
+async function setPopulation() {
+  const note = $("#pop-note"); if (note) note.hidden = !popOn;
+  if (!map || !map.getLayer("fires-fill")) return;
+  if (popOn && !map.getSource("population")) {
+    popMeta = popMeta || await fetch("/data/population/meta.json").then((r) => r.json()).catch(() => null);
+    if (!popMeta || map.getSource("population")) return;
+    const m = popMeta;
+    map.addSource("population", {type: "image", url: "/data/population/density.png", coordinates: [[m.west, m.north], [m.east, m.north], [m.east, m.south], [m.west, m.south]]});
+    map.addLayer({id: "population", type: "raster", source: "population", paint: {"raster-resampling": "nearest", "raster-opacity": 0.75}}, "fires-fill");
+  }
+  if (map.getLayer("population")) map.setLayoutProperty("population", "visibility", popOn ? "visible" : "none");
+}
+$("#pop-toggle").addEventListener("click", (e) => { popOn = !popOn; e.currentTarget.setAttribute("aria-pressed", popOn); setPopulation(); });
+// People inside the perimeter / forecast footprints per fire (scripts/population_layer.py exposure).
+let exposure = null;
+fetch("/data/population/exposure_20260802.json").then((r) => r.ok ? r.json() : null).then((j) => { exposure = j; if (cur && cur.fire && cur.detail) renderDetail(cur.fire, cur.detail); }).catch(() => {});
+function roundPeople(n) {
+  if (n < 1000) return Math.round(n / 10) * 10;
+  const m = 10 ** (Math.floor(Math.log10(n)) - 1);
+  return Math.round(n / m) * m;
+}
+function exposureHtml(f, d) {
+  const x = exposure && exposure.fires[f.id];
+  if (!x || !d || !d.forecast_upper || (at && at.time.slice(0, 10) !== "2026-08-02")) return "";
+  const p = (n) => "~" + roundPeople(n).toLocaleString("en-US");
+  return `<p class="people">People inside: most likely ${p(x.likely)}, worst case ${p(x.worst)} <span class="muted">(GHS-POP 2025, ~1 km)</span></p>`;
 }
 // Eric's next-day fire activity prediction (predictions.js), shown only for the dates it covers.
 let setWind = null, windSource = "";  // the wind file in use, listed under Data sources
@@ -801,7 +830,7 @@ function initMap() {
   map.on("style.load", () => {
     addImages();
     listReady.then(() => {
-      setFires(); applyView(); updateWind(); nav.styleLoaded(); fireHistory.styleLoaded();
+      setFires(); applyView(); updateWind(); nav.styleLoaded(); setPopulation(); fireHistory.styleLoaded();
       if (cur && cur.detail) setDetail(cur.detail);
       if (state.view === "3d") setView("3d");
     }, () => { updateWind(); fireHistory.styleLoaded(); if (state.view === "3d") setView("3d"); });  // no fire list (e.g. before 2026)

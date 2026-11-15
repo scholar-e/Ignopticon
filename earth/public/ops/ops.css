@@ -199,6 +199,12 @@ body:not(.selected) .fires .list:empty{display:none}
 .sw-phys{background:none;border:2px dotted #9aa4b2}
 .sw-faint{background:#bb5cf533;border:1px dashed #ce75ef}
 .sw-hot{width:12px;height:12px;margin:0 8px;border-radius:50%;background:#fff;border:1px solid var(--case)}
+.sw-pop{background:linear-gradient(90deg,#FFEDA0,#FEB24C,#F03B20,#A50F5A,#3C005A)}
+.popnote{margin:0 8px 6px;font-size:.72rem;color:var(--muted)}
+.popbar{display:block;height:8px;border-radius:2px;background:linear-gradient(90deg,#FFEDA0,#FEB24C,#F03B20,#A50F5A,#3C005A)}
+.poptk{display:flex;justify-content:space-between;font-style:normal}
+.poptk i{font-style:normal}
+.people{margin:4px 0;font-size:.85rem}
 .sw-act{background:#FFB02038;border:2px dashed #FFB020}
 .tl-mini{display:flex;align-items:center;gap:4px;max-width:100%;min-height:44px;padding:3px;background:var(--overlay);border:1px solid var(--line);border-radius:10px}
 .tl-mini .stops{display:flex;gap:4px;margin:0;padding:0;list-style:none;overflow-x:auto;scrollbar-width:none}

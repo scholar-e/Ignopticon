@@ -1,0 +1,518 @@
+{
+ "source": "GHS-POP R2023A 2025, ~1 km, European Commission JRC (CC BY 4.0)",
+ "issued": "2026-08-02T12:00Z",
+ "note": "people in cells weighted by covered fraction; unrounded",
+ "fires": {
+  "11887": {
+   "name": "Butler Co., OH",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 4162,
+   "likely": 4162,
+   "worst": 4162
+  },
+  "18872": {
+   "name": "Berkeley Co., SC",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 8,
+   "likely": 8,
+   "worst": 8
+  },
+  "19": {
+   "name": "Lake Co., IN",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 1174,
+   "likely": 1174,
+   "worst": 1174
+  },
+  "20036": {
+   "name": "Box Elder Co., UT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "2143": {
+   "name": "Cuyahoga Co., OH",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 1488,
+   "likely": 1488,
+   "worst": 1488
+  },
+  "31094": {
+   "name": "Divide Co., ND",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "331": {
+   "name": "Galveston Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 861,
+   "likely": 861,
+   "worst": 900
+  },
+  "340": {
+   "name": "FEDS 340",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 990,
+   "likely": 990,
+   "worst": 990
+  },
+  "48632": {
+   "name": "Riverside Co., CA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "49109": {
+   "name": "Nueces Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 160,
+   "likely": 160,
+   "worst": 160
+  },
+  "51849": {
+   "name": "Rogers Co., OK",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 7,
+   "likely": 12,
+   "worst": 12
+  },
+  "52611": {
+   "name": "McKenzie Co., ND",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 1,
+   "likely": 1,
+   "worst": 3
+  },
+  "53095": {
+   "name": "Lowndes Co., MS",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 3,
+   "likely": 3,
+   "worst": 3
+  },
+  "53363": {
+   "name": "Mobile Co., AL",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 4,
+   "likely": 4,
+   "worst": 4
+  },
+  "53763": {
+   "name": "Reagan Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "5450": {
+   "name": "Porter Co., IN",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 41,
+   "likely": 41,
+   "worst": 42
+  },
+  "57204": {
+   "name": "Upton Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 1,
+   "likely": 1,
+   "worst": 1
+  },
+  "57585": {
+   "name": "Ascension Par., LA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "58056": {
+   "name": "San Patricio Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "60791": {
+   "name": "Jefferson Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 16,
+   "likely": 16,
+   "worst": 16
+  },
+  "61855": {
+   "name": "Boundary Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "62041": {
+   "name": "St. Louis Co., MN",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "62590": {
+   "name": "Lassen Co., CA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "62944": {
+   "name": "Howard Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 1,
+   "likely": 1,
+   "worst": 2
+  },
+  "63215": {
+   "name": "Ward Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "63363": {
+   "name": "Brazoria Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 29,
+   "likely": 29,
+   "worst": 29
+  },
+  "63369": {
+   "name": "Chelan Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 1,
+   "likely": 1,
+   "worst": 1
+  },
+  "63372": {
+   "name": "Harney Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 9,
+   "likely": 9,
+   "worst": 9
+  },
+  "63374": {
+   "name": "Crook Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 89,
+   "likely": 92,
+   "worst": 93
+  },
+  "63568": {
+   "name": "Okanogan Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 879,
+   "likely": 879,
+   "worst": 879
+  },
+  "63588": {
+   "name": "Columbia Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "63683": {
+   "name": "Ferry Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 317,
+   "likely": 320,
+   "worst": 338
+  },
+  "63715": {
+   "name": "Umatilla Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 31,
+   "likely": 31,
+   "worst": 31
+  },
+  "63960": {
+   "name": "Flathead Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 1,
+   "worst": 1
+  },
+  "63962": {
+   "name": "Okanogan Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "63969": {
+   "name": "Wallowa Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "64600": {
+   "name": "Pecos Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "64816": {
+   "name": "Glasscock Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "65080": {
+   "name": "Idaho Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "65258": {
+   "name": "Douglas Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "65395": {
+   "name": "Malheur Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 24,
+   "likely": 24,
+   "worst": 24
+  },
+  "65401": {
+   "name": "Wheeler Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 20,
+   "likely": 20,
+   "worst": 20
+  },
+  "65486": {
+   "name": "Baker Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 420,
+   "likely": 420,
+   "worst": 430
+  },
+  "65489": {
+   "name": "Wasco Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 2,
+   "likely": 2,
+   "worst": 2
+  },
+  "65680": {
+   "name": "Missoula Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "65682": {
+   "name": "Flathead Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "65718": {
+   "name": "Skamania Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "65726": {
+   "name": "Malheur Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 6,
+   "likely": 6,
+   "worst": 6
+  },
+  "65727": {
+   "name": "Harney Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 32,
+   "likely": 32,
+   "worst": 32
+  },
+  "65995": {
+   "name": "Custer Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "66055": {
+   "name": "Churchill Co., NV",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 1
+  },
+  "66204": {
+   "name": "Granite Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "66244": {
+   "name": "Idaho Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "66433": {
+   "name": "Okanogan Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 1299,
+   "likely": 1325,
+   "worst": 1425
+  },
+  "66510": {
+   "name": "Widemouth 2",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 27,
+   "likely": 33,
+   "worst": 31
+  },
+  "66555": {
+   "name": "Nye Co., NV",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "66737": {
+   "name": "Archuleta Co., CO",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 7,
+   "likely": 18,
+   "worst": 18
+  },
+  "66834": {
+   "name": "Midland Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "67083": {
+   "name": "Clearwater Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "67149": {
+   "name": "FEDS 67149",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "67447": {
+   "name": "Hinds Co., MS",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 17,
+   "likely": 17,
+   "worst": 17
+  },
+  "67569": {
+   "name": "White Pine Co., NV",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 2,
+   "worst": 2
+  },
+  "67572": {
+   "name": "Beaverhead Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "67610": {
+   "name": "Jefferson Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 19,
+   "likely": 42,
+   "worst": 42
+  },
+  "67614": {
+   "name": "Emery Co., UT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "67616": {
+   "name": "Malheur Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "67758": {
+   "name": "Spokane Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 8409,
+   "likely": 8876,
+   "worst": 8876
+  },
+  "67765": {
+   "name": "Beaverhead Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "67766": {
+   "name": "Spokane Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 347,
+   "likely": 481,
+   "worst": 481
+  },
+  "67815": {
+   "name": "Stevens Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 1728,
+   "likely": 1913,
+   "worst": 1913
+  },
+  "67816": {
+   "name": "Stevens Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 84,
+   "likely": 125,
+   "worst": 125
+  },
+  "67885": {
+   "name": "Ravalli Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 0,
+   "likely": 0,
+   "worst": 0
+  },
+  "800": {
+   "name": "Lake Co., IN",
+   "issued": "2026-08-02T12:00:00Z",
+   "current": 105,
+   "likely": 105,
+   "worst": 105
+  }
+ }
+}
