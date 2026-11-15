@@ -22,4 +22,5 @@ exec apptainer exec --cleanenv --bind "$PWD" --pwd "$PWD" \
   --env PY=python3 --env RUN_PY=python3 \
   --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env WORKERS="${SLURM_CPUS_PER_TASK:-8}" \
   --env LANDSCAPE_TILE="${LANDSCAPE_TILE:-256}" --env LANDSCAPE_ATTEMPTS="${LANDSCAPE_ATTEMPTS:-10}" \
+  --env LANDSCAPE_DEM="${LANDSCAPE_DEM:-landfire}" \
   hyak/ignopticon-model.sif python3 scripts/multiday.py task "$SLURM_ARRAY_TASK_ID"
