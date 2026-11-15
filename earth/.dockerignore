@@ -1,0 +1,13 @@
+node_modules
+tile-cache
+# Full-resolution fire-band tiles are gitignored (~600 MB a day); the server enlarges coarser zooms instead.
+public/data/thermal/i4/*/*/8
+public/data/thermal/i4/*/*/9
+public/test
+Dockerfile
+.dockerignore
+*.md
+deploy
+*.pem
+*.key
+.env

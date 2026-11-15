@@ -1,0 +1,306 @@
+{
+ "frozen_by": "scripts/where_skill.py manifest, before any ranking or skill was computed",
+ "issue": "2026-08-02T12:00",
+ "horizon_h": 12,
+ "primary": [
+  {
+   "fire": "map20260802-20036",
+   "run": "data/demo_pull/runs/map20260802-20036/runs/physics3/adj1/outputs",
+   "source": "demo_pull adj1",
+   "observed_cells": 70,
+   "candidate_cells": 24968,
+   "cell_m": 37.5,
+   "heldout_control_run": "data/edge_causal/front_weighted/heldout/map20260802-20036/control/outputs"
+  },
+  {
+   "fire": "map20260802-62041",
+   "run": "data/perimeter_batch/aug2_local/map20260802-62041/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 4111,
+   "candidate_cells": 199460,
+   "cell_m": 37.5,
+   "heldout_control_run": "data/edge_causal/front_weighted/heldout/map20260802-62041/control/outputs"
+  },
+  {
+   "fire": "map20260802-63374",
+   "run": "data/perimeter_batch/aug2_local/map20260802-63374/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 3045,
+   "candidate_cells": 841102,
+   "cell_m": 75.0
+  },
+  {
+   "fire": "map20260802-63683",
+   "run": "data/perimeter_batch/aug2_local/map20260802-63683/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 3967,
+   "candidate_cells": 118162,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-63962",
+   "run": "data/perimeter_batch/aug2_local/map20260802-63962/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 622,
+   "candidate_cells": 19320,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-63969",
+   "run": "data/perimeter_batch/aug2_local/map20260802-63969/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 92,
+   "candidate_cells": 6064,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-65080",
+   "run": "data/demo_pull/runs/map20260802-65080/runs/physics3/adj1/outputs",
+   "source": "demo_pull adj1",
+   "observed_cells": 2969,
+   "candidate_cells": 69148,
+   "cell_m": 37.5,
+   "heldout_control_run": "data/edge_causal/front_weighted/heldout/map20260802-65080/control/outputs"
+  },
+  {
+   "fire": "map20260802-65258",
+   "run": "data/perimeter_batch/aug2_local/map20260802-65258/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 218,
+   "candidate_cells": 5499,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-65395",
+   "run": "data/perimeter_batch/aug2_local/map20260802-65395/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 1908,
+   "candidate_cells": 343220,
+   "cell_m": 75.0,
+   "heldout_control_run": "data/edge_causal/front_weighted/heldout/map20260802-65395/control/outputs"
+  },
+  {
+   "fire": "map20260802-65401",
+   "run": "data/perimeter_batch/aug2_local/map20260802-65401/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 283,
+   "candidate_cells": 31680,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-65486",
+   "run": "data/perimeter_batch/aug2_local/map20260802-65486/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 8993,
+   "candidate_cells": 245594,
+   "cell_m": 75.0
+  },
+  {
+   "fire": "map20260802-65489",
+   "run": "data/perimeter_batch/aug2_local/map20260802-65489/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 2968,
+   "candidate_cells": 131367,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-65718",
+   "run": "data/perimeter_batch/aug2_local/map20260802-65718/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 42,
+   "candidate_cells": 472,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-65726",
+   "run": "data/perimeter_batch/aug2_local/map20260802-65726/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 15,
+   "candidate_cells": 12137,
+   "cell_m": 75.0
+  },
+  {
+   "fire": "map20260802-65995",
+   "run": "data/perimeter_batch/aug2_local/map20260802-65995/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 492,
+   "candidate_cells": 9055,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-66055",
+   "run": "data/perimeter_batch/aug2_local/map20260802-66055/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 3598,
+   "candidate_cells": 123238,
+   "cell_m": 37.5,
+   "heldout_control_run": "data/edge_causal/front_weighted/heldout/map20260802-66055/control/outputs"
+  },
+  {
+   "fire": "map20260802-66433",
+   "run": "data/perimeter_batch/aug2_local/map20260802-66433/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 25590,
+   "candidate_cells": 542513,
+   "cell_m": 37.5,
+   "heldout_control_run": "data/edge_causal/front_weighted/heldout/map20260802-66433/control/outputs"
+  },
+  {
+   "fire": "map20260802-66555",
+   "run": "data/perimeter_batch/aug2_local/map20260802-66555/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 6494,
+   "candidate_cells": 294947,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-66737",
+   "run": "data/perimeter_batch/aug2_local/map20260802-66737/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 290,
+   "candidate_cells": 4074,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-67569",
+   "run": "data/perimeter_batch/aug2_local/map20260802-67569/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 7123,
+   "candidate_cells": 111207,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-67572",
+   "run": "data/perimeter_batch/aug2_local/map20260802-67572/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 2421,
+   "candidate_cells": 61109,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-67614",
+   "run": "data/perimeter_batch/aug2_local/map20260802-67614/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 931,
+   "candidate_cells": 7655,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-67765",
+   "run": "data/perimeter_batch/aug2_local/map20260802-67765/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 213,
+   "candidate_cells": 3540,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-67766",
+   "run": "data/perimeter_batch/aug2_local/map20260802-67766/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 27,
+   "candidate_cells": 2061,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-67815",
+   "run": "data/perimeter_batch/aug2_local/map20260802-67815/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 6514,
+   "candidate_cells": 159581,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-67816",
+   "run": "data/perimeter_batch/aug2_local/map20260802-67816/adj1/outputs",
+   "source": "aug2_local adj1",
+   "observed_cells": 3100,
+   "candidate_cells": 37979,
+   "cell_m": 37.5
+  }
+ ],
+ "dev": [
+  {
+   "fire": "2020-008",
+   "run": "data/edge_causal/front_weighted/dev/2020-008/control/outputs",
+   "source": "dev control",
+   "observed_cells": 18763,
+   "candidate_cells": 316009,
+   "cell_m": 75.0
+  },
+  {
+   "fire": "2021-031",
+   "run": "data/edge_causal/front_weighted/dev/2021-031/control/outputs",
+   "source": "dev control",
+   "observed_cells": 59482,
+   "candidate_cells": 581877,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "2021-038",
+   "run": "data/edge_causal/front_weighted/dev/2021-038/control/outputs",
+   "source": "dev control",
+   "observed_cells": 43351,
+   "candidate_cells": 440381,
+   "cell_m": 37.5
+  },
+  {
+   "fire": "map20260802-66510",
+   "run": "data/demo_pull/runs/map20260802-66510/runs/physics3/adj1/outputs",
+   "source": "demo_pull adj1",
+   "observed_cells": 47193,
+   "candidate_cells": 1000371,
+   "cell_m": 37.5
+  }
+ ],
+ "excluded": {
+  "map20260802-11887": "containment status unmatched",
+  "map20260802-18872": "containment status unmatched",
+  "map20260802-19": "containment status unmatched",
+  "map20260802-20957": "containment status unmatched",
+  "map20260802-2143": "containment status unmatched",
+  "map20260802-31094": "containment status unmatched",
+  "map20260802-331": "containment status unmatched",
+  "map20260802-340": "containment status unmatched",
+  "map20260802-48632": "containment status contained",
+  "map20260802-49109": "containment status unmatched",
+  "map20260802-51849": "containment status unmatched",
+  "map20260802-52611": "containment status unmatched",
+  "map20260802-53095": "containment status unmatched",
+  "map20260802-53363": "containment status unmatched",
+  "map20260802-53763": "containment status unmatched",
+  "map20260802-5450": "no observed burnable growth in domain at +12 h",
+  "map20260802-57204": "containment status unmatched",
+  "map20260802-57585": "containment status unmatched",
+  "map20260802-58056": "containment status unmatched",
+  "map20260802-60791": "containment status unmatched",
+  "map20260802-61855": "prepare failed: /home/elinzi/Coding/ignopticon/data/training/fires/map20260802-61855/landscape.tif: No such file or directory",
+  "map20260802-62590": "containment status contained",
+  "map20260802-62944": "containment status unmatched",
+  "map20260802-63215": "containment status unmatched",
+  "map20260802-63363": "containment status unmatched",
+  "map20260802-63369": "prepare failed: /home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63369/landscape.tif: No such file or directory",
+  "map20260802-63372": "no exact +12 h FEDS perimeter or none at/before issue",
+  "map20260802-63568": "prepare failed: /home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63568/landscape.tif: No such file or directory",
+  "map20260802-63588": "prepare failed: /home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63588/landscape.tif: No such file or directory",
+  "map20260802-63715": "prepare failed: /home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63715/landscape.tif: No such file or directory",
+  "map20260802-63960": "no exact +12 h FEDS perimeter or none at/before issue",
+  "map20260802-64600": "containment status unmatched",
+  "map20260802-64816": "containment status unmatched",
+  "map20260802-65680": "no exact +12 h FEDS perimeter or none at/before issue",
+  "map20260802-65682": "no observed burnable growth in domain at +12 h",
+  "map20260802-65727": "no observed burnable growth in domain at +12 h",
+  "map20260802-66204": "no observed burnable growth in domain at +12 h",
+  "map20260802-66244": "no exact +12 h FEDS perimeter or none at/before issue",
+  "map20260802-66834": "containment status unmatched",
+  "map20260802-67083": "no observed burnable growth in domain at +12 h",
+  "map20260802-67149": "containment status unmatched",
+  "map20260802-67447": "containment status unmatched",
+  "map20260802-67610": "no exact +12 h FEDS perimeter or none at/before issue",
+  "map20260802-67616": "containment status unmatched",
+  "map20260802-67758": "no observed burnable growth in domain at +12 h",
+  "map20260802-67885": "no exact +12 h FEDS perimeter or none at/before issue",
+  "map20260802-68001": "containment status unmatched",
+  "map20260802-68021": "containment status unmatched",
+  "map20260802-800": "containment status unmatched"
+ }
+}

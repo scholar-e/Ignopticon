@@ -1,0 +1,25 @@
+{
+ "2021-038": {
+  "day": "2021-06-26",
+  "history_equal": true,
+  "weather_equal": true,
+  "clear_equal": true
+ },
+ "2021-031": {
+  "day": "2021-07-08",
+  "history_equal": true,
+  "weather_equal": true,
+  "clear_equal": true
+ },
+ "2020-008": {
+  "day": "2020-08-18",
+  "history_equal": true,
+  "weather_equal": true,
+  "clear_equal": true
+ },
+ "2026-08-01": {
+  "fire_cells": 198,
+  "clear_cells": 145573,
+  "weather_finite_fraction": 0.5522946544980444
+ }
+}

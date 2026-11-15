@@ -48,6 +48,27 @@ hyakusage
 hyak/sync.sh pull [PATH ...]
 ```
 
+## Training (U-Net, docs/COMPARISON.md model 2)
+
+`hyak/train_unet.slurm` runs `scripts/unet_train.py train ARM` in `hyak/torch.sif`, one H200 per arm (array task i = raw-pre, harm-pre, raw-all, harm-all, viirs-only). The container is the stock PyTorch image; the script needs only torch and numpy, so nothing is installed on top:
+
+```
+# Tillicum, once (a 30 min job, ~$0.10 used): pull in /tmp on a compute node, keep the .sif in the project
+sbatch -A stf -p gpu-h200 --qos=normal --gres=gpu:1 --cpus-per-task=8 --mem=32G --time=00:30:00 -J pull-torch \
+  -o hyak/logs/pull-torch-%j.out --wrap 'd=$PWD; export APPTAINER_CACHEDIR=/tmp/$USER-apptainer APPTAINER_TMPDIR=/tmp/$USER-apptainer;
+  mkdir -p $APPTAINER_TMPDIR && cd /tmp && apptainer pull /tmp/$USER-torch.sif docker://pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime &&
+  cp /tmp/$USER-torch.sif $d/hyak/torch.sif; rm -rf /tmp/$USER-torch.sif $APPTAINER_TMPDIR'
+# here: send the tensors and the code
+rsync -aR -e "ssh -o ControlPath=$HOME/.ssh/cm-%r@%h:%p -o BatchMode=yes" data/compare/tensors scripts/unet_train.py \
+  hyak/train_unet.slurm elinzi@tillicum.hyak.uw.edu:/gpfs/projects/stf/elinzi/ignopticon/
+# Tillicum: all arms (or --array=4 for one); prints the cost estimate ($1.80 per arm at the 2 h limit)
+sbatch --array=0-4 hyak/train_unet.slurm
+# here: predictions, models, logs
+rsync -a -e "ssh ..." elinzi@tillicum.hyak.uw.edu:/gpfs/projects/stf/elinzi/ignopticon/data/compare/{preds,models,logs} data/compare/
+```
+
+All training years sit on the GPU as float16 (3.3 GB per year, ~60 GB for the 17-year arms). An arm loads in 1-3 min and trains at ~15 s per 500-step epoch.
+
 ## Tillicum (what we have)
 
 Tillicum is UW's GPU cluster: 24 nodes, each with 8 H200 GPUs, 64 CPUs and ~1.6 TB RAM. Billing is **$0.90 per GPU hour**, and a job's CPUs and memory come with its GPUs (at most 8 CPUs and ~200 GB RAM per GPU). The first 100 GPU hours are free. There's no preemptible tier and no `ckpt` partition. The `normal` QoS allows 24 h, and up to 16 GPUs / 128 CPUs per job. Home is `/gpfs/home/NETID` (10 GB), the project is `/gpfs/projects/GROUP` (1 TB), and scratch is `/gpfs/scrubbed/` (files unread for 60 days are deleted). Log in with `ssh NETID@tillicum.hyak.uw.edu` (password plus Duo). Do transfers on the login nodes. `hyakusage` shows hours and cost. Source: hyak.uw.edu/docs/systems/tillicum, read 2026-11-12.

@@ -1,0 +1,35 @@
+# Runs on the EC2 instance: the app behind Caddy, which gets and renews the HTTPS certificate.
+# deploy.sh copies earth/ to the instance and runs `docker compose up -d --build` here.
+services:
+  app:
+    build: ../..                  # earth/, with its Dockerfile
+    restart: unless-stopped
+    volumes:
+      - tiles:/data               # proxied map tiles, kept across deploys
+      # Daily MODIS/VIIRS/harmonized layers 2000-2026 (scripts/export_ui.py, ~3 GB), uploaded separately with
+      # rsync to ~/ignopticon-history on the instance (outside earth/, so deploys don't delete them).
+      - /home/ubuntu/ignopticon-history:/app/public/data/history:ro
+    environment:
+      ORS_API_KEY: ${ORS_API_KEY:-}  # optional openrouteservice key for long drives (longroute.js)
+    expose:
+      - "8080"
+
+  caddy:
+    image: caddy:2.8
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data          # certificates
+      - caddy_config:/config
+
+volumes:
+  tiles:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,878 @@
+{
+ "date": "2026-08-02",
+ "model": "HRRR CONUS (NOAA, AWS archive)",
+ "res_deg": 0.1,
+ "bounds": [
+  -125.0,
+  24.0,
+  -66.0,
+  50.0
+ ],
+ "scale_ms": 0.25,
+ "frames": [
+  {
+   "time": "0000",
+   "valid": "2026-08-02T00:00Z",
+   "file": "0000-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-01T23Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0015",
+   "valid": "2026-08-02T00:15Z",
+   "file": "0015-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-01T23Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0030",
+   "valid": "2026-08-02T00:30Z",
+   "file": "0030-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-01T23Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0045",
+   "valid": "2026-08-02T00:45Z",
+   "file": "0045-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-01T23Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0100",
+   "valid": "2026-08-02T01:00Z",
+   "file": "0100-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T00Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0115",
+   "valid": "2026-08-02T01:15Z",
+   "file": "0115-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T00Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0130",
+   "valid": "2026-08-02T01:30Z",
+   "file": "0130-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T00Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0145",
+   "valid": "2026-08-02T01:45Z",
+   "file": "0145-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T00Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0200",
+   "valid": "2026-08-02T02:00Z",
+   "file": "0200-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T01Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0215",
+   "valid": "2026-08-02T02:15Z",
+   "file": "0215-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T01Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0230",
+   "valid": "2026-08-02T02:30Z",
+   "file": "0230-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T01Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0245",
+   "valid": "2026-08-02T02:45Z",
+   "file": "0245-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T01Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0300",
+   "valid": "2026-08-02T03:00Z",
+   "file": "0300-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T02Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0315",
+   "valid": "2026-08-02T03:15Z",
+   "file": "0315-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T02Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0330",
+   "valid": "2026-08-02T03:30Z",
+   "file": "0330-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T02Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0345",
+   "valid": "2026-08-02T03:45Z",
+   "file": "0345-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T02Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0400",
+   "valid": "2026-08-02T04:00Z",
+   "file": "0400-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T03Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0415",
+   "valid": "2026-08-02T04:15Z",
+   "file": "0415-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T03Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0430",
+   "valid": "2026-08-02T04:30Z",
+   "file": "0430-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T03Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0445",
+   "valid": "2026-08-02T04:45Z",
+   "file": "0445-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T03Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0500",
+   "valid": "2026-08-02T05:00Z",
+   "file": "0500-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T04Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0515",
+   "valid": "2026-08-02T05:15Z",
+   "file": "0515-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T04Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0530",
+   "valid": "2026-08-02T05:30Z",
+   "file": "0530-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T04Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0545",
+   "valid": "2026-08-02T05:45Z",
+   "file": "0545-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T04Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0600",
+   "valid": "2026-08-02T06:00Z",
+   "file": "0600-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T05Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0615",
+   "valid": "2026-08-02T06:15Z",
+   "file": "0615-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T05Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0630",
+   "valid": "2026-08-02T06:30Z",
+   "file": "0630-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T05Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0645",
+   "valid": "2026-08-02T06:45Z",
+   "file": "0645-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T05Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0700",
+   "valid": "2026-08-02T07:00Z",
+   "file": "0700-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T06Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0715",
+   "valid": "2026-08-02T07:15Z",
+   "file": "0715-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T06Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0730",
+   "valid": "2026-08-02T07:30Z",
+   "file": "0730-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T06Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0745",
+   "valid": "2026-08-02T07:45Z",
+   "file": "0745-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T06Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0800",
+   "valid": "2026-08-02T08:00Z",
+   "file": "0800-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T07Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0815",
+   "valid": "2026-08-02T08:15Z",
+   "file": "0815-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T07Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0830",
+   "valid": "2026-08-02T08:30Z",
+   "file": "0830-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T07Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0845",
+   "valid": "2026-08-02T08:45Z",
+   "file": "0845-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T07Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0900",
+   "valid": "2026-08-02T09:00Z",
+   "file": "0900-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T08Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0915",
+   "valid": "2026-08-02T09:15Z",
+   "file": "0915-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T08Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0930",
+   "valid": "2026-08-02T09:30Z",
+   "file": "0930-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T08Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "0945",
+   "valid": "2026-08-02T09:45Z",
+   "file": "0945-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T08Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1000",
+   "valid": "2026-08-02T10:00Z",
+   "file": "1000-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T09Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1015",
+   "valid": "2026-08-02T10:15Z",
+   "file": "1015-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T09Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1030",
+   "valid": "2026-08-02T10:30Z",
+   "file": "1030-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T09Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1045",
+   "valid": "2026-08-02T10:45Z",
+   "file": "1045-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T09Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1100",
+   "valid": "2026-08-02T11:00Z",
+   "file": "1100-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T10Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1115",
+   "valid": "2026-08-02T11:15Z",
+   "file": "1115-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T10Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1130",
+   "valid": "2026-08-02T11:30Z",
+   "file": "1130-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T10Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1145",
+   "valid": "2026-08-02T11:45Z",
+   "file": "1145-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T10Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1200",
+   "valid": "2026-08-02T12:00Z",
+   "file": "1200-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T11Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1215",
+   "valid": "2026-08-02T12:15Z",
+   "file": "1215-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T11Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1230",
+   "valid": "2026-08-02T12:30Z",
+   "file": "1230-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T11Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1245",
+   "valid": "2026-08-02T12:45Z",
+   "file": "1245-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T11Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1300",
+   "valid": "2026-08-02T13:00Z",
+   "file": "1300-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T12Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1315",
+   "valid": "2026-08-02T13:15Z",
+   "file": "1315-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T12Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1330",
+   "valid": "2026-08-02T13:30Z",
+   "file": "1330-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T12Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1345",
+   "valid": "2026-08-02T13:45Z",
+   "file": "1345-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T12Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1400",
+   "valid": "2026-08-02T14:00Z",
+   "file": "1400-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T13Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1415",
+   "valid": "2026-08-02T14:15Z",
+   "file": "1415-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T13Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1430",
+   "valid": "2026-08-02T14:30Z",
+   "file": "1430-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T13Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1445",
+   "valid": "2026-08-02T14:45Z",
+   "file": "1445-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T13Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1500",
+   "valid": "2026-08-02T15:00Z",
+   "file": "1500-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T14Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1515",
+   "valid": "2026-08-02T15:15Z",
+   "file": "1515-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T14Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1530",
+   "valid": "2026-08-02T15:30Z",
+   "file": "1530-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T14Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1545",
+   "valid": "2026-08-02T15:45Z",
+   "file": "1545-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T14Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1600",
+   "valid": "2026-08-02T16:00Z",
+   "file": "1600-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T15Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1615",
+   "valid": "2026-08-02T16:15Z",
+   "file": "1615-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T15Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1630",
+   "valid": "2026-08-02T16:30Z",
+   "file": "1630-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T15Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1645",
+   "valid": "2026-08-02T16:45Z",
+   "file": "1645-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T15Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1700",
+   "valid": "2026-08-02T17:00Z",
+   "file": "1700-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T16Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1715",
+   "valid": "2026-08-02T17:15Z",
+   "file": "1715-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T16Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1730",
+   "valid": "2026-08-02T17:30Z",
+   "file": "1730-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T16Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1745",
+   "valid": "2026-08-02T17:45Z",
+   "file": "1745-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T16Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1800",
+   "valid": "2026-08-02T18:00Z",
+   "file": "1800-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T17Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1815",
+   "valid": "2026-08-02T18:15Z",
+   "file": "1815-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T17Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1830",
+   "valid": "2026-08-02T18:30Z",
+   "file": "1830-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T17Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1845",
+   "valid": "2026-08-02T18:45Z",
+   "file": "1845-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T17Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1900",
+   "valid": "2026-08-02T19:00Z",
+   "file": "1900-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T18Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1915",
+   "valid": "2026-08-02T19:15Z",
+   "file": "1915-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T18Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1930",
+   "valid": "2026-08-02T19:30Z",
+   "file": "1930-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T18Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "1945",
+   "valid": "2026-08-02T19:45Z",
+   "file": "1945-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T18Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2000",
+   "valid": "2026-08-02T20:00Z",
+   "file": "2000-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T19Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2015",
+   "valid": "2026-08-02T20:15Z",
+   "file": "2015-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T19Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2030",
+   "valid": "2026-08-02T20:30Z",
+   "file": "2030-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T19Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2045",
+   "valid": "2026-08-02T20:45Z",
+   "file": "2045-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T19Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2100",
+   "valid": "2026-08-02T21:00Z",
+   "file": "2100-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T20Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2115",
+   "valid": "2026-08-02T21:15Z",
+   "file": "2115-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T20Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2130",
+   "valid": "2026-08-02T21:30Z",
+   "file": "2130-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T20Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2145",
+   "valid": "2026-08-02T21:45Z",
+   "file": "2145-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T20Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2200",
+   "valid": "2026-08-02T22:00Z",
+   "file": "2200-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T21Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2215",
+   "valid": "2026-08-02T22:15Z",
+   "file": "2215-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T21Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2230",
+   "valid": "2026-08-02T22:30Z",
+   "file": "2230-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T21Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2245",
+   "valid": "2026-08-02T22:45Z",
+   "file": "2245-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T21Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2300",
+   "valid": "2026-08-02T23:00Z",
+   "file": "2300-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T22Z",
+   "lead_min": 60,
+   "wanted_lead_min": 60,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2315",
+   "valid": "2026-08-02T23:15Z",
+   "file": "2315-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T22Z",
+   "lead_min": 75,
+   "wanted_lead_min": 75,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2330",
+   "valid": "2026-08-02T23:30Z",
+   "file": "2330-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T22Z",
+   "lead_min": 90,
+   "wanted_lead_min": 90,
+   "source": "wrfsubhf"
+  },
+  {
+   "time": "2345",
+   "valid": "2026-08-02T23:45Z",
+   "file": "2345-wind-surface-level-hrrr-0.1.json",
+   "run": "2026-08-02T22Z",
+   "lead_min": 105,
+   "wanted_lead_min": 105,
+   "source": "wrfsubhf"
+  }
+ ]
+}

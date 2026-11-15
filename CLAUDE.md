@@ -8,6 +8,7 @@ Wildfire spread forecasting (ELMFIRE + VIIRS updates) shown on a fork of cambecc
 | Background research (from an earlier ChatGPT thread) | [research/](research/) |
 | What changed in the modelling science, and the evidence | [MODELLING_LOG.md](MODELLING_LOG.md) |
 | MODIS/VIIRS datasets, formats, UI payloads | [docs/DATASETS.md](docs/DATASETS.md) |
+| Putting the web app online | [docs/DEPLOY.md](docs/DEPLOY.md) |
 
 - Modelling matters more than display.
 - US only for now. Hyak: Tillicum (GPU cluster, billed per GPU-hour) is available ($250 budget, enforced); the 48-hour plan must still run on this machine (RTX 5090, 16 cores). See hyak/README.md.

@@ -4,7 +4,7 @@
 # dependencies = ["numpy", "pyproj", "rasterio", "scipy", "shapely>=2.1"]
 # ///
 """Turn one fire model run into the forecast file earth's ops page reads: the area burned at ISSUE, non-overlapping
-growth bands (0-6 h, 6-12 h, ...), and arrows for the largest predicted advances, as GeoJSON in EPSG:4326.
+growth bands (0-6 h, 6-12 h, ...), the extent at each hour (start + front bands so far, one shape), and arrows for the largest predicted advances, as GeoJSON in EPSG:4326.
 
 A run is ELMFIRE's (or ellipse_spread.py's) time_of_arrival_*.tif: s since ISSUE; nodata, negative, -9999 or
 missing = not burned; 0 = burning at ISSUE (ELMFIRE's ignition). The area burned at ISSUE is the state's cells
@@ -22,6 +22,7 @@ Usage: forecast_to_geojson.py RUN_DIR STATE.tif ISSUE FIRE_ID "FIRE NAME" "MODEL
                 2026-08-02T12:00 66510 "Widemouth 2" "Wind ellipse baseline (head spread 0.02 m/s, GFS 10 m wind) \
                 — not ELMFIRE" earth/public/data/forecasts 6,12,24 \
                 --perimeter earth/public/data/fires/feds/2026/08/02-1200.json
+       forecast_to_geojson.py --add-extents FORECAST.json...   (adds the per-hour "extent" features to older files)
 Writes OUT_DIR/FIRE_ID/YYYY-MM-DDTHHMM.json and adds (or replaces) its entry in OUT_DIR/index.json.
 """
 import datetime
@@ -94,6 +95,15 @@ def main(run_dir, state_tif, issue, fire_id, name, model, out_dir, hours="6,12,2
         start = np.zeros(toa.shape, np.uint8)
         reproject(before, start, src_transform=src.transform, src_crs=src.crs, dst_transform=transform,
                   dst_crs=crs, resampling=Resampling.nearest)
+    # Runs built with OBSERVED reconstruct their initial footprint from data
+    # available at issue. The interpolated state raster can use later snapshots.
+    provenance = None
+    metadata_path = os.path.join(run_dir, "run.json")
+    if os.path.exists(metadata_path):
+        metadata = json.load(open(metadata_path))
+        if any(v.startswith("OBSERVED=") for v in metadata.get("overrides", [])):
+            from elmfire_perimeters import known_start
+            start, provenance = known_start(metadata, toa.shape, transform, crs)
     start = start.astype(bool) | (valid & (toa <= 0))
 
     taken = valid & (toa <= hours[-1] * 3600) | start
@@ -204,6 +214,7 @@ def main(run_dir, state_tif, issue, fire_id, name, model, out_dir, hours="6,12,2
         log.info("arrow: %s region %.0f acres, head %.5f %.5f, %.0f m (path %.0f m) toward %.0f°, %.1f h, %.1f ch/h",
                  WHERE[where[k + 1]], sizes[k], hx, hy, d, path_m, bearing, t_h, d / CHAIN_M / t_h if t_h > 0 else float("nan"))
 
+    features += extents(features, hours)
     issued = issue_t.strftime("%Y-%m-%dT%H:%M:%SZ")
     rel = "%d/%s.json" % (fire_id, issue_t.strftime("%Y-%m-%dT%H%M"))
     run_json = os.path.join(run_dir, "run.json")
@@ -211,7 +222,9 @@ def main(run_dir, state_tif, issue, fire_id, name, model, out_dir, hours="6,12,2
     doc = {"type": "FeatureCollection", "fire": {"id": fire_id, "name": name}, "issued": issued, "model": model,
            "hours": [h if h != int(h) else int(h) for h in hours],
            "source": ("scripts/ellipse_spread.py" if ellipse else "ELMFIRE") + " -> scripts/forecast_to_geojson.py",
-           "perimeter_time": perimeter_time, "summary": summary, "features": features}
+           "perimeter_time": perimeter_time, "summary": summary, "features": features,
+           "initial_state_provenance": provenance,
+           "grid_resolution_m": [abs(transform.a), abs(transform.e)]}
     out = os.path.join(out_dir, rel)
     os.makedirs(os.path.dirname(out), exist_ok=True)
     json.dump(doc, open(out, "w", encoding="utf-8"), separators=(",", ":"), ensure_ascii=False)
@@ -236,7 +249,28 @@ def main(run_dir, state_tif, issue, fire_id, name, model, out_dir, hours="6,12,2
                     100 * (drawn / props["acres"] - 1))
 
 
+def extents(features, hours):
+    """The fire's predicted extent at each hour: start area plus front bands up to it, dissolved into one shape."""
+    out = []
+    for h in hours:
+        parts = [f for f in features if f["properties"]["kind"] == "start" or
+                 (f["properties"]["kind"] == "band" and f["properties"]["where"] == "front" and f["properties"]["hours"] <= h)]
+        g = shapely.make_valid(shapely.union_all([shape(f["geometry"]) for f in parts], grid_size=1e-5))
+        polys = [shapely.geometry.polygon.orient(q, 1.0) for q in getattr(g, "geoms", [g]) if q.geom_type == "Polygon" and not q.is_empty]
+        out.append({"type": "Feature", "properties": {"kind": "extent", "hours": num(h), "acres": sum(f["properties"]["acres"] for f in parts)},
+                    "geometry": mapping(MultiPolygon(polys))})
+    return out
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args[:1] == ["--add-extents"]:  # older forecast files: add the extents in place
+        for path in args[1:]:
+            doc = json.load(open(path, encoding="utf-8"))
+            doc["features"] = [f for f in doc["features"] if f["properties"]["kind"] != "extent"]
+            doc["features"] += extents(doc["features"], doc["hours"])
+            json.dump(doc, open(path, "w", encoding="utf-8"), separators=(",", ":"), ensure_ascii=False)
+            log.info("added extents to %s", path)
+        sys.exit()
     perimeter = args.pop(args.index("--perimeter") + 1) if "--perimeter" in args else None
     main(*[a for a in args if a != "--perimeter"][:8], perimeter=perimeter)

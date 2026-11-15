@@ -1,0 +1,4 @@
+# 15-minute frames stay local (about 400 KB each); whole-hour frames are committed.
+**/??15-wind-*.json
+**/??30-wind-*.json
+**/??45-wind-*.json

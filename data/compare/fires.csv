@@ -1,0 +1,15 @@
+id,name,name_confidence,region,fuel_group,west,south,east,north,start,end,fire_celldays
+2021-001,Dixie Fire,high,California,timber-understory,-121.6,39.8,-120.2,40.7,2021-07-14,2021-09-17,851
+2021-004,Caldor Fire,high,California,timber-understory,-120.7,38.5,-119.9,38.9,2021-08-15,2021-09-27,227
+2021-008,KNP Complex,high,California,timber-litter,-119.0,36.4,-118.6,36.8,2021-09-10,2021-10-07,173
+2021-009,Bootleg Fire,high,Northwest,grass-shrub,-121.5,42.4,-120.7,42.9,2021-07-06,2021-07-30,167
+2021-003,Cedar Creek Fire,medium,Northwest,timber-understory,-120.7,48.4,-120.0,48.8,2021-07-11,2021-08-18,227
+2023-001,Smith River and SRF Lightning Complexes,medium,California,timber-understory,-124.1,41.2,-122.9,42.1,2023-08-15,2023-09-01,265
+2022-001,Hermits Peak / Calf Canyon Fire,high,Southwest,grass-shrub,-105.7,35.5,-105.2,36.2,2022-04-22,2022-06-16,259
+2022-002,Black Fire,high,Southwest,grass,-108.1,32.9,-107.6,33.5,2022-05-14,2022-06-16,216
+2021-015,Telegraph Fire,high,Southwest,grass-shrub,-111.3,33.1,-110.5,33.4,2021-06-01,2021-06-20,104
+2024-001,Boise NF fires (Paddy Flat area),low,Northern Rockies,timber-understory,-116.3,43.9,-115.5,44.9,2024-07-29,2024-09-11,304
+2024-005,Elk Fire (Bighorn NF),medium,Northern Rockies,grass,-107.7,44.6,-107.0,45.0,2024-09-27,2024-10-16,96
+2024-006,Fish Creek Fire,low,Rocky Mountain,timber-understory,-110.3,43.4,-109.9,43.7,2024-09-27,2024-10-16,91
+2021-021,Boundary Waters fires (BWCA),low,East,timber-understory,-92.0,48.2,-91.3,48.5,2021-08-15,2021-08-26,79
+2024-010,Smokehouse Creek Fire,high,Plains,grass,-101.9,35.3,-100.1,36.1,2024-02-24,2024-03-02,64

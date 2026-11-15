@@ -1,0 +1,10 @@
+arm,subset,train_rows,train_events,val_rows,modis_rows
+harm,all,9009,491,934,3875
+harm,unc80,5388,342,745,2017
+harm,unc50,4518,339,636,1613
+raw,all,10268,573,934,5134
+raw,unc80,6065,390,745,2694
+raw,unc50,5138,383,636,2233
+viirs-only,all,5134,263,934,0
+viirs-only,unc80,3371,188,745,0
+viirs-only,unc50,2905,188,636,0

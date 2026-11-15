@@ -1,0 +1,418 @@
+{
+ "purpose": "frozen burn-scar choice before any held-out run; development fires only, harm arm",
+ "dev_fires": [
+  "2021-038",
+  "2021-031",
+  "2020-008",
+  "map20260802-66510"
+ ],
+ "issue_dates": [
+  "2020-08-19",
+  "2021-06-27",
+  "2021-07-09",
+  "2026-08-02"
+ ],
+ "rule": "(dev only, harm arm): highest mean growth IoU over the 4 dev fires; combos within 0.002 of the best\nare ties, broken toward the smaller perturbation (larger m, then smaller N). If no combo beats control's mean growth\nIoU by more than 0.002 the rule still freezes the tie-break choice, and the manifest says so (no_dev_benefit).",
+ "grid": {
+  "control": {
+   "mean_growth_iou": 0.0664416504670921,
+   "mean_iou": 0.6593035492339034,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07933712383857995,
+     "iou": 0.7028948250810327,
+     "area_ratio": 0.19948525898870345,
+     "false_growth_fraction": 0.5580191594561187
+    },
+    "2020-008": {
+     "growth_iou": 0.060472618346603856,
+     "iou": 0.5153078429400524,
+     "area_ratio": 3.395500610176686,
+     "false_growth_fraction": 0.9261817329478865
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    null,
+    null,
+    null,
+    null
+   ],
+   "own_excluded_cells": [
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  "N1_m0.0": {
+   "mean_growth_iou": 0.06782655441512163,
+   "mean_iou": 0.664494635420574,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07994409503843466,
+     "iou": 0.704654550343993,
+     "area_ratio": 0.19083945936782407,
+     "false_growth_fraction": 0.5380763950577404
+    },
+    "2020-008": {
+     "growth_iou": 0.06540526293886724,
+     "iou": 0.534312462423774,
+     "area_ratio": 3.0751313206345836,
+     "false_growth_fraction": 0.9186465828113947
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    243282,
+    483025,
+    250518,
+    61402
+   ],
+   "own_excluded_cells": [
+    648084,
+    337670,
+    277938,
+    137302
+   ]
+  },
+  "N1_m0.3": {
+   "mean_growth_iou": 0.06735219406447115,
+   "mean_iou": 0.6627644815660579,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07980303812300353,
+     "iou": 0.7042203051233125,
+     "area_ratio": 0.19299705642116294,
+     "false_growth_fraction": 0.543160584524475
+    },
+    "2020-008": {
+     "growth_iou": 0.06364887845169649,
+     "iou": 0.5278260922263904,
+     "area_ratio": 3.181567358200244,
+     "false_growth_fraction": 0.9213515000917232
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    243282,
+    483025,
+    250518,
+    61402
+   ],
+   "own_excluded_cells": [
+    648084,
+    337670,
+    277938,
+    137302
+   ]
+  },
+  "N2_m0.0": {
+   "mean_growth_iou": 0.06782655441512163,
+   "mean_iou": 0.664494635420574,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07994409503843466,
+     "iou": 0.704654550343993,
+     "area_ratio": 0.19083945936782407,
+     "false_growth_fraction": 0.5380763950577404
+    },
+    "2020-008": {
+     "growth_iou": 0.06540526293886724,
+     "iou": 0.534312462423774,
+     "area_ratio": 3.0751313206345836,
+     "false_growth_fraction": 0.9186465828113947
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    433332,
+    656531,
+    329025,
+    147798
+   ],
+   "own_excluded_cells": [
+    719980,
+    405158,
+    379898,
+    205974
+   ]
+  },
+  "N2_m0.3": {
+   "mean_growth_iou": 0.06735219406447115,
+   "mean_iou": 0.6627644815660579,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07980303812300353,
+     "iou": 0.7042203051233125,
+     "area_ratio": 0.19299705642116294,
+     "false_growth_fraction": 0.543160584524475
+    },
+    "2020-008": {
+     "growth_iou": 0.06364887845169649,
+     "iou": 0.5278260922263904,
+     "area_ratio": 3.181567358200244,
+     "false_growth_fraction": 0.9213515000917232
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    433332,
+    656531,
+    329025,
+    147798
+   ],
+   "own_excluded_cells": [
+    719980,
+    405158,
+    379898,
+    205974
+   ]
+  },
+  "N3_m0.0": {
+   "mean_growth_iou": 0.06782655441512163,
+   "mean_iou": 0.664494635420574,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07994409503843466,
+     "iou": 0.704654550343993,
+     "area_ratio": 0.19083945936782407,
+     "false_growth_fraction": 0.5380763950577404
+    },
+    "2020-008": {
+     "growth_iou": 0.06540526293886724,
+     "iou": 0.534312462423774,
+     "area_ratio": 3.0751313206345836,
+     "false_growth_fraction": 0.9186465828113947
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    496380,
+    722754,
+    410203,
+    159166
+   ],
+   "own_excluded_cells": [
+    791908,
+    405158,
+    414787,
+    342839
+   ]
+  },
+  "N3_m0.3": {
+   "mean_growth_iou": 0.06735219406447115,
+   "mean_iou": 0.6627644815660579,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07980303812300353,
+     "iou": 0.7042203051233125,
+     "area_ratio": 0.19299705642116294,
+     "false_growth_fraction": 0.543160584524475
+    },
+    "2020-008": {
+     "growth_iou": 0.06364887845169649,
+     "iou": 0.5278260922263904,
+     "area_ratio": 3.181567358200244,
+     "false_growth_fraction": 0.9213515000917232
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    496380,
+    722754,
+    410203,
+    159166
+   ],
+   "own_excluded_cells": [
+    791908,
+    405158,
+    414787,
+    342839
+   ]
+  },
+  "N5_m0.0": {
+   "mean_growth_iou": 0.06782655441512163,
+   "mean_iou": 0.664494635420574,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07994409503843466,
+     "iou": 0.704654550343993,
+     "area_ratio": 0.19083945936782407,
+     "false_growth_fraction": 0.5380763950577404
+    },
+    "2020-008": {
+     "growth_iou": 0.06540526293886724,
+     "iou": 0.534312462423774,
+     "area_ratio": 3.0751313206345836,
+     "false_growth_fraction": 0.9186465828113947
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    738416,
+    962894,
+    509700,
+    245647
+   ],
+   "own_excluded_cells": [
+    791908,
+    405158,
+    414787,
+    479908
+   ]
+  },
+  "N5_m0.3": {
+   "mean_growth_iou": 0.06735219406447115,
+   "mean_iou": 0.6627644815660579,
+   "per_fire": {
+    "2021-038": {
+     "growth_iou": 0.04355474924064377,
+     "iou": 0.717667167558416,
+     "area_ratio": 0.5896491081148982,
+     "false_growth_fraction": 0.8874804715239313
+    },
+    "2021-031": {
+     "growth_iou": 0.07980303812300353,
+     "iou": 0.7042203051233125,
+     "area_ratio": 0.19299705642116294,
+     "false_growth_fraction": 0.543160584524475
+    },
+    "2020-008": {
+     "growth_iou": 0.06364887845169649,
+     "iou": 0.5278260922263904,
+     "area_ratio": 3.181567358200244,
+     "false_growth_fraction": 0.9213515000917232
+    },
+    "map20260802-66510": {
+     "growth_iou": 0.08240211044254082,
+     "iou": 0.7013443613561129,
+     "area_ratio": 1.2869340124835604,
+     "false_growth_fraction": 0.8647158058655593
+    }
+   },
+   "recent_cells": [
+    738416,
+    962894,
+    509700,
+    245647
+   ],
+   "own_excluded_cells": [
+    791908,
+    405158,
+    414787,
+    479908
+   ]
+  }
+ },
+ "ties_with_best": [
+  "N1_m0.0",
+  "N1_m0.3",
+  "N2_m0.0",
+  "N2_m0.3",
+  "N3_m0.0",
+  "N3_m0.3",
+  "N5_m0.0",
+  "N5_m0.3"
+ ],
+ "chosen": "N1_m0.3",
+ "years": 1,
+ "mult": 0.3,
+ "dev_growth_iou_gain_vs_control": 0.0009105435973790488,
+ "no_dev_benefit": true,
+ "heldout_arms": {
+  "harm": "control + BURNSCAR_FILE=rasters/harm_2026-08-02.tif BURNSCAR_YEARS=1 BURNSCAR_MULT=0.3",
+  "raw": "control + BURNSCAR_FILE=rasters/raw_2026-08-02.tif BURNSCAR_YEARS=1 BURNSCAR_MULT=0.3",
+  "viirs_only": "control + BURNSCAR_FILE=rasters/viirs_only_2026-08-02.tif BURNSCAR_YEARS=1 BURNSCAR_MULT=0.3"
+ },
+ "heldout_manifest": "data/edge_causal/front_weighted/manifest.json",
+ "weather_cases": "same landscape, weather, state, observed and PHYSICS overrides as front_weighted held-out control"
+}

@@ -1,0 +1,53 @@
+{
+ "candidates": 1026,
+ "fires": {
+  "map20260802-66433": {
+   "status": "complete",
+   "covered_fuel_cells": 763677
+  },
+  "map20260802-65395": {
+   "status": "complete",
+   "covered_fuel_cells": 183483
+  },
+  "map20260802-65682": {
+   "status": "complete",
+   "covered_fuel_cells": 473706
+  },
+  "map20260802-65080": {
+   "status": "complete",
+   "covered_fuel_cells": 545343
+  },
+  "map20260802-20036": {
+   "status": "complete",
+   "covered_fuel_cells": 0
+  },
+  "map20260802-66055": {
+   "status": "complete",
+   "covered_fuel_cells": 597770
+  },
+  "map20260802-64816": {
+   "status": "complete",
+   "covered_fuel_cells": 0
+  },
+  "map20260802-340": {
+   "status": "complete",
+   "covered_fuel_cells": 0
+  },
+  "map20260802-19": {
+   "status": "complete",
+   "covered_fuel_cells": 0
+  },
+  "map20260802-62041": {
+   "status": "complete",
+   "covered_fuel_cells": 469824
+  },
+  "map20260802-53363": {
+   "status": "complete",
+   "covered_fuel_cells": 525948
+  },
+  "map20260802-53095": {
+   "status": "complete",
+   "covered_fuel_cells": 0
+  }
+ }
+}

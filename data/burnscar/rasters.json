@@ -1,0 +1,156 @@
+{
+ "issues": [
+  "2020-08-19",
+  "2021-06-27",
+  "2021-07-09",
+  "2026-08-02"
+ ],
+ "stats": {
+  "harm_2020-08-19": {
+   "cells_within_1y": 19148,
+   "cells_within_2y": 27397,
+   "cells_within_3y": 35065,
+   "cells_within_5y": 44247,
+   "cells_within_10y": 54836,
+   "cells_within_23y": 59173
+  },
+  "harm_2021-06-27": {
+   "cells_within_1y": 21607,
+   "cells_within_2y": 30034,
+   "cells_within_3y": 35394,
+   "cells_within_5y": 44663,
+   "cells_within_10y": 55954,
+   "cells_within_23y": 60717
+  },
+  "harm_2021-07-09": {
+   "cells_within_1y": 21628,
+   "cells_within_2y": 30049,
+   "cells_within_3y": 35332,
+   "cells_within_5y": 44688,
+   "cells_within_10y": 55998,
+   "cells_within_23y": 60763
+  },
+  "harm_2026-08-02": {
+   "cells_within_1y": 20247,
+   "cells_within_2y": 29671,
+   "cells_within_3y": 35524,
+   "cells_within_5y": 43698,
+   "cells_within_10y": 56192,
+   "cells_within_23y": 66129
+  },
+  "raw_2020-08-19": {
+   "cells_within_1y": 19148,
+   "cells_within_2y": 27397,
+   "cells_within_3y": 35065,
+   "cells_within_5y": 44247,
+   "cells_within_10y": 57733,
+   "cells_within_23y": 70173
+  },
+  "raw_2021-06-27": {
+   "cells_within_1y": 21607,
+   "cells_within_2y": 30034,
+   "cells_within_3y": 35394,
+   "cells_within_5y": 44663,
+   "cells_within_10y": 57103,
+   "cells_within_23y": 70983
+  },
+  "raw_2021-07-09": {
+   "cells_within_1y": 21628,
+   "cells_within_2y": 30049,
+   "cells_within_3y": 35332,
+   "cells_within_5y": 44688,
+   "cells_within_10y": 57063,
+   "cells_within_23y": 71004
+  },
+  "raw_2026-08-02": {
+   "cells_within_1y": 20247,
+   "cells_within_2y": 29671,
+   "cells_within_3y": 35524,
+   "cells_within_5y": 43698,
+   "cells_within_10y": 56192,
+   "cells_within_23y": 73634
+  },
+  "viirs_only_2020-08-19": {
+   "cells_within_1y": 19148,
+   "cells_within_2y": 27397,
+   "cells_within_3y": 35065,
+   "cells_within_5y": 44247,
+   "cells_within_10y": 53601,
+   "cells_within_23y": 53601
+  },
+  "viirs_only_2021-06-27": {
+   "cells_within_1y": 21607,
+   "cells_within_2y": 30034,
+   "cells_within_3y": 35394,
+   "cells_within_5y": 44663,
+   "cells_within_10y": 55575,
+   "cells_within_23y": 55575
+  },
+  "viirs_only_2021-07-09": {
+   "cells_within_1y": 21628,
+   "cells_within_2y": 30049,
+   "cells_within_3y": 35332,
+   "cells_within_5y": 44688,
+   "cells_within_10y": 55642,
+   "cells_within_23y": 55642
+  },
+  "viirs_only_2026-08-02": {
+   "cells_within_1y": 20247,
+   "cells_within_2y": 29671,
+   "cells_within_3y": 35524,
+   "cells_within_5y": 43698,
+   "cells_within_10y": 56192,
+   "cells_within_23y": 62581
+  }
+ },
+ "cells_differing_in_window": {
+  "2020-08-19 N=5 harm vs raw": 0,
+  "2020-08-19 N=5 harm vs viirs_only": 0,
+  "2020-08-19 N=5 raw vs viirs_only": 0,
+  "2020-08-19 N=10 harm vs raw": 2897,
+  "2020-08-19 N=10 harm vs viirs_only": 1235,
+  "2020-08-19 N=10 raw vs viirs_only": 4132,
+  "2020-08-19 N=15 harm vs raw": 9043,
+  "2020-08-19 N=15 harm vs viirs_only": 4461,
+  "2020-08-19 N=15 raw vs viirs_only": 13504,
+  "2020-08-19 N=23 harm vs raw": 11000,
+  "2020-08-19 N=23 harm vs viirs_only": 5572,
+  "2020-08-19 N=23 raw vs viirs_only": 16572,
+  "2021-06-27 N=5 harm vs raw": 0,
+  "2021-06-27 N=5 harm vs viirs_only": 0,
+  "2021-06-27 N=5 raw vs viirs_only": 0,
+  "2021-06-27 N=10 harm vs raw": 1149,
+  "2021-06-27 N=10 harm vs viirs_only": 379,
+  "2021-06-27 N=10 raw vs viirs_only": 1528,
+  "2021-06-27 N=15 harm vs raw": 7625,
+  "2021-06-27 N=15 harm vs viirs_only": 3672,
+  "2021-06-27 N=15 raw vs viirs_only": 11297,
+  "2021-06-27 N=23 harm vs raw": 10266,
+  "2021-06-27 N=23 harm vs viirs_only": 5142,
+  "2021-06-27 N=23 raw vs viirs_only": 15408,
+  "2021-07-09 N=5 harm vs raw": 0,
+  "2021-07-09 N=5 harm vs viirs_only": 0,
+  "2021-07-09 N=5 raw vs viirs_only": 0,
+  "2021-07-09 N=10 harm vs raw": 1065,
+  "2021-07-09 N=10 harm vs viirs_only": 356,
+  "2021-07-09 N=10 raw vs viirs_only": 1421,
+  "2021-07-09 N=15 harm vs raw": 7560,
+  "2021-07-09 N=15 harm vs viirs_only": 3634,
+  "2021-07-09 N=15 raw vs viirs_only": 11194,
+  "2021-07-09 N=23 harm vs raw": 10241,
+  "2021-07-09 N=23 harm vs viirs_only": 5121,
+  "2021-07-09 N=23 raw vs viirs_only": 15362,
+  "2026-08-02 N=5 harm vs raw": 0,
+  "2026-08-02 N=5 harm vs viirs_only": 0,
+  "2026-08-02 N=5 raw vs viirs_only": 0,
+  "2026-08-02 N=10 harm vs raw": 0,
+  "2026-08-02 N=10 harm vs viirs_only": 0,
+  "2026-08-02 N=10 raw vs viirs_only": 0,
+  "2026-08-02 N=15 harm vs raw": 616,
+  "2026-08-02 N=15 harm vs viirs_only": 235,
+  "2026-08-02 N=15 raw vs viirs_only": 851,
+  "2026-08-02 N=23 harm vs raw": 7505,
+  "2026-08-02 N=23 harm vs viirs_only": 3548,
+  "2026-08-02 N=23 raw vs viirs_only": 11053
+ }
+}

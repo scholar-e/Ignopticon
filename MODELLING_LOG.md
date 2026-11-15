@@ -398,3 +398,484 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
 - Verified PNG round trips for all five arms (590×260); 82,757 clear land
   cells and 155 observed fire cells. Metadata records model hashes,
   thresholds, input/target dates, grid and the perfect-weather caveat.
+
+### 12c. Completed U-Net comparison (2026-11-14)
+- All 15 seed runs succeeded; final six were Slurm job 472421, 8m22s–9m24s
+  each. Total recorded Hyak usage $2.25 including earlier setup/pilot jobs.
+- Three-seed averaged predictions evaluated on 2021–2024, clear S-NPP land
+  cell-days (168,343 positives):
+
+| Arm | AP | AUC | CSI at 2020 threshold |
+|---|---|---|---|
+| raw-pre | 0.1343 | 0.9137 | 0.1045 |
+| harm-pre | 0.0939 | 0.8703 | 0.0871 |
+| raw-all | 0.1391 | 0.9181 | 0.1112 |
+| harm-all | 0.1376 | 0.9179 | 0.1098 |
+| viirs-only | 0.1396 | 0.9175 | 0.1123 |
+
+- This experiment does not show a benefit from harmonization. The pre-only
+  harmonized arm scores lower; combined arms and VIIRS-only are close.
+  No significance claim: uncertainty across fires/seeds is not estimated.
+- Full results and 14-fire visual comparisons: data/compare/results/unet.*
+  and data/compare/figures/unet/. Earlier entry 12 caveats apply, especially
+  exploratory test inspection and observed target-day weather.
+
+### 12d. Investigation of harmonized-only degradation (2026-11-14)
+- Saved-model/sample diagnostics, no retraining: harm-pre GBM has one tree
+  (raw-pre 406); on sampled 2020 validation data it emits six probabilities,
+  with 99.8489% of inverse-weighted cells at 0.00144317.
+- Cached 2009 harm fire_0 is fractional on 100% of weighted rows; raw 2009
+  and VIIRS 2020 inputs are binary. Representation mismatch is a leading
+  hypothesis, not yet isolated by a controlled experiment.
+- Found temporal look-ahead: harmonizer next/next3 uses MODIS t+1, so
+  harmonized p(t) training inputs are retrospective. This compromises the
+  interpretation as a causal forecasting comparison despite year holdouts.
+- U-Net label>0.5 positive centres: harm-pre 137,992 vs raw-pre 520,593 over
+  the same 246,752,966 masked cells. Inputs, targets and sampling all change.
+- Detailed evidence and proposed controlled tests: docs/COMPARISON_DIAGNOSIS.md.
+  Keep the current results exploratory; do not conclude harmonization itself
+  is ineffective from these confounded arms.
+
+### 12e. Controlled causal summer pilot started (2026-11-14)
+- scripts/compare_controlled.py isolates inputs: raw MODIS, causal harmonized
+  MODIS, and VIIRS reference; all predict the same binary next-day VIIRS
+  labels on identical sampled rows, with identical weights and downstream
+  training settings. A mismatched harm-model/VIIRS-input diagnostic is added.
+- Harmonizer fitted on 2012–2014 only, dropping next/next3. Uses LightGBM
+  binary loss, 300 trees, rate .03, 31 leaves, L2=50; this is a new diagnostic
+  harmonizer, not the original sklearn model. Predictor train years
+  2015/2017/2019, validation 2020, July–August only with 30-day history.
+  Disjoint stages avoid fitted harmonizer labels leaking into predictor
+  training. No 2021–2024 reads. Confirmed complete calendar alignment for
+  all 21 satellite input files.
+- Population: land with MODIS and VIIRS clear on t, VIIRS clear on t+1.
+  Sampling: keep near-fire/positive rows plus 1% background, weighted ×100;
+  same rows for every arm. Weather t only. No soft predictor labels or
+  arm-specific sampling. Each arm has max 600 trees; early stop on 2020
+  log loss, patience 50, saving validation AP and loss curves.
+- This narrower seasonal/common-clear population and changed harmonizer
+  cannot be directly compared numerically with the earlier national scores.
+  Results isolated under data/compare/controlled; existing models untouched.
+
+### 12f. Controlled summer pilot results (2026-11-14; validation only)
+- Finished locally, no Hyak spend. 1,469,529 shared predictor training rows;
+  505,033 shared validation rows, 6,549 positives. All arms use the same
+  inverse-sampling weights. Future-perturbation test passed: changing MODIS
+  at t+1 does not change selected causal features through t, while the
+  original next feature changes. Existing published models were untouched.
+
+| Inputs | AP | AUC | Log loss | Selected trees |
+|---|---|---|---|---|
+| raw MODIS | 0.1401 | 0.8224 | 0.009747 | 131 |
+| causal harmonized MODIS | 0.1459 | 0.8271 | 0.010314 | 122 |
+| harm model given binary VIIRS | 0.1520 | 0.8099 | 0.010621 | same harm model |
+| VIIRS reference | 0.1617 | 0.8545 | 0.009377 | 165 |
+
+- Harmonization raises AP by 0.00584 (~4.2% relative) and slightly raises
+  AUC, but worsens log loss. No uncertainty estimate or significance claim.
+  Harm no longer collapses. These are validation diagnostics on a narrower
+  population, not comparable directly to the old national test AP.
+- Contrary to the initial leading hypothesis, binary VIIRS input substitution
+  does not lower AP here; it lowers AUC and worsens log loss. Representation
+  mismatch alone is insufficient to explain the original collapse. Soft
+  targets, sampling changes, temporal look-ahead, and fitting choices remain
+  candidate causes; this pilot changed several together and cannot identify
+  the individual cause.
+- Learning curves: validation AP peaks very early (raw round 3, harm round 1,
+  VIIRS round 1), whereas log-loss selection picks rounds 131/122/165.
+  Choice of ranking versus probability-quality objective matters. Preserve
+  current selection rule; do not pick new models from these results silently.
+- Artifacts: data/compare/controlled/results.{json,md} and script
+  scripts/compare_controlled.py. No 2021–2024 evaluation was performed.
+
+### 13. Return to sub-daily ELMFIRE perimeter forecasting (2026-11-14)
+- User prioritized perimeter spread forecasts over coarse daily activity.
+  Re-ran Widemouth Aug 2 12Z for 24 h locally with existing ADJ=.02,
+  LH_MOISTURE_CONTENT=90, observed active edges, LANDFIRE and HRRR forecast
+  weather. New directory perimeter-0802/adj0.02. Arrival times reproduce
+  a3-0802/adj0.02 bit-for-bit; no new tuning or training.
+- New scripts/elmfire_perimeters.py exports cumulative polygons at +0/6/12/24 h
+  on the native 37.5 m grid, retaining disconnected components and holes.
+  Initial footprint is rebuilt from hotspots and the latest FEDS polygon
+  available at issue, not interpolated state arrival times. Fixed the existing
+  growth-band exporter to use that same reconstruction for OBSERVED runs.
+- Cumulative acres: 74,988.76 / 75,336.60 / 75,779.65 / 76,583.05;
+  growth from issue: 0 / 347.84 / 790.89 / 1,594.29. Includes disconnected
+  hotspots; these figures are not just the UI's front-only growth.
+- Checked all polygons valid, nested across horizons, and projected area
+  equal to raster cell count; fresh and old arrival rasters exactly match.
+  Public artifacts: earth/public/data/perimeters/, existing ops growth bands
+  refreshed under earth/public/data/forecasts/.
+- Caveats: deterministic case-study forecast, no uncertainty band; 37.5 m
+  computation is not 37.5 m accuracy. Coarser satellite-derived initialization,
+  large fitted spread reduction, and no suppression model limit interpretation.
+
+### 14. August 2 map-wide Hyak perimeter batch (2026-11-14)
+- User authorized parallel ELMFIRE work on Hyak and confirmed current Aug 2
+  fires first; 342 historical catalog events and older MODIS-era fires later.
+- Scope: 76 distinct FEDS IDs from the 00Z/12Z map snapshots. Fixed 12Z issue,
+  24 h forecasts. Added --issue (no future-based date selection) and explicit
+  FEDS ID matching; use locally archived FEDS snapshots for this batch.
+- New worker scripts/perimeter_batch.py and hyak/perimeter_batch.slurm build
+  inputs, run 10 sensitivity members, score later available perimeters, and
+  export +6/+12/+24 h member-agreement envelopes. Settings and data caveats in
+  data/perimeter_batch/README.md. This is an uncalibrated sensitivity study.
+- Initial detections associated within 3 km of the issue-known FEDS outline;
+  future frames do not influence initialization. No active detections or
+  incomplete/truncated domains are flagged instead of inventing predictions.
+- Corrected shared-granule download race with per-file filesystem locks.
+  Reuse available geolocation for cloud flags; not all fires have cloud masks.
+- Metric tests passed: identical perimeters IoU=1 and boundary error=0;
+  one-cell displacement yields nonzero error <=37.5 m at p95; no-growth
+  versus no-growth has undefined growth IoU rather than fabricated skill.
+- Budget: 76 tasks ×45min ×$0.90/h = $51.30 scheduled ceiling, four tasks
+  concurrently after Widemouth integration check. No automatic retries.
+- Submitted integration 473163_54 and dependent remaining array 473166
+  (`0-53,55-75%4`, afterok:473163). Integration failure cancels the dependent
+  batch. Site banner reports 55 tasks for this disjoint range; actual requested
+  range contains 75. Retain the conservative 76-task $51.30 total ceiling.
+
+### 17. Self-calibration from the fire's recent progression (Widemouth test) (2026-11-14; single case)
+- User-approved idea: correct spread per direction from how the model did over the fire's last 12-24 h.
+  New scripts/selfcal_adj.py: hindcast ELMFIRE (physics3 inputs, ADJ=1, INIT=feds) from the FEDS perimeter at
+  T-24 h, else T-12 h, to T, with HRRR sub-hourly stitched from the hourly runs in the window (f00 + 15/30/45 min
+  leads); compare with observed growth (FEDS perimeters in the window + VIIRS cells, cut at T); per 16 bearing
+  sectors r = (obs p90 advance + 187.5 m)/(model p90 advance + 187.5 m), clamped [0.1, 5], smoothed, blended to
+  the fire-wide median with exp(-d/3 km). elmfire_case.py: ADJ_FILE=path multiplies the spread raster (default
+  off; earlier runs unchanged). Only data available at T is used.
+- Widemouth 66510, T = 2026-08-02 12Z: no FEDS at T-24 h, used T-12 h (00Z, whole-edge start, no recent
+  detections). Hindcast overshot: 42,459 vs 10,211 acres growth (area ratio 4.16), growth IoU 0.157.
+  Sector r 0.13-1.55, median 0.35; >1 only N/NNE and S.
+- +12 h vs FEDS Aug 3 00Z, growth IoU / whole IoU / area ratio / boundary mean m: selfcal 0.057 / 0.799 / 0.25
+  / 715; physics3 adj1 0.082 / 0.701 / 1.29 / 1,071; no growth 0 / 0.814 / 0 / 743.
+- Direction signal did persist (T->T+12 growth was NNE and S, where r > 1; none E/W where r was smallest), but
+  neither forecast's detection-limited start spreads N or S, so a multiplier cannot add that growth; the global
+  shrink trims false E/W growth. Not adopted; not added to the batch; no Hyak run.
+- Caveats: one fire, one issue time; the hindcast start (whole edge) differs from the forecast start (active
+  edges), inflating the overshoot; FEDS/VIIRS 375 m observations; constants (EPS, decay, sectors) untuned.
+  Details: data/perimeter_batch/SELFCAL_NOTES.md.
+
+### 18. Active front calibrated on burning-edge hotspots (4 fires) (2026-11-14)
+- User-approved follow-up to entry 17 (the hindcast's direction was right but the detection-limited start could not
+  grow from the edges that broke out). elmfire_case.py INIT=feds front rules (default unchanged): FRONT_KM=D
+  (detections in the last ACTIVE_HOURS within D km of the edge), FRONT_RFILE+FRONT_R (edge cells with hindcast
+  correction r >= R also burn), FRONT=whole. New scripts/front_calibrate.py: 10 rules (physics3 default d6_375m;
+  H in {6,12,24} h x D in {0.75,1.5} km; d6_0.75 with r >= 0.8 / 1.0; whole edge). Per fire, past only: hindcast
+  each rule T-12 h -> T from the FEDS perimeter at T-12 h with the forecast's start mode, score = CSI vs VIIRS
+  cells in (T-12, T] outside the start perimeter (one 375 m cell tolerance, no cloud mask) + growth IoU vs FEDS T;
+  r-rules use r from a (T-24, T-12] whole-edge hindcast (not eligible without FEDS at T-24 h). Then forecast 12 h.
+- Fires: Widemouth 66510 (UT, 2026-08-02 12Z, physics3 inputs) and pilot fires with FEDS every 12 h and real growth:
+  2021-038 AZ grass/timber, 2021-031 CA shrub, 2020-008 CA grass/shrub (older hourly HRRR inputs, not physics3).
+- Chosen (past-only) / oracle (in-sample): Widemouth d6_375m (tie, every non-d24 rule falls back to whole edge at
+  00Z) / d6_1.5; 2021-038 d6_0.75+r0.8 / d6_1.5; 2021-031 d6_0.75+r1.0 / d6_0.75+r0.8 (equal scores); 2020-008
+  whole / whole.
+- +12 h vs FEDS, mean of 4 fires, growth IoU / whole IoU / area ratio / boundary mean m: chosen 0.115 / 0.658 /
+  1.95 / 2,237; physics3 front 0.066 / 0.659 / 1.37 / 2,270; whole edge 0.140 / 0.629 / 2.53 / 2,340; no growth
+  0 / 0.778 / 0 / 770; oracle (in-sample) 0.145 / 0.663 / 2.08 / 2,245; fixed d6_1.5 0.129 / 0.660. Chosen beats
+  the physics3 front on growth IoU on 3 fires (tie on Widemouth) at equal whole IoU; nothing beats no growth on
+  whole IoU; 2020-008 overshoots (area ratio 3.4-5.4) with any front. Per-fire table: FRONT_NOTES.md.
+- Not adopted as the default yet: a fixed wider front (d6_1.5) does as well as the calibration here.
+- Caveats: 4 fires, one issue time each; few hotspot targets on Widemouth (4 / 29); on 2020-008 they are dominated
+  by a separate complex outside the FEDS polygon; pilot weather differs from physics3; score weights untuned.
+  Details: data/perimeter_batch/FRONT_NOTES.md; figures data/perimeter_batch/figures/front_*.png.
+
+### 19. 2026-11-15 — Direction-aware edge training on Hyak (in progress)
+
+- Continued Claude's edge-advance LightGBM experiment: raw-pre / harm-pre (2003–2011),
+  raw-all / harm-all (plus VIIRS 2012–2019), and VIIRS-only. Validation is 2020;
+  exploratory test is 2021–2024, already inspected in earlier experiments.
+- Preserved original `data/edge` results. New isolated outputs: `data/edge_causal`.
+  Rebuilt harmonized inputs with the existing controlled causal harmonizer fitted on
+  2012–2014, excluding `next` and `next3`. Removed seven next-day observed weather
+  features from all arms; retained day-t weather and historical neighbor features.
+- Retained the original 0.35 harmonized presence threshold, soft training labels,
+  arm-specific candidate selection, LightGBM hyperparameters and 2020 early stopping.
+  These remain experimental choices; this is not an isolated test of harmonization alone.
+- Five arms, seeds 0/1/2, 8 CPU threads each. Hyak job 476136 starts the nine controls;
+  six harmonized runs automatically submit after the rebuilt samples are ready.
+  Each task reserves one H200 allocation but LightGBM uses CPU, not GPU acceleration.
+  30-minute limits give a maximum requested batch cost of $6.75. Live recorded user
+  spend at submission was $12.97 / $250. No perimeter jobs were released.
+- The predictor operates on 0.1-degree edge candidates. Mapping its weights to the
+  ELMFIRE perimeter and checking three perimeter forecasts remain separate validation
+  steps; these classifier scores are not perimeter accuracy or evidence of improvement.
+- Availability caveats: evaluation candidates use next-day clear-sky label masks;
+  day-t daily observed weather supports day-end hindcasts, not demonstrated morning
+  forecasts. Removing look-ahead columns does not remove every observational bias.
+- Update 00:54 PST: all nine controls completed (43–118 seconds, exit 0).
+  Mean test AP over three seeds: raw-pre 0.03873, raw-all 0.04340,
+  VIIRS-only 0.04172. All nine harmonized years rebuilt successfully;
+  six harmonized tasks submitted as job 476177, initially pending priority.
+- Update 00:54 PST: verified harmonized training actually running on Hyak.
+  harm-all loads 5,182,878 training rows; harm-pre loads 2,246,572.
+  First harm-pre seed fitted 108 trees; harm-all passed 400 iterations.
+- Update 01:09 PST: all 15/15 runs and model artifacts verified complete; all
+  six harmonized tasks exited 0. Pulled models and compact results locally.
+  Three-seed mean exploratory test AP: harm-all 0.04407, raw-all 0.04340,
+  VIIRS-only 0.04172, harm-pre 0.03152, raw-pre 0.03873.
+  Harm-all exceeds raw-all by 0.00067 AP; this small classifier difference does
+  not establish a perimeter improvement. Summary: data/edge_causal/comparison.md.
+
+### 20. 2026-11-15 — Recent MODIS corroboration and learned ELMFIRE pilot
+- Started causal MODIS-to-VIIRS corroboration over 2015–2026, using the fixed
+  2012–2014 harmonizer on jointly clear sensor cell-days; support threshold 0.35.
+  Reports both supported VIIRS detections and disagreements. MODIS absence is
+  not grounds to reject VIIRS: lower sensitivity, clouds and overpass timing differ.
+  Harmonized MODIS predicts VIIRS and is not independent ground truth. This daily
+  archive experiment does not yet implement multiple timestamped overpass updates.
+- Started three paired 12-hour ELMFIRE forecasts (2021-038, 2021-031, 2020-008).
+  Three harm-all seeds predict from the previous complete UTC day's VIIRS history
+  and weather, without future clear-sky candidate filtering. Map coarse candidate
+  probabilities onto the fuel grid; spread multiplier p / mean validation CSI
+  threshold clipped to [0.5,2], default 1 outside candidate coverage. This is an
+  experimental transfer rule, not a calibrated fine-resolution spread probability.
+  Existing FEDS initial perimeter and active-front rules remain the starting state.
+  Results under data/edge_causal/elmfire; no forecast improvement claimed yet.
+- Three paired pilots completed: growth IoU control -> weighted: 2021-038
+  0.04355 -> 0.04348; 2021-031 0.07934 -> 0.07537; 2020-008
+  0.06053 -> 0.06802. Whole-perimeter IoU decreased on all three.
+  The transfer rule is not adopted as a default. This integrates spread-rate
+  weighting; learned ignition-segment activation and sequential overpass assimilation
+  remain unimplemented. Summary: data/edge_causal/elmfire/comparison.md.
+- Weather/hotspot audit: edge features already include day-t gridMET wind,
+  VPD/ERC/fm100/precipitation and 30-day daily fire-neighbor history. ELMFIRE
+  already uses forecast wind and 1/10/100-h moisture, with timestamped hotspots
+  in the six hours before issue defining the active edge. Explicit provenance
+  and timing limitations recorded in data/edge_causal/INPUTS.md. Historical edge
+  training is S-NPP only, not an all-three-VIIRS training corpus.
+- Recent corroboration completed for 2025 and available 2026: MODIS supports
+  14,082/49,676 and 11,168/42,987 jointly-clear VIIRS fire cell-days, respectively.
+  2026 is partial-year input. MODIS absence must not veto VIIRS detections.
+- Completed all 2015–2026 corroboration years; per-year counts and summary saved
+  under data/edge_causal/corroboration. All six ELMFIRE cases completed, and
+  weighted case metadata confirms the learned ADJ_FILE was supplied.
+
+### 21. 2026-11-15 — Opt-in learned perimeter activation
+- Implemented FRONT_PFILE + FRONT_PTHRESH for INIT=feds. A one-band probability
+  raster must match landscape shape, transform and CRS; covered values must be
+  finite in [0,1]. Nodata means no model coverage. Within the inner edge band,
+  recent six-hour hotspots always remain active; model probabilities at or above
+  threshold add active cells. Uncovered cells retain baseline selection (including
+  the baseline whole-edge rule when no detections support an edge). If selection
+  is empty, retain and record whole-edge fallback. Outside-perimeter recent
+  hotspots retain the existing initialization behavior.
+- Three harm-all seeds are averaged; fixed threshold is the mean of their existing
+  validation-selected thresholds: 0.049366665383179985. Features use the previous
+  complete UTC day. Coarse 0.1-degree candidate probabilities are copied only to
+  fuel cells whose centres lie within their geographic footprint; no interpolation
+  across gaps or claim of fine-resolution predictive skill. Model identifiers,
+  feature date, thresholds, coverage, hotspot support, model additions and fallback
+  are recorded in each case. Forecast weather and physical settings match control;
+  these runs use ADJ=1 and no learned ADJ_FILE.
+- New paired 12-hour forecasts started for 2021-038, 2021-031 and 2020-008 under
+  data/edge_causal/activation, separate from the completed spread-weighting pilot.
+  Activation remains opt-in; no expansion to other fires or threshold tuning.
+  Recent MODIS corroboration remains a separate diagnostic; sequential pass
+  assimilation is outside this change.
+- Completed all six forecasts and scored against exact +12 h FEDS truth and
+  post-issue hotspots. Results below are selected historical pilot cases, not
+  evidence of generalization; no threshold tuning on these outcomes.
+
+  | Fire | Arm | Growth IoU | Whole IoU | Boundary mean m | Hotspot hits | Active edge % |
+  |---|---|---|---|---|---|---|
+  | 2021-038 | activation | 0.04340 | 0.71700 | 982.3 | 5/7 | 28.51 |
+  | 2021-038 | control | 0.04355 | 0.71767 | 980.8 | 5/7 | 27.19 |
+  | 2021-038 | no_growth | 0.00000 | 0.78423 | 555.1 | 0/7 | 0.00 |
+  | 2021-031 | activation | 0.12675 | 0.71598 | 1086.9 | 46/70 | 73.56 |
+  | 2021-031 | control | 0.07934 | 0.70289 | 1040.0 | 30/70 | 40.76 |
+  | 2021-031 | no_growth | 0.00000 | 0.69946 | 1250.8 | 0/70 | 0.00 |
+  | 2020-008 | activation | 0.10634 | 0.49962 | 5450.5 | 249/264 | 36.31 |
+  | 2020-008 | control | 0.06047 | 0.51531 | 5989.6 | 249/264 | 23.37 |
+  | 2020-008 | no_growth | 0.00000 | 0.81334 | 531.3 | 0/264 | 0.00 |
+
+- Edge model coverage / hotspot-supported / model-added cells:
+  2021-038: 107 (1.71%) / 1703 / 83; whole-edge fallback False.
+  2021-031: 2156 (57.40%) / 1531 / 1232; whole-edge fallback False.
+  2020-008: 920 (20.21%) / 1064 / 589; whole-edge fallback False.
+- Growth IoU improved on two fires; whole-perimeter and boundary outcomes are
+  mixed. No-growth has substantially better whole IoU on 2021-038 and 2020-008.
+  Keep activation experimental and opt-in. The repeated 2020-008 control growth
+  IoU is 0.06047 versus 0.06053 in the prior spread pilot; control inputs and
+  physical overrides are unchanged, so this small run variation is retained,
+  not substituted with the old result.
+- Verification: behavioral tests pass for high-probability activation, hotspot
+  protection, nodata baseline preservation (including the no-hotspot whole-edge
+  rule), empty-selection fallback, outside-perimeter hotspot preservation,
+  shape/transform/CRS/band-count rejection, invalid probabilities, changed initial
+  phi with identical spread multipliers. All three forecast pairs have identical
+  weather, physical overrides, issue time and duration except the two opt-in
+  activation arguments. Python compilation and diff whitespace checks pass.
+- Reproduce: `uv run tests/test_front_probability.py`,
+  `uv run scripts/edge_elmfire.py`, then
+  `uv run scripts/edge_pilot_score.py data/edge_causal/activation`.
+  Full scores and comparison: data/edge_causal/activation/{scores.json,comparison.md}.
+
+### 22. 2026-11-15 — Weighted learned front, held-out test, outward-band ADJ
+- **Weighted front (FRONT_PMODE=weighted).** Covered inner-edge cells without
+  recent hotspot support start burning if p > 0 with spread multiplier
+  max(p, 0.01) after all other ADJ terms; hotspot-supported, uncovered and
+  outside-heat cells x1; p = 0 not ignited (ELMFIRE resets adj < 0 to 1 and
+  never tags/spreads adj = 0, so no zero multiplier is emitted). Level-set
+  limitation: ELMFIRE advances phi into an unburned cell at that cell's own
+  speed, so a multiplier on cells already burning at t=0 barely acts; weighted
+  == binary_pos (same ignitions, x1) to <= 0.0001 growth IoU on dev. Weighted is
+  in effect "activate every covered edge cell with p > 0".
+- **Outward band (ADJ_BAND_PFILE + ADJ_BAND_M + ADJ_BAND_PREF, user-approved).**
+  Unburned, model-covered cells outside the start FEDS perimeter whose centre
+  is within B m of a perimeter cell centre get clip(p / p_ref, 0.25, 2); all
+  else x1; start front = control's. Frozen in manifest.json band_variant before
+  any band run: B in {750, 2000} m, p_ref = 0.049366665 (mean validation
+  threshold), floor 0.25, cap 2. Same landscapes, HRRR weather, probability
+  rasters and physics as the held-out/dev runs. Tests cover emitted adj
+  (cap, floor, p/p_ref, uncovered, burning, corner outside band, interior,
+  composition with ADJ/ADJ_FILE, unchanged phi/weather/namelist, invalid options).
+- **Held out:** 12 fires frozen in manifest.json (2026-08-02T12, +12 h FEDS
+  truth, 6 regions), no failures. Five fires have covered_fuel_cells = 0 (no
+  2026-08-01 edge candidate near them), so every learned arm equals control
+  there; two more (66055, 53363) have ~0 edge coverage. Growth IoU mean / median:
+
+  | Arm | All 12 | Covered 7 | vs control (better/worse, covered) | Whole IoU mean, covered | Hotspots (all) |
+  |---|---|---|---|---|---|
+  | no_growth | 0 / 0 | 0 / 0 | - | 0.9301 | 0/23 |
+  | control | 0.0580 / 0.0238 | 0.0976 / 0.0650 | - | 0.8362 | 19/23 |
+  | binary | 0.0633 / 0.0348 | 0.1066 / 0.0650 | 2/0 | 0.8373 | 19/23 |
+  | weighted | 0.0545 / 0.0348 | 0.0916 / 0.0650 | 2/2 | 0.8110 | 19/23 |
+  | band750 | 0.0581 / 0.0234 | 0.0978 / 0.0655 | 2/3 | 0.8357 | 19/23 |
+  | band2000 | 0.0583 / 0.0206 | 0.0981 / 0.0717 | 2/3 | 0.8354 | 19/23 |
+
+- **Development (in-sample, 3 dev fires):** growth IoU mean control 0.0611,
+  binary 0.0922, weighted 0.0926, band750 0.0634, band2000 0.0642; band arms
+  better on 1/3 fires (2020-008), worse on 2021-031.
+- Reading: on held-out fires binary helped 2 fires (66433 +0.038, 65395 +0.025)
+  and hurt none; weighted lost 0.10 on 62041 (activating the whole covered edge
+  over-grew it). The band moves growth IoU by < 0.001 on average: +0.05 on 62041
+  but -0.04 on 65080 and small losses on 66433/65395. No-growth still has the
+  best whole IoU everywhere. Nothing here is significant on n = 7 influenced
+  fires; keep all three opt-in. Binary remains the least harmful learned rule.
+- Limitations: one issue time; FEDS truth; daily 0.1-degree next-day
+  probabilities are not calibrated fine-cell spread rates; LF2025 fuels
+  (anachronistic for the 2020-21 dev fires); the 2026-08-02 date was used
+  earlier for physics-only batch evaluation; model coverage is sparse.
+- Reproduce: `uv run tests/test_front_probability.py`;
+  `uv run scripts/edge_front_weighted.py {dev,manifest,heldout,band}`;
+  `uv run scripts/edge_pilot_score.py data/edge_causal/front_weighted/heldout --manifest data/edge_causal/front_weighted/manifest.json --arms control,binary,binary_pos,weighted,band750,band2000`
+  (and `.../dev`); `uv run scripts/edge_heldout_table.py data/edge_causal/front_weighted/heldout data/edge_causal/front_weighted/dev`
+  -> data/edge_causal/front_weighted/{heldout_table.md,heldout_table.json,growth_iou_vs_control.png}.
+
+### 23. 2026-11-15 — Seasonal live fuel moisture (GSI proxy) and 20-ft wind factor options
+- Before: LH_MOISTURE_CONTENT=90 everywhere (LW ELMFIRE default). Added, both opt-in (defaults unchanged):
+  `LIVE_MOISTURE=gsi` (scripts/live_moisture.py; per-case LH/LW constants, ELMFIRE's rasters not used): Jolly-style
+  GSI = photoperiod x VPD ramp (0.9-4.1 kPa) x fm100 ramp (5-15 %, stand-in for Tmin, absent from our gridMET
+  files), 21-day mean of the days before the issue day; LH = 30 + 90 GSI, LW = 60 + 90 GSI. Ramps are literature
+  values, not fitted. Western-summer cases give GSI 0-0.1 (LH 30-39, i.e. cured), far below the old 90.
+  `WIND_20FT=f` (elmfire_case.py rescales the weather's 0.87; hrrr_weather.py reads env WIND_20FT). Source check
+  (tools/elmfire/build/source): ELMFIRE computes its own canopy/fuel WAF raster (elmfire_init.f90) and midflame wind
+  = WS20 x WAF (elmfire_subs.f90), so 0.87 (10 m -> 20 ft) is a separate step and not double counted.
+- Choice made on development data only (data/physics_mw/manifest.json, frozen before any held-out run): 4 fires
+  (2021-038, 2021-031, 2020-008, Widemouth 66510) x live {const90, gsi} x wind {0.87, 0.6}, control physics. In-sample:
+  mean growth IoU const/0.87 .0664, const/0.6 .0630, gsi/0.87 .0932, gsi/0.6 .0849 (area-ratio |log| .90/1.02/.92/.77).
+  Chosen gsi + 0.87 (best growth IoU; 0.6 does not help). Dev area ratios still large (0-008 6.4x).
+- Held-out (12 frozen 2026-08-02T12 fires, +12 h FEDS, data/physics_mw/heldout_table.md): growth IoU control .0580 ->
+  physics_mw .0522 (2 better / 6 worse of 8 with truth growth; mean diff -0.006), whole IoU .760 -> .748, area ratio mean
+  37 -> 64 (median 2.7 both), hotspot hits 19 -> 20 of 23. No held-out gain: the dev improvement (4 fires, in-sample,
+  driven by cured fuels spreading faster) did not transfer; GSI-lowered LH raises spread and over-predicts area.
+  Keep the old constant as default. Caveats: one issue date, 12 fires, per-case (not per-cell) moisture.
+- Reproduce: `scripts/physics_mw.py {grid,select,heldout}`; `uv run scripts/edge_pilot_score.py data/physics_mw/heldout
+  --manifest data/edge_causal/front_weighted/manifest.json --arms control,physics_mw`; `uv run scripts/edge_heldout_table.py data/physics_mw/heldout`.
+
+### 24. 2026-11-15 — Area-constrained ELMFIRE: a growth model decides how much, ELMFIRE where
+- Idea: ELMFIRE over-predicts area (control area ratio median 2.7, mean 37 on the 12 held-out fires). Train a model on the
+  harmonized MODIS/VIIRS record to say how much a fire grows in a day, convert to km2, and cut ELMFIRE's arrival map at the
+  isochrone that gives that area (start footprint kept). Code: `scripts/growth_dataset.py`, `growth_train.py`, `growth_report.py`,
+  `area_constrain.py`; notes `data/growth/NOTES.md`.
+- Dataset: events = space-time clusters on the 0.1 deg daily grid (gap 2 days, 8-neighbour, catalog persistent-heat rule), from the
+  tensors (viirs 2012-24, raw and harm 2003-11; harm = strict p_viirs >= 0.5). No pixel counts exist, so the peak filter is >= 5
+  cells (catalog: 30 pixels) and the density filter is dropped. One row per event-day t (first day to 2 days after the last fire
+  day); target = new fire cells on t+1 (clear-looked, none burned in t-29..t, within 2 cells of the footprint so far). Features:
+  size, last three days' footprint and new cells, days active/since fire, gridMET on t and t+1 (t0 variant drops t+1), fuel
+  fractions/canopy/elevation/roughness over the recent edge, season, lat/lon. Rows (train 2003-19 / val 2020 / test 2021-24):
+  harm 9009/934/2903 (events 491 in train), raw 10268/934/2903, viirs-only 5134/934/2903. Mean target 0.52 new cells per day, 71% zero
+  (viirs); a cell is ~95 km2, so most growth is below one cell and the task is weak by construction.
+- Model: LightGBM (tweedie or log1p regression; separate zero-growth classifier), 2x2 grid (objective, leaves 15/63), 3 seeds, picked by validation MAE.
+  Test (2021-24, same rows every arm, t1 = Aug 2-style next-day weather as perfect forecast): see `data/growth/test_table.md`.
+  harm MAE 0.556, Spearman 0.399, zero-growth AUC 0.760; raw 0.560 / 0.414 / 0.767; viirs-only 0.571 / 0.395 / 0.757 (t0 variant: 0.394-0.410,
+  almost the same). Predicting zero has MAE 0.519, i.e. no arm beats it on MAE (zero-inflated target); the signal is in ranking (single-feature
+  Spearman: g0 0.26, n_t 0.26). Extra history helps (both pre-2012 arms beat viirs-only by ~0.015 MAE), but raw >= harm on rank
+  and AUC by 0.003-0.015 (seed sd 0.002-0.004): no benefit of harmonization here. Exploratory: test years were scored once but the grid was small.
+- Area conversion (`data/growth/area_conversion.json`, in-sample, 8 FEDS-archive fires, 6 matched, 82 event-days): FEDS daily growth km2 / observed new cells =
+  45.7 km2 per cell (r2 through the origin 0.22, Spearman 0.58). Forecast area = 45.7 x predicted cells x 0.5 (12 h of the day; uniform-growth assumption).
+- Held-out (12 frozen fires, issue 2026-08-02T12, truth FEDS +12 h; features from Aug 1 VIIRS history and gridMET; t1 uses Aug 2 gridMET, a
+  perfect-forecast stand-in; t0 does not; oracle = true FEDS growth area, upper bound, uses truth): `data/growth/heldout_eval/comparison.md`.
+  Growth IoU mean/median: no growth 0 / 0 (n=10), control 0.058 / 0.024, areacon_t1 0.061 / 0.000, areacon_t0 0.062 / 0.000, oracle 0.082 / 0.067.
+  Whole IoU: control 0.760, areacon_t1 0.858, t0 0.859, oracle 0.865, no growth 0.910. Area ratio median: control 2.71, t1 0.12, oracle 1.00.
+  Better than control on growth IoU in 3 of 12 (t1, t0), 5 (oracle). Hotspot hits 15/23 vs control 19/23.
+- Reading: the cut fixes ELMFIRE's over-area (whole IoU +0.10) but the predicted areas are tiny (0.0-12 km2) because the model predicts ~0.4
+  cells for every fire, so it lands near no growth (whole IoU 0.91) and loses hotspot hits; even with the true area the growth IoU is only 0.08 (where, not how much, is the limit) .
+  Caveats: 12 fires, one date; 6 of 12 fires have no VIIRS cluster at 0.1 deg on Aug 1 (zero predicted growth); k fitted in-sample on few fires.
+
+### 25. 2026-11-15 — Lower/upper forecast cases; does harmonized history improve the tail? (`scripts/growth_bounds.py`)
+- Cases: lower (most likely) = entry 24's area-constrained forecast (growth model harm, t0 = day-t features, x 45.7 km2/cell x 0.5). Upper (worst case) =
+  the q0.9 (frozen) of next-day growth among the K=100 (frozen) nearest ANALOG event-days (standardized size, recent growth, days active, season, lat/lon, day-t
+  wind/VPD/ERC/FM100, fuel fractions) in the arm's training rows (<= 2019), same conversion, max with lower; footprint = control (or, where local, the earliest-arrival
+  UNION of the fuelwind16 + physics3 members) arrival map cut at that area. Only Widemouth 2 (66510) has members locally (19); the other 72 use the control run.
+- Tail calibration, test 2021-24 (2903 event-days, 146 events; 312 in the largest-growth decile), `data/bounds/tail_calibration.md`. Coverage = share of days with growth
+  <= predicted q90 (target 0.90; discrete target with 71% zeros, so ties push it above 0.90): harm 0.939, raw 0.941, viirs-only 0.932, constant pool q90 0.950.
+  Pinball(0.9): harm 0.2190, raw 0.2273, viirs-only 0.2329, constant 0.2914, zero 0.467. Tail coverage (largest decile): harm 0.45, raw 0.48, viirs-only 0.39;
+  sum pred / sum obs in that decile 0.76 / 0.72 / 0.65. Paired pinball (event-block bootstrap): harm - raw -0.008 (CI -0.026..+0.003), harm - viirs-only
+  -0.014 (CI -0.036..+0.0003): the ordering favours harmonized history but is not significant; the analog (conditional) q90 beats a constant q90, and every arm
+  under-covers the extreme days (the top decile is ~half covered). The ~0.9-0.94 coverage is mostly ties, not a calibrated tail.
+- Held-out, 12 fires, +12 h vs FEDS (observed growth 67 km2 in total; `data/bounds/heldout_table.md`): growth IoU mean / recall (pooled) / mean false-alarm km2:
+  no growth 0 / 0 / 0; lower 0.062 / 0.135 / 2.7; upper (harm) 0.060 / 0.269 / 11.4; control 0.058 / 0.361 / 20.5. Whole IoU 0.909 / 0.889 / 0.784 / 0.774. The upper case
+  recovers about 3/4 of the control's recall at about half the false-alarm area; raw and viirs-only uppers are nearly the same (0.283 recall, 13.2 km2).
+- Export: lower and upper GeoJSON for all 73 Aug 2 forecasts (`earth/public/data/forecasts_bounds`, index.json lists areas and footprint source). Caveats: 12 fires/one date;
+  harm/raw/viirs-only differences within noise; the K-NN feature set and K were chosen once without tuning; weather/fuel for fires without a VIIRS cluster looked up on the 0.1 deg grid.
+
+### 26. 2026-11-15 — Burn-scar fuel correction from the harmonized record (`scripts/burnscar.py`, `BURNSCAR_*` in `elmfire_case.py`)
+- Idea: LANDFIRE fuels may not show recent fires, so ELMFIRE would spread freely into ground that burned lately. New opt-in (default unchanged)
+  `BURNSCAR_FILE=path BURNSCAR_YEARS=N BURNSCAR_MULT=m`: fuel cells whose burn-history cell has years-since-fire <= N get spread multiplier m after every other ADJ
+  term (m = 0: non-burnable, fbfm40 99). Burn-history cells that touch the fire's own start area (burned at issue, FEDS perimeter, burning cells) are excluded
+  whole. Emitted adj/fuel tested in `tests/test_burnscar.py` (3 mask/adj/fuel/composition/validation checks, plus a coarse-raster exclusion check).
+- History rasters (`data/burnscar/rasters/ARM_ISSUE.tif`, 0.1 deg, years since last fire, -1 = none, 2003 to the day before issue; `rasters.json`): pre-2012 harm =
+  strict `p_viirs >= 0.5`, raw = MODIS Terra/Aqua presence, viirs-only = nothing; 2012+ VNP14A1 fire > 0 for all arms. Consequence: the three arms are
+  identical in any window starting after 2011. Cells differing (2026-08-02): N <= 10: 0; N = 15: harm vs raw 616, harm vs viirs-only 235; N = 23 (all history): 7505 / 3548.
+  So with N in {1,2,3,5} harm vs raw vs viirs-only cannot differ for these fires; the arms were still run separately and are identical.
+- Finer variant (VIIRS 375 m): not built. `data/raw/viirs_fire` holds only 2026 days 211-218 (the days around the forecast), no multi-year archive. A whole 0.1 deg
+  cell (~85 km2) counts as burned if any pixel fired: over-inclusive.
+- Dev choice (harm arm, 3 dev fires + Widemouth 66510, N in {1,2,3,5} x m in {0, 0.3}; in-sample): mean growth IoU control 0.0664; m = 0 0.0678 and m = 0.3 0.0674
+  for every N (N makes no difference; per-fire growth IoU control 0.044/0.079/0.060/0.082 (2021-038, 2021-031, 2020-008, 66510), m = 0: 0.044/0.080/0.065/0.082).
+  Rule (frozen in `data/burnscar/manifest.json` first): best within 0.002 ties go to the smaller perturbation. Chosen N = 1, m = 0.3; gain +0.0009 is below 0.002 (`no_dev_benefit` true).
+- Held-out (12 frozen 2026-08-02T12 fires, same cases/weather as control; `data/burnscar/heldout_table.md`): scar_harm = scar_raw = scar_viirs_only = control to every
+  reported digit (growth IoU 0.0580 mean / 0.0238 median, whole IoU 0.7601, area ratio 36.97 mean / 2.71 median, false growth 0.911; no_growth growth IoU 0, whole IoU 0.9098). No fire changed (0 better / 0 worse).
+- Coverage: 11 of 12 held-out landscapes contain scar cells (<= 1 y after exclusion; 4-72% of 1.0-1.6 M fuel cells; 66055 none; 66433 210 k, 65395 43 k, 340 603 k, 53095 843 k), but
+  every history cell touching the start area is excluded (up to 640 k cells) and a 0.1 deg cell is 8-11 km, so the remaining scar starts well beyond what a 12 h spread reaches; the correction is inert here.
+- Caveats: coarse history cells plus whole-cell own exclusion make the option nearly inert at 12 h; a useful test needs a fine (perimeter-based) scar map and fires that run into old scars. LF2025 fuels
+  already reflect disturbance through about 2024, so only 2025-26 scars could matter for the held-out date. Dev numbers in-sample; N makes no difference. Not recommended for the demo.
+
+### 27. 2026-11-15 — Containment status used for evaluation and display only (`scripts/containment_aug2.py`, `scripts/containment_split.py`)
+- Decision: forecasts stay unsuppressed (free-burning potential, for planning containment). Containment changes no input, parameter or forecast; it only splits the scores and labels the display.
+- Data: NIFC WFIGS Incident Locations YearToDate, matched to the 76 Aug 2 FEDS fires as in feds_to_earth_json.py (origin within 0.05 deg of the outline; largest candidate wins; distance recorded). Status at 2026-08-02T12:00Z from dates only: contained if ContainmentDateTime/ControlDateTime/FireOutDateTime <= issue. Result: 2 contained (48632 Shore, 62590 Elephant), 44 uncontained, 30 unmatched. Output data/containment/aug2_containment.json.
+- Split (data/containment/split_table.md). Held-out 12: 0 contained, 7 uncontained, 5 unmatched. Uncontained (n=7, 6 with growth): control growth IoU 0.104, recall 0.52, whole IoU 0.744, median area ratio 3.7; lower 0.113 / 0.20 / 0.897 / 0.64; upper_harm 0.109 / 0.48 / 0.761 / 2.7; no growth whole IoU 0.933. Unmatched (n=5, 4 with growth, 1 km2 total observed): control 0.017 / 0.03 / 0.815. Aug 2 batch with +12 h truth: 7 uncontained, 12 unmatched, 0 contained (control growth IoU 0.095 vs 0.066).
+- Reading: the held-out and batch sets contain no contained fire, so the split cannot yet show whether suppression explains over-prediction (area ratio ~3.7 on uncontained fires). The unmatched group is mostly small fires that are not in WFIGS (>= small incidents), where all cases are near-trivial.
+- Caveats: dates only (a fire with a line but no date counts as uncontained); PercentContained is the latest value (e.g. 66510 shows 100% now but is uncontained at issue), not as of issue; matching is by proximity and largest incident, so a wrong incident is possible; n is tiny, differences descriptive. Batch recall and lower/upper are not stored outside the held-out 12.
+- Display: /api/fires/:id gains `containment` (from earth/public/data/containment/*_containment.json by issue day); the ops detail shows "Containment as of forecast: ..." and "Unsuppressed spread potential — firefighting not modelled". sw.js v42.
+
+### 28. 2026-11-15 — Growth model trained on uncontained / semi-contained fire-days: does harmonized 2003-2011 history help? (`scripts/growth_uncontained.py`)
+
+Hypothesis (user): an unsuppressed growth model should be trained on fire-days not yet contained; harm adds many such days for 2003-2011, so harm should beat raw and viirs-only. Out of scope: contained fires.
+- Labels (rules frozen before scoring). Train/val (2003-2020): ICS-209-PLUS wildfire sitreps (St. Denis et al. 2023, figshare 19858927; only the wildfire zip, 49 MB, in data/growth_uncontained/ics209/, not committed). Row = growth event-day; link = nearest incident point of origin within 0.3 deg (about 30 km) whose window [discovery-1 d, last sitrep+14 d] holds the date; status = percent contained of the latest sitrep on or before the day (0 before the first). Main label unc80 (< 80%: uncontained plus semi-contained, includes the free-burning early period of later-contained fires); sensitivity unc50 (< 50%). Test (2021-2024): WFIGS incident locations (wildfire, >= 300 acres; scripts/growth_uncontained_fetch.py), unc = before min(Containment, Control, FireOut) date (no daily percent exists), same rows for every arm: 2162 of 2903 test rows, 112 events.
+- Match rates (data/growth_uncontained/match_rates.md): harm 64.7%, raw 64.1%, viirs 2012-2020 75.8% (ICS); test 77.9% (WFIGS). Unmatched rows are excluded from the unc subsets.
+- Training rows (years <= 2019; MODIS rows in brackets): harm all 9009 (3875), unc80 5388 (2017), unc50 4518 (1613); raw all 10268 (5134), unc80 6065 (2694), unc50 5138 (2233); viirs-only all 5134, unc80 3371, unc50 2905. So harm adds 2017 unc80 fire-days over viirs-only (raw: 2694; harm retains 75% of raw's).
+- Models as growth_train.py (LightGBM, same grid/features), 3-seed ensemble, grid chosen by val MAE on unc80 2020 rows, evaluated on the 2162 unc test rows. Table (variant t0, Spearman / zero AUC / analog-q90 pinball), results in data/growth_uncontained/results.md:
+  - trained on unc80: harm 0.404 / 0.764 / 0.1877; raw 0.400 / 0.767 / 0.1884; viirs-only 0.398 / 0.754 / 0.1867.
+  - all rows (reference): harm 0.395 / 0.762 / 0.1830; raw 0.406 / 0.767 / 0.1858; viirs-only 0.394 / 0.759 / 0.1865.
+  - Paired event-block bootstrap, unc80, harm minus raw: Spearman +0.005 (-0.007 to +0.017), AUC -0.003 (-0.011 to +0.004), pinball -0.0007 (-0.006 to +0.005). Harm minus viirs-only: Spearman +0.006 (-0.006 to +0.019), AUC +0.010 (+0.001 to +0.020), pinball +0.001 (-0.004 to +0.006). unc50 and t1 agree in sign and are no stronger (unc50 t1 harm-raw AUC -0.011, CI -0.018 to -0.003, i.e. raw better).
+- Conclusion: the hypothesis is not supported. Restricting training to uncontained/semi-contained rows does not make harm beat raw (differences are within noise, raw is nominally equal or better); harm vs viirs-only is a small, mostly non-significant gain (one AUC CI excludes zero at unc80, none at unc50 or t1). Restricting to unc rows did not improve any arm over all rows either (it shrinks the training set by about 40%). Caveats: 112 test events; matching is by proximity and misses about a quarter of rows; ICS stops in 2020 and WFIGS has no daily percent, so train and test labels differ in kind; in-sample selection only on 2020 val; the analog-q90 pool coverage is about 0.94 for every arm (over-covering), unchanged by this.
+
+### 29. 2026-11-15 — Where does it grow? ELMFIRE arrival-time ranking vs a distance buffer and a downwind rule, "how much" removed (`scripts/where_skill.py`)
+Question: does the ELMFIRE physics run (adj1, INIT=feds, 12 h) know which cells grow, beyond what a planner gets from "nearest to the fire edge" or "nearest, stretched downwind"? Only location is tested: every method is scored on the same candidate set and, for the area metrics, is given exactly the observed growth area.
+- Fires (frozen in `data/where_skill/manifest.json` from eligibility only, before any ranking): 2026-08-02T12 fires that are uncontained and incident-matched (`data/containment/aug2_containment.json`), have an adj1 run, an exact FEDS perimeter at +12 h, observed burnable growth, and HRRR weather files locally. n = 26 (all from `data/perimeter_batch/aug2_local`; the Hyak-pulled `data/demo_pull` runs were mostly unusable here because their landscape files are not local: 5 fires dropped for that reason, plus 6 with no +12 h perimeter, 6 with no observed burnable growth in domain). Second group (in-sample-ish for method choices): 2021-038, 2021-031, 2020-008 (dev control arm) and 66510, n = 4. Sensitivity: the 6 primary fires that also have a held-out front_weighted control run (a different physics arm, LH moisture 90) rescored with it.
+- Candidates: burnable (FBFM40 > 100) cells outside the start footprint (FEDS at issue | ELMFIRE toa = 0), in the union of ELMFIRE's 12 h reach and a 2 x (max observed advance) buffer; identical for every method. Observed = FEDS +12 h growth cells in that set. Methods: elmfire (arrival time, unburned last, ties by distance), buffer (distance to start), downwind (d * (1 - e cos theta), ellipse polar form from the FBP length-to-breadth of the mean HRRR wind, domain-mean 12 h wind vector; frozen, not tuned). The wind-ellipse model (`ellipse_spread.py`) was not run separately: it needs a GFS wind file and a different state input, and the downwind rule is its distance geometry.
+- Result, primary n = 26 (mean; paired bootstrap 95% CI over fires, ELMFIRE minus baseline): AUC 0.863 vs buffer 0.880 vs downwind 0.825; ELMFIRE - buffer -0.017 [-0.045, +0.006], ELMFIRE - downwind +0.038 [+0.009, +0.067]. Recall at observed area (= precision) 0.277 vs 0.241 vs 0.220; ELMFIRE - buffer +0.037 [-0.018, +0.085] (wins 19/26), ELMFIRE - downwind +0.057 [+0.002, +0.110]. Growth IoU at observed area 0.170 / 0.148 / 0.133; differences +0.022 [-0.016, +0.055] and +0.036 [-0.004, +0.074].
+- Dev group n = 4 (in-sample-ish): ELMFIRE is worse than both baselines (recall 0.217 vs buffer 0.341 vs downwind 0.352; ELMFIRE - buffer -0.124 [-0.204, -0.038]). Control-arm sensitivity n = 6: recall 0.220 vs buffer 0.156 vs downwind 0.219, all CIs include zero.
+- Verdict as-is: on the Aug 2 fires ELMFIRE's arrival ordering is no better than a plain distance buffer in ranking quality (AUC -0.017, CI includes 0), slightly better when forced to pick the observed area (+0.037 recall, CI includes 0), and better than the frozen downwind rule only by a small margin. So the evidence does not show that ELMFIRE knows where beyond proximity; the dev fires point the other way. The downwind rule is worse than the buffer, i.e. a domain-mean wind direction is a poor guide here.
+- Caveats: FEDS boundary uncertainty about 375 m is comparable to the max advance of many fires (0.1-0.5 km); many fires are small; n is 26 and 4 with heavy per-fire variance; observed growth includes FEDS infill and perimeter smoothing that no method models; the buffer is evaluated from the same footprint ELMFIRE used (an advantage that ELMFIRE's own growth is judged against); the domain mean wind is crude; ELMFIRE cells never reached are ranked by distance, so ELMFIRE is a buffer hybrid beyond its reach. Outputs: `data/where_skill/results.md`, `results.json`, `figures/where_skill.png`.

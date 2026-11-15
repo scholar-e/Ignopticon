@@ -76,7 +76,8 @@ var TILE_SOURCES = {
     terrain: "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",  // AWS Terrain Tiles, to z15
     fuel: LANDFIRE_FBFM40 + "/exportImage?bbox={bbox}&bboxSR=3857&imageSR=3857&size=256,256&format=png32&f=image"
 };
-var TILE_CACHE = path.join(__dirname, "tile-cache");  // tiles are kept here, so viewed areas also work offline
+// Tiles are kept here, so viewed areas also work offline. TILE_CACHE points it at a persistent volume when deployed.
+var TILE_CACHE = process.env.TILE_CACHE || path.join(__dirname, "tile-cache");
 var MISSING = ".missing";                             // marks a tile the upstream service does not have
 
 function tileBbox(z, x, y) {
@@ -199,9 +200,22 @@ function tileRange(bbox, z) {
     return tiles;
 }
 
+/**
+ * Background warming fetches thousands of upstream tiles per job. On a public server anyone can start a job (one per
+ * heat-layer date asked for), so WARM_MAX_JOBS caps the jobs per process; 0 turns warming off. Unset: no cap.
+ */
+var WARM_MAX_JOBS = process.env.WARM_MAX_JOBS === undefined ? Infinity : +process.env.WARM_MAX_JOBS, warmJobs = 0;
+
+function mayWarm() {
+    if (warmJobs >= WARM_MAX_JOBS) return false;
+    warmJobs++;
+    return true;
+}
+
 function warmS2() {
     if (s2Warming) return;
     s2Warming = true;
+    if (!mayWarm()) return;
     var seen = new Set(), queue = [];
     function add(tiles) {
         tiles.forEach(function(t) {
@@ -296,6 +310,7 @@ function warmThermal(pass, date) {
     var key = pass + "/" + date;
     if (warmed[key]) return;
     warmed[key] = true;
+    if (!mayWarm()) return;
     var queue = [];
     for (var z = 0; z <= WARM_ZOOM; z++) {
         var n = Math.pow(2, z), lat = function(φ) {
@@ -554,6 +569,7 @@ function fuelIdentify(req, res) {
 var DATA = path.join(__dirname, "public/data");
 var FORECASTS = process.env.OPS_FORECASTS || path.join(DATA, "forecasts");  // env var only to test with a fixture
 var DEFAULT_TIME = "2026-08-02T12:00:00Z";  // the demo moment
+var BOUNDS = process.env.OPS_BOUNDS || path.join(DATA, "forecasts_bounds");  // lower/upper cases, scripts/growth_bounds.py
 var FORECAST_VALID_HOURS = 24;  // shortcut: assumes every forecast runs 24 h; read its "hours" once horizons differ
 var ACRES_PER_KM2 = 247.105;
 var jsonFiles = {};
@@ -777,14 +793,41 @@ function observedAfter(index, id, forecast, i) {
     }).filter(Boolean);
 }
 
+/** @returns {Object} the lower and upper bound forecasts issued with the fire's physics forecast, else null. */
+function boundsFor(id, forecast) {
+    if (!forecast) return null;
+    var index = readJson(path.join(BOUNDS, "index.json")), entry = ((index && index.forecasts) || []).filter(function(f) {
+        return f.fire_id === id && new Date(f.issued).getTime() === new Date(forecast.issued).getTime();
+    })[0];
+    var lower = entry && readJson(path.join(BOUNDS, entry.path_lower)), upper = entry && readJson(path.join(BOUNDS, entry.path_upper));
+    return lower && upper ? {lower: lower, upper: upper} : null;
+}
+
+/** @returns {Object} the fire's containment at the forecast's issue time from WFIGS dates (data/containment/*_containment.json,
+ * scripts/containment_aug2.py), else null. Display only; the percent is the latest value, not as of issue. */
+function containmentFor(id, forecast, at) {
+    var dir = path.join(DATA, "containment"), day = (forecast ? forecast.issued : at.time).slice(0, 10), found = null;
+    var names = []; try { names = fs.readdirSync(dir); } catch (e) {}
+    names.filter(function(n) { return /_containment\.json$/.test(n); }).forEach(function(n) {
+        var c = readJson(path.join(dir, n));
+        if (c && c.issue && c.issue.slice(0, 10) === day && c.fires && c.fires[id]) found = Object.assign({issue: c.issue}, c.fires[id]);
+    });
+    return found && {issue: found.issue, status: found.status, contained_since: found.contained_since || null, incident: found.incident || null,
+        percent_contained_latest: found.percent_contained_latest == null ? null : found.percent_contained_latest, source: "WFIGS"};
+}
+
 var apiFire = apiHandler(function(req, res, at, time) {
     var id = +req.params.id, fire = at.fires.filter(function(f) { return f.id === id; })[0];
     if (!fire) return apiError(res, 404, "No fire " + req.params.id + " in the FEDS snapshot of " + at.snapshot);
     var index = fedsIndex(), forecast = fire.forecast ? readJson(path.join(FORECASTS, fire.forecast.path)) : null;
+    var bounds = boundsFor(id, forecast);
     res.json({
         time: at.time, snapshot: at.snapshot, fire: withoutPrivate(fire), previous: fire._previous,
         history: historyOf(index, id, 0, at._i),
-        forecast: forecast, observed_after: forecast ? observedAfter(index, id, forecast, at._i) : [],
+        // With bounds, forecast is the most likely (lower) case; the unconstrained physics run moves to forecast_physics.
+        forecast: bounds ? bounds.lower : forecast, forecast_upper: bounds ? bounds.upper : null,
+        forecast_physics: bounds ? forecast : null, observed_after: forecast ? observedAfter(index, id, forecast, at._i) : [],
+        containment: containmentFor(id, forecast, at),
         access_route: readJson(path.join(DATA, "fires", "access-routes", at.snapshot.slice(0, 10), id + ".geojson")),
         hotspots: hotspotsFor(fire, time)
     });
@@ -817,14 +860,17 @@ var apiWeather = apiHandler(function(req, res, at, time) {
     }).catch(function() { apiError(res, 502, "Weather unavailable"); });
 });
 
-var port = process.argv[2];
+var port = process.argv[2] || process.env.PORT || 8080;
+var production = process.env.NODE_ENV === "production";
 var express = require("express");
 var app = express();
 
 app.set("json spaces", 0);
+if (production) app.enable("trust proxy");  // behind the host's TLS proxy: remote-addr is the client's
 app.use(cacheControl());
 app.use(express.compress({filter: compressionFilter}));
-app.use(logger());
+// The full logger prints every request's headers; in production one line per request is enough.
+app.use(production ? express.logger("short") : logger());
 app.get("/tiles/:source/:z/:x/:y", tileProxy);
 app.get("/identify/fuel", fuelIdentify);
 app.get("/tiles/thermal/:pass/:date/:z/:x/:y", thermalTileProxy);
@@ -833,15 +879,30 @@ app.get("/identify/i4", i4Identify);
 app.get("/api/fires", apiFires);
 app.get("/api/fires/:id", apiFire);
 app.get("/api/fires/:id/weather", apiWeather);
+// Radio coverage (SPLAT!) for navigation: cell towers in the fire packages and user-added repeaters (coverage.js).
+app.get("/api/coverage", require("./coverage")({sourceTile: sourceTile, cacheDir: TILE_CACHE}));
+// Daily MODIS/VIIRS/harmonized layers 2000-2026 and their regional calendars (history.js).
+// Long drives to a fire's routing area for navigation (longroute.js).
+app.get("/api/longroute", require("./longroute")());
+var fireHistory = require("./history")({cacheDir: TILE_CACHE});
+app.get("/api/history", fireHistory.api);
+if (fireHistory.root && fireHistory.root !== path.join(__dirname, "public", "data", "history")) app.use("/data/history", express.static(fireHistory.root));
 app.all("/api/*", function(req, res) { apiError(res, 404, "No API endpoint " + req.path); });
 app.use(i4Tile);
+// The fire-watch (ops) page is the front page, served at / (and still at /ops/); the globe stays at /index.html and
+// /globe. The ops service worker lives at /ops/sw.js but controls the whole site, so the page works offline at /.
+app.get("/", function(req, res) { res.sendfile(path.join(__dirname, "public", "ops", "index.html")); });
+app.get("/ops/sw.js", function(req, res, next) { res.setHeader("Service-Worker-Allowed", "/"); next(); });
+app.get("/globe", function(req, res) { res.sendfile(path.join(__dirname, "public", "index.html")); });
+// Next-day fire activity predictions (Eric, data/samples/predictions): PNG grids + index.json.
+app.use("/data/predictions", express.static(path.join(__dirname, "..", "data", "samples", "predictions")));
 // Android browsers require a manifest JSON MIME type before offering installation. Express 3's
 // bundled mime table predates .webmanifest and otherwise serves it as application/octet-stream.
 app.use(function(req, res, next) {
     if (/\.webmanifest$/i.test(req.path)) res.type("application/manifest+json");
     next();
 });
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.listen(port);
 console.log("Listening on port " + port + "...");

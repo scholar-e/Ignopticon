@@ -1,0 +1,475 @@
+{
+ "fire": "2021-031",
+ "label": "2021-031 (CA shrub)",
+ "issue": "2021-07-09T12:00",
+ "weather": {
+  "prev": [
+   "data/training/fires/2021-031/wx/20210708T12",
+   0
+  ],
+  "hind": [
+   "data/training/fires/2021-031/wx/20210708T12",
+   12
+  ],
+  "fc": [
+   "data/training/fires/2021-031/wx/20210709T12",
+   0
+  ]
+ },
+ "r_rules_eligible": true,
+ "calibration_targets": 37,
+ "forecast_targets": 70,
+ "r_sectors": {
+  "prev": [
+   2.318,
+   3.637,
+   4.448,
+   4.903,
+   5.0,
+   4.121,
+   1.937,
+   0.723,
+   0.466,
+   0.446,
+   0.329,
+   0.225,
+   0.285,
+   0.639,
+   1.124,
+   1.441
+  ],
+  "cur": [
+   3.807,
+   3.469,
+   2.274,
+   1.041,
+   0.647,
+   0.611,
+   0.725,
+   0.868,
+   0.714,
+   0.582,
+   0.449,
+   0.33,
+   0.473,
+   1.347,
+   3.449,
+   4.284
+  ]
+ },
+ "hindcast": {
+  "d6_375m": {
+   "iou": 0.7439014961147408,
+   "growth_iou": 0.0503657512891234,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 5685,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.14917344528995014,
+   "boundary_mean_m": 842.0645422143343,
+   "hotspots": {
+    "targets": 37,
+    "hits": 6,
+    "false_alarm_cells": 87,
+    "model_cells": 100,
+    "hit_rate": 0.16216216216216217,
+    "csi": 0.04838709677419355
+   },
+   "score": 0.09875284806331694,
+   "active_mode": "detections",
+   "active_edge_cells": 262
+  },
+  "d6_0.75": {
+   "iou": 0.7353918274269671,
+   "growth_iou": 0.0550293702472565,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 8229,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.21592757806350038,
+   "boundary_mean_m": 836.30659388052,
+   "hotspots": {
+    "targets": 37,
+    "hits": 6,
+    "false_alarm_cells": 127,
+    "model_cells": 141,
+    "hit_rate": 0.16216216216216217,
+    "csi": 0.036585365853658534
+   },
+   "score": 0.09161473610091503,
+   "active_mode": "detections",
+   "active_edge_cells": 506
+  },
+  "d6_1.5": {
+   "iou": 0.7339171627138716,
+   "growth_iou": 0.09356887146266621,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 13209,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.3466019417475728,
+   "boundary_mean_m": 865.7322312839134,
+   "hotspots": {
+    "targets": 37,
+    "hits": 10,
+    "false_alarm_cells": 200,
+    "model_cells": 233,
+    "hit_rate": 0.2702702702702703,
+    "csi": 0.04219409282700422
+   },
+   "score": 0.13576296428967044,
+   "active_mode": "detections",
+   "active_edge_cells": 891
+  },
+  "d12_0.75": {
+   "iou": 0.7353918274269671,
+   "growth_iou": 0.0550293702472565,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 8229,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.21592757806350038,
+   "boundary_mean_m": 836.30659388052,
+   "hotspots": {
+    "targets": 37,
+    "hits": 6,
+    "false_alarm_cells": 127,
+    "model_cells": 141,
+    "hit_rate": 0.16216216216216217,
+    "csi": 0.036585365853658534
+   },
+   "score": 0.09161473610091503,
+   "active_mode": "detections",
+   "active_edge_cells": 506
+  },
+  "d12_1.5": {
+   "iou": 0.7339171627138716,
+   "growth_iou": 0.09356887146266621,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 13209,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.3466019417475728,
+   "boundary_mean_m": 865.7322312839134,
+   "hotspots": {
+    "targets": 37,
+    "hits": 10,
+    "false_alarm_cells": 200,
+    "model_cells": 233,
+    "hit_rate": 0.2702702702702703,
+    "csi": 0.04219409282700422
+   },
+   "score": 0.13576296428967044,
+   "active_mode": "detections",
+   "active_edge_cells": 891
+  },
+  "d24_0.75": {
+   "iou": 0.7285995141375943,
+   "growth_iou": 0.06522538899348612,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 11113,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.29160325373917606,
+   "boundary_mean_m": 832.5435034043235,
+   "hotspots": {
+    "targets": 37,
+    "hits": 6,
+    "false_alarm_cells": 168,
+    "model_cells": 188,
+    "hit_rate": 0.16216216216216217,
+    "csi": 0.02926829268292683
+   },
+   "score": 0.09449368167641295,
+   "active_mode": "detections",
+   "active_edge_cells": 792
+  },
+  "d24_1.5": {
+   "iou": 0.7355362153303702,
+   "growth_iou": 0.10789114216664915,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 14609,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.3833377066386775,
+   "boundary_mean_m": 849.0434179786131,
+   "hotspots": {
+    "targets": 37,
+    "hits": 11,
+    "false_alarm_cells": 217,
+    "model_cells": 259,
+    "hit_rate": 0.2972972972972973,
+    "csi": 0.04330708661417323
+   },
+   "score": 0.15119822878082237,
+   "active_mode": "detections",
+   "active_edge_cells": 1156
+  },
+  "d6_0.75+r0.8": {
+   "iou": 0.7412292776348076,
+   "growth_iou": 0.19590168523598903,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 25970,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.6814484387299922,
+   "boundary_mean_m": 755.4307338969784,
+   "hotspots": {
+    "targets": 37,
+    "hits": 33,
+    "false_alarm_cells": 443,
+    "model_cells": 541,
+    "hit_rate": 0.8918918918918919,
+    "csi": 0.06875
+   },
+   "score": 0.26465168523598903,
+   "active_mode": "detections+r",
+   "active_edge_cells": 3431
+  },
+  "d6_0.75+r1.0": {
+   "iou": 0.7413401969293388,
+   "growth_iou": 0.19599312894432205,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 25945,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.6807924429283653,
+   "boundary_mean_m": 755.2970549269692,
+   "hotspots": {
+    "targets": 37,
+    "hits": 33,
+    "false_alarm_cells": 443,
+    "model_cells": 541,
+    "hit_rate": 0.8918918918918919,
+    "csi": 0.06875
+   },
+   "score": 0.26474312894432206,
+   "active_mode": "detections+r",
+   "active_edge_cells": 3406
+  },
+  "whole": {
+   "iou": 0.721875145694438,
+   "growth_iou": 0.1809933717827322,
+   "no_growth_iou": 0.7476404360988543,
+   "predicted_growth_cells": 30488,
+   "observed_growth_cells": 38110,
+   "area_ratio": 0.8,
+   "boundary_mean_m": 756.8843557409101,
+   "hotspots": {
+    "targets": 37,
+    "hits": 33,
+    "false_alarm_cells": 516,
+    "model_cells": 614,
+    "hit_rate": 0.8918918918918919,
+    "csi": 0.059674502712477394
+   },
+   "score": 0.2406678744952096,
+   "active_mode": "front_whole",
+   "active_edge_cells": 3840
+  }
+ },
+ "forecast": {
+  "d6_375m": {
+   "iou": 0.7028948250810327,
+   "growth_iou": 0.07933712383857995,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 12944,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.19948525898870345,
+   "boundary_mean_m": 1039.9617444922094,
+   "hotspots": {
+    "targets": 70,
+    "hits": 30,
+    "false_alarm_cells": 251,
+    "model_cells": 303,
+    "hit_rate": 0.42857142857142855,
+    "csi": 0.09345794392523364
+   },
+   "score": 0.1727950677638136,
+   "active_mode": "detections",
+   "active_edge_cells": 1531
+  },
+  "d6_0.75": {
+   "iou": 0.697471060521591,
+   "growth_iou": 0.09689393740654267,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 18738,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.2887789541818854,
+   "boundary_mean_m": 1048.756615170363,
+   "hotspots": {
+    "targets": 70,
+    "hits": 39,
+    "false_alarm_cells": 326,
+    "model_cells": 397,
+    "hit_rate": 0.5571428571428572,
+    "csi": 0.09848484848484848
+   },
+   "score": 0.19537878589139115,
+   "active_mode": "detections",
+   "active_edge_cells": 2461
+  },
+  "d6_1.5": {
+   "iou": 0.6974980814845821,
+   "growth_iou": 0.10887257485953793,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 21360,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.3291876647094179,
+   "boundary_mean_m": 1067.2330849525606,
+   "hotspots": {
+    "targets": 70,
+    "hits": 43,
+    "false_alarm_cells": 371,
+    "model_cells": 455,
+    "hit_rate": 0.6142857142857143,
+    "csi": 0.09750566893424037
+   },
+   "score": 0.20637824379377828,
+   "active_mode": "detections",
+   "active_edge_cells": 2861
+  },
+  "d12_0.75": {
+   "iou": 0.697471060521591,
+   "growth_iou": 0.09689393740654267,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 18738,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.2887789541818854,
+   "boundary_mean_m": 1048.756615170363,
+   "hotspots": {
+    "targets": 70,
+    "hits": 39,
+    "false_alarm_cells": 326,
+    "model_cells": 397,
+    "hit_rate": 0.5571428571428572,
+    "csi": 0.09848484848484848
+   },
+   "score": 0.19537878589139115,
+   "active_mode": "detections",
+   "active_edge_cells": 2461
+  },
+  "d12_1.5": {
+   "iou": 0.6974980814845821,
+   "growth_iou": 0.10887257485953793,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 21360,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.3291876647094179,
+   "boundary_mean_m": 1067.2330849525606,
+   "hotspots": {
+    "targets": 70,
+    "hits": 43,
+    "false_alarm_cells": 371,
+    "model_cells": 455,
+    "hit_rate": 0.6142857142857143,
+    "csi": 0.09750566893424037
+   },
+   "score": 0.20637824379377828,
+   "active_mode": "detections",
+   "active_edge_cells": 2861
+  },
+  "d24_0.75": {
+   "iou": 0.6969601263324121,
+   "growth_iou": 0.09668215430927295,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 18905,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.29135265923836823,
+   "boundary_mean_m": 1048.307421412346,
+   "hotspots": {
+    "targets": 70,
+    "hits": 39,
+    "false_alarm_cells": 329,
+    "model_cells": 400,
+    "hit_rate": 0.5571428571428572,
+    "csi": 0.09774436090225563
+   },
+   "score": 0.1944265152115286,
+   "active_mode": "detections",
+   "active_edge_cells": 2474
+  },
+  "d24_1.5": {
+   "iou": 0.6970304276602419,
+   "growth_iou": 0.10888498390262047,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 21565,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.332347003251807,
+   "boundary_mean_m": 1063.3641537743056,
+   "hotspots": {
+    "targets": 70,
+    "hits": 43,
+    "false_alarm_cells": 374,
+    "model_cells": 458,
+    "hit_rate": 0.6142857142857143,
+    "csi": 0.09684684684684684
+   },
+   "score": 0.20573183074946733,
+   "active_mode": "detections",
+   "active_edge_cells": 2888
+  },
+  "d6_0.75+r0.8": {
+   "iou": 0.7067176621432979,
+   "growth_iou": 0.12992514814429773,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 22063,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.34002188419868384,
+   "boundary_mean_m": 1062.7453750984166,
+   "hotspots": {
+    "targets": 70,
+    "hits": 46,
+    "false_alarm_cells": 383,
+    "model_cells": 481,
+    "hit_rate": 0.6571428571428571,
+    "csi": 0.10154525386313466
+   },
+   "score": 0.2314704020074324,
+   "active_mode": "detections+r",
+   "active_edge_cells": 3335
+  },
+  "d6_0.75+r1.0": {
+   "iou": 0.7067176621432979,
+   "growth_iou": 0.12992514814429773,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 22063,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.34002188419868384,
+   "boundary_mean_m": 1062.7453750984166,
+   "hotspots": {
+    "targets": 70,
+    "hits": 46,
+    "false_alarm_cells": 383,
+    "model_cells": 481,
+    "hit_rate": 0.6571428571428571,
+    "csi": 0.10154525386313466
+   },
+   "score": 0.2314704020074324,
+   "active_mode": "detections+r",
+   "active_edge_cells": 3335
+  },
+  "whole": {
+   "iou": 0.6957598680101146,
+   "growth_iou": 0.12428326755529079,
+   "no_growth_iou": 0.6999196126623917,
+   "predicted_growth_cells": 25701,
+   "observed_growth_cells": 64887,
+   "area_ratio": 0.39608858477044706,
+   "boundary_mean_m": 1049.9084933840406,
+   "hotspots": {
+    "targets": 70,
+    "hits": 46,
+    "false_alarm_cells": 449,
+    "model_cells": 547,
+    "hit_rate": 0.6571428571428571,
+    "csi": 0.08863198458574181
+   },
+   "score": 0.2129152521410326,
+   "active_mode": "front_whole",
+   "active_edge_cells": 3756
+  }
+ },
+ "no_growth": {
+  "iou": 0.6994576164692403,
+  "growth_iou": 0.0,
+  "no_growth_iou": 0.6994576164692403,
+  "predicted_growth_cells": 0,
+  "observed_growth_cells": 64987,
+  "area_ratio": 0.0,
+  "boundary_mean_m": 1250.7670155667633
+ },
+ "chosen": "d6_0.75+r1.0",
+ "oracle": "d6_0.75+r0.8"
+}

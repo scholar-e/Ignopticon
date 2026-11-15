@@ -21,7 +21,7 @@ The arms differ only in how the years before 2012 (MODIS only) enter the trainin
 The `-pre` arms isolate the harmonization effect: a model trained only on pre-2012 data, judged on VIIRS-era fires. The `-all` arms test whether the extra history helps, or hurts when not harmonized.
 
 - **Validation:** 2020 (early stopping, threshold choice).
-- **Test (held out, never used for training or choices):** 2021–2024, truth = VIIRS S-NPP fire presence on t+1, only on cell-days S-NPP saw clearly.
+- **Test (excluded from fitting; exploratory evaluation):** 2021–2024, truth = VIIRS S-NPP fire presence on t+1, only on cell-days S-NPP saw clearly.
 
 ## Inputs
 
@@ -52,5 +52,46 @@ Tillicum is for training only, not for running ELMFIRE predictions.
   - a summary chart of predicted vs observed daily fire cells
   - PNG files under data/compare/figures/, and UI payloads in the docs/DATASETS.md format, for the site
 - **Honesty:**
-  - Test years and test fires are never used for training or tuning. The `p_viirs` harmonization model itself was fitted on 2012–2024 VIIRS, so it saw the test years: this is noted as a caveat. A stricter version refits it without 2021–2024.
+  - The implemented harmonization fit uses 2012–2020 only. Test years 2021–2024 are excluded from fitting. First-round U-Net test scores were inspected before choosing the second-round three-seed setup, so this evaluation is exploratory rather than an untouched confirmatory test.
   - Everything is logged in MODELLING_LOG.md, marking held-out vs in-sample.
+
+## Implementation (GBM arm, local)
+
+- **Strict harmonization:** `data/harmonize/out-base-strict/`, `HARMONIZE_FEATURES=base`, fitted on 2012–2020 only and applied to 2003–2011. The `harm` arms use it, so no part of the pipeline saw 2021–2024. Scores: MODELLING_LOG.md entry 12.
+- **Tensors:** `scripts/compare_dataset.py` writes `data/compare/tensors/` (not in git). The format is in [data/compare/tensors/README.md](../data/compare/tensors/README.md).
+- **GBM:** `scripts/compare_gbm.py ARM...` trains LightGBM per arm, picks the max-CSI threshold on 2020 and writes the test-year predictions to `data/compare/preds/gbm_{arm}.npz`.
+- **Evaluation:** `scripts/compare_eval.py data/compare/preds/{model}_*.npz` scores any model's predictions the same way (U-Net: `unet_{arm}.npz`, with `p` float16 (1461, 260, 590), `arm`, and `threshold` or `p_val`). Outputs:
+  - `data/compare/results/{model}.md`, `.json`
+  - `data/compare/figures/{model}/`: per fire `{id}_panels.png` and `{id}_series.png`, plus `overview_per_fire.png` and `reliability.png`
+  - UI payloads (below)
+- **Evaluation fires:** [data/compare/fires.csv](../data/compare/fires.csv). Names were matched by hand from bbox and dates, with a confidence column.
+
+### UI payloads (predictions)
+
+Same grid and PNG geometry as docs/DATASETS.md section 3 (590 × 260 px, pixel (x, y) = cell (col x, row y)). Written only for the days of the evaluation fires.
+
+| Path | Contents |
+|---|---|
+| `data/compare/ui/{model}_{arm}/{YYYY-MM-DD}.png` | the prediction **for** that date, made on the day before |
+| `data/compare/ui/{model}_fires/index.json` | model, arms, fires (id, name, first and last date), and the PNG encoding |
+| `data/compare/ui/{model}_fires/{fire_id}.json` | one fire's daily series (format below) |
+
+The PNG channels:
+
+| Channel | Meaning |
+|---|---|
+| R | round(P(VIIRS S-NPP fire on the date) × 255) |
+| G | 255 = S-NPP observed fire in the cell on the date (clear look), else 0 |
+| B | 255 = S-NPP saw the cell clearly on the date, else 0 (where the prediction can be scored) |
+| A | 255 = land, 0 = off grid (ocean, Canada, Mexico) |
+
+Fire JSON:
+
+```json
+{"id": "2021-001", "name": "Dixie Fire", "region": "California", "fuel_group": "timber-understory",
+ "bbox": [w, s, e, n], "crop": {"col0": .., "col1": .., "row0": .., "row1": ..}, "model": "gbm",
+ "dates": ["2021-07-14", ...], "observed": [fire cells per date], "clear_frac": [...],
+ "arms": {"raw-pre": {"threshold": 0.31, "metrics": {"ap": .., "csi": .., ...},
+                      "expected": [sum of P over clear cells per date], "flagged": [cells with P >= threshold per date],
+                      "png": "gbm_raw-pre/{date}.png"}, ...}}
+```

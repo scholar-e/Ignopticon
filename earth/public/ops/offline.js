@@ -39,7 +39,8 @@ export async function registerOffline({onStatus = () => {}} = {}) {
   });
   navigator.serviceWorker.addEventListener("controllerchange", () => { if (updateRequested) location.reload(); });
 
-  registration = await navigator.serviceWorker.register(new URL("sw.js", import.meta.url));
+  // Scope / so the page works offline at / as well as /ops/ (dev-server.js sends Service-Worker-Allowed: /).
+  registration = await navigator.serviceWorker.register(new URL("sw.js", import.meta.url), {scope: "/"});
   // A new version only counts as an update when an old one controls the page (not on first install).
   const check = () => emit({updateAvailable: !!(registration.waiting && navigator.serviceWorker.controller)});
   registration.addEventListener("updatefound", () => {

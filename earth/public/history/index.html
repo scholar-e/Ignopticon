@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ignopticon: Fire history 2000-2026</title>
+<meta name="theme-color" content="#162c25">
+<link rel="stylesheet" href="/ops/vendor/maplibre-gl.css">
+<link rel="stylesheet" href="/history/history.css">
+<script src="/ops/vendor/maplibre-gl.js" defer></script>
+<script type="module" src="/history/history.js"></script>
+</head>
+<body>
+<div class="fresh"><span class="wordmark">Ignopticon</span><nav><a href="/">Fire watch</a><a href="/history/" aria-current="page">History</a></nav></div>
+<main>
+<header class="top">
+  <h1>Burning activity, 2000-2026</h1>
+  <div class="controls">
+    <label>Region <select id="region"></select></label>
+    <span class="seg" role="group" aria-label="Product"><button type="button" data-mode="harm" aria-pressed="true">Harmonized</button><button type="button" data-mode="raw" aria-pressed="false">Raw</button></span>
+  </div>
+</header>
+
+<section class="card">
+  <h2>Calendar: year by week <small id="cal-sub"></small></h2>
+  <div class="heatwrap"><canvas id="heat" aria-label="Fire activity heatmap, years by week"></canvas><div id="tip" class="tip" hidden></div></div>
+  <div class="legend"><span>less</span><span class="ramp" id="ramp"></span><span>more fire</span><span class="hatch-key"></span><span>not observed (cloud or no pass)</span></div>
+  <p class="note" id="mode-note"></p>
+</section>
+
+<div class="grid2">
+  <section class="card"><h2>Annual total <small>fire-active cell-days</small></h2><svg id="annual" role="img" aria-label="Annual totals, raw and harmonized"></svg>
+    <div class="legend"><span class="sw raw"></span>Raw<span class="sw harm"></span>Harmonized<span class="muted">hollow = missing days (scaled to a full year; 2026 is the sum so far, to Nov 12)</span></div></section>
+  <section class="card"><h2>This year vs normal <small id="ty-sub"></small></h2><svg id="thisyear" role="img" aria-label="2026 weekly activity against the 2003-2025 normal"></svg>
+    <p id="ty-text" class="big"></p></section>
+</div>
+
+<section class="card">
+  <h2>Daily layer <small id="day-sub"></small></h2>
+  <div class="days" id="days"></div>
+  <div class="mapwrap"><div id="map"></div><p id="map-msg" class="mapmsg">Click a week in the calendar to see its busiest day.</p></div>
+  <p class="note">Each square is a 0.1 degree cell (about 10 km); brighter means more 1 km fire pixels. Cells the satellites could not see are left clear.</p>
+</section>
+
+<section class="card text">
+  <h2>How to read this</h2>
+  <p><b>Fire-active cell-days.</b> The lower 48 is cut into 0.1 degree cells (590 by 260). A cell counts on a day if at least one 1 km pixel was classed as fire. A week adds up its days (the last week of a year is scaled to 7 days).</p>
+  <p><b>Why harmonize.</b> MODIS (2000-2011) is less sensitive to small fires than VIIRS (2012 on), so raw counts jump in 2012 for reasons that have nothing to do with fire. Harmonization uses the years both sensors flew, 2012-2026, to learn the probability that VIIRS S-NPP would have flagged a cell, given what MODIS Terra and Aqua saw. Before 2012 the harmonized value is that expected count of VIIRS-equivalent cells (2003-2011; Aqua starts in 2002, so 2000-2002 are blank). From 2012 it is the real VIIRS count, so the record has no step.</p>
+  <p><b>Not observed.</b> Cloud, smoke or no satellite pass hide the ground. Hatched weeks had a clear view of less than 35% of the region's land cells, so a low count there is not evidence of little fire. Fire counts are only compared where the satellite looked. VIIRS S-NPP data begin on 2012-01-19.</p>
+  <p><b>Normal and percentile.</b> The grey band is the 10th to 90th percentile of each week over 2003-2025 (harmonized or raw as selected), the line its median. A percentile of 80 means 2026's week was busier than 80% of the same weeks in those 23 years.</p>
+  <p><b>Sources.</b> NASA LAADS DAAC: MODIS Terra MOD14A1 and Aqua MYD14A1 (collection 6.1 daily thermal anomalies, 1 km), VIIRS S-NPP VNP14A1 and NOAA-20 VJ114A1 (collection 2). The harmonization model is described in MODELLING_LOG.md. Daily layers are served from /data/history/. Data through 2026-11-12. Days with no downloaded granule are blank rather than zero; a week needs at least 3 days of data to be shown, and annual totals for years with gaps are scaled to a full year.</p>
+</section>
+</main>
+</body>
+</html>

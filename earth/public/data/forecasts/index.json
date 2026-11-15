@@ -1,11 +1,515 @@
 {
  "forecasts": [
   {
+   "fire_id": 19,
+   "name": "Lake Co., IN",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "19/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 331,
+   "name": "Galveston Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "331/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 340,
+   "name": "FEDS 340",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "340/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 800,
+   "name": "Lake Co., IN",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "800/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 2143,
+   "name": "Cuyahoga Co., OH",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "2143/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 5450,
+   "name": "Porter Co., IN",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "5450/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 11887,
+   "name": "Butler Co., OH",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "11887/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 18872,
+   "name": "Berkeley Co., SC",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "18872/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 20036,
+   "name": "Box Elder Co., UT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "20036/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 31094,
+   "name": "Divide Co., ND",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "31094/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 48632,
+   "name": "Riverside Co., CA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "48632/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 49109,
+   "name": "Nueces Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "49109/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 51849,
+   "name": "Rogers Co., OK",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "51849/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 52611,
+   "name": "McKenzie Co., ND",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "52611/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 53095,
+   "name": "Lowndes Co., MS",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "53095/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 53363,
+   "name": "Mobile Co., AL",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "53363/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 53763,
+   "name": "Reagan Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "53763/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 57204,
+   "name": "Upton Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "57204/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 57585,
+   "name": "Ascension Par., LA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "57585/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 58056,
+   "name": "San Patricio Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "58056/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 60791,
+   "name": "Jefferson Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "60791/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 61855,
+   "name": "Boundary Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "61855/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 62041,
+   "name": "St. Louis Co., MN",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "62041/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 62590,
+   "name": "Lassen Co., CA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "62590/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 62944,
+   "name": "Howard Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "62944/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63215,
+   "name": "Ward Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63215/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63363,
+   "name": "Brazoria Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63363/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63369,
+   "name": "Chelan Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63369/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63372,
+   "name": "Harney Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63372/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63374,
+   "name": "Crook Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63374/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63568,
+   "name": "Okanogan Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63568/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63588,
+   "name": "Columbia Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63588/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63683,
+   "name": "Ferry Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63683/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63715,
+   "name": "Umatilla Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63715/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63960,
+   "name": "Flathead Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63960/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63962,
+   "name": "Okanogan Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63962/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 63969,
+   "name": "Wallowa Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "63969/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 64600,
+   "name": "Pecos Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "64600/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 64816,
+   "name": "Glasscock Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "64816/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65080,
+   "name": "Idaho Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65080/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65258,
+   "name": "Douglas Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65258/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65395,
+   "name": "Malheur Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65395/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65401,
+   "name": "Wheeler Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65401/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65486,
+   "name": "Baker Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65486/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65489,
+   "name": "Wasco Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65489/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65680,
+   "name": "Missoula Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65680/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65682,
+   "name": "Flathead Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65682/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65718,
+   "name": "Skamania Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65718/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65726,
+   "name": "Malheur Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65726/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65727,
+   "name": "Harney Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65727/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 65995,
+   "name": "Custer Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "65995/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 66055,
+   "name": "Churchill Co., NV",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "66055/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 66204,
+   "name": "Granite Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "66204/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 66244,
+   "name": "Idaho Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "66244/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 66433,
+   "name": "Okanogan Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "66433/2026-08-02T1200.json"
+  },
+  {
    "fire_id": 66510,
    "name": "Widemouth 2",
    "issued": "2026-08-02T12:00:00Z",
-   "model": "ELMFIRE (Rothermel/LANDFIRE fuels, HRRR 12Z forecast weather, started from VIIRS burning edges; spread x0.02 chosen on other days)",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
    "path": "66510/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 66555,
+   "name": "Nye Co., NV",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "66555/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 66737,
+   "name": "Archuleta Co., CO",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "66737/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 66834,
+   "name": "Midland Co., TX",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "66834/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67083,
+   "name": "Clearwater Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67083/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67149,
+   "name": "FEDS 67149",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67149/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67447,
+   "name": "Hinds Co., MS",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67447/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67569,
+   "name": "White Pine Co., NV",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67569/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67572,
+   "name": "Beaverhead Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67572/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67610,
+   "name": "Jefferson Co., ID",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67610/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67614,
+   "name": "Emery Co., UT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67614/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67616,
+   "name": "Malheur Co., OR",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67616/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67758,
+   "name": "Spokane Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67758/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67765,
+   "name": "Beaverhead Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67765/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67766,
+   "name": "Spokane Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67766/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67815,
+   "name": "Stevens Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67815/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67816,
+   "name": "Stevens Co., WA",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67816/2026-08-02T1200.json"
+  },
+  {
+   "fire_id": 67885,
+   "name": "Ravalli Co., MT",
+   "issued": "2026-08-02T12:00:00Z",
+   "model": "ELMFIRE physics (FEDS-perimeter start, HRRR 12Z 15-min wind, HRRR/gridMET fuel moisture, no tuning)",
+   "path": "67885/2026-08-02T1200.json"
   }
  ]
 }

@@ -1,0 +1,414 @@
+{
+ "fire": "map20260802-66510",
+ "label": "Widemouth 66510 (UT)",
+ "issue": "2026-08-02T12:00",
+ "weather": {
+  "prev": null,
+  "hind": [
+   "data/perimeter_batch/selfcal/66510/wx-hind",
+   0
+  ],
+  "fc": [
+   "data/training/fires/map20260802-66510/wx-subh/20260802T12",
+   0
+  ]
+ },
+ "r_rules_eligible": false,
+ "calibration_targets": 4,
+ "forecast_targets": 29,
+ "r_sectors": {
+  "cur": [
+   1.054,
+   1.554,
+   0.687,
+   0.232,
+   0.165,
+   0.194,
+   0.353,
+   1.053,
+   1.224,
+   0.624,
+   0.343,
+   0.172,
+   0.132,
+   0.193,
+   0.246,
+   0.377
+  ]
+ },
+ "hindcast": {
+  "d6_375m": {
+   "iou": 0.6455742056266509,
+   "growth_iou": 0.1567202906071614,
+   "no_growth_iou": 0.8599763187552605,
+   "predicted_growth_cells": 122187,
+   "observed_growth_cells": 29385,
+   "area_ratio": 4.158141909137315,
+   "boundary_mean_m": 1332.0213722936312,
+   "hotspots": {
+    "targets": 4,
+    "hits": 4,
+    "false_alarm_cells": 1633,
+    "model_cells": 1659,
+    "hit_rate": 1.0,
+    "csi": 0.002443494196701283
+   },
+   "score": 0.15916378480386267,
+   "active_mode": "whole_edge",
+   "active_edge_cells": 4468
+  },
+  "d6_0.75": {
+   "iou": 0.6455742056266509,
+   "growth_iou": 0.1567202906071614,
+   "no_growth_iou": 0.8599763187552605,
+   "predicted_growth_cells": 122187,
+   "observed_growth_cells": 29385,
+   "area_ratio": 4.158141909137315,
+   "boundary_mean_m": 1332.0213722936312,
+   "hotspots": {
+    "targets": 4,
+    "hits": 4,
+    "false_alarm_cells": 1633,
+    "model_cells": 1659,
+    "hit_rate": 1.0,
+    "csi": 0.002443494196701283
+   },
+   "score": 0.15916378480386267,
+   "active_mode": "whole_edge",
+   "active_edge_cells": 4468
+  },
+  "d6_1.5": {
+   "iou": 0.6455742056266509,
+   "growth_iou": 0.1567202906071614,
+   "no_growth_iou": 0.8599763187552605,
+   "predicted_growth_cells": 122187,
+   "observed_growth_cells": 29385,
+   "area_ratio": 4.158141909137315,
+   "boundary_mean_m": 1332.0213722936312,
+   "hotspots": {
+    "targets": 4,
+    "hits": 4,
+    "false_alarm_cells": 1633,
+    "model_cells": 1659,
+    "hit_rate": 1.0,
+    "csi": 0.002443494196701283
+   },
+   "score": 0.15916378480386267,
+   "active_mode": "whole_edge",
+   "active_edge_cells": 4468
+  },
+  "d12_0.75": {
+   "iou": 0.6455742056266509,
+   "growth_iou": 0.1567202906071614,
+   "no_growth_iou": 0.8599763187552605,
+   "predicted_growth_cells": 122187,
+   "observed_growth_cells": 29385,
+   "area_ratio": 4.158141909137315,
+   "boundary_mean_m": 1332.0213722936312,
+   "hotspots": {
+    "targets": 4,
+    "hits": 4,
+    "false_alarm_cells": 1633,
+    "model_cells": 1659,
+    "hit_rate": 1.0,
+    "csi": 0.002443494196701283
+   },
+   "score": 0.15916378480386267,
+   "active_mode": "whole_edge",
+   "active_edge_cells": 4468
+  },
+  "d12_1.5": {
+   "iou": 0.6455742056266509,
+   "growth_iou": 0.1567202906071614,
+   "no_growth_iou": 0.8599763187552605,
+   "predicted_growth_cells": 122187,
+   "observed_growth_cells": 29385,
+   "area_ratio": 4.158141909137315,
+   "boundary_mean_m": 1332.0213722936312,
+   "hotspots": {
+    "targets": 4,
+    "hits": 4,
+    "false_alarm_cells": 1633,
+    "model_cells": 1659,
+    "hit_rate": 1.0,
+    "csi": 0.002443494196701283
+   },
+   "score": 0.15916378480386267,
+   "active_mode": "whole_edge",
+   "active_edge_cells": 4468
+  },
+  "d24_0.75": {
+   "iou": 0.8120204201669353,
+   "growth_iou": 0.00016741204888431828,
+   "no_growth_iou": 0.8599763187552605,
+   "predicted_growth_cells": 12435,
+   "observed_growth_cells": 29385,
+   "area_ratio": 0.4231750893312915,
+   "boundary_mean_m": 906.0842279848763,
+   "hotspots": {
+    "targets": 4,
+    "hits": 1,
+    "false_alarm_cells": 170,
+    "model_cells": 176,
+    "hit_rate": 0.25,
+    "csi": 0.005747126436781609
+   },
+   "score": 0.005914538485665927,
+   "active_mode": "detections",
+   "active_edge_cells": 107
+  },
+  "d24_1.5": {
+   "iou": 0.8079069040226933,
+   "growth_iou": 0.0001629915942906373,
+   "no_growth_iou": 0.8599763187552605,
+   "predicted_growth_cells": 13569,
+   "observed_growth_cells": 29385,
+   "area_ratio": 0.46176620724859624,
+   "boundary_mean_m": 948.7265876752556,
+   "hotspots": {
+    "targets": 4,
+    "hits": 1,
+    "false_alarm_cells": 188,
+    "model_cells": 194,
+    "hit_rate": 0.25,
+    "csi": 0.005208333333333333
+   },
+   "score": 0.00537132492762397,
+   "active_mode": "detections",
+   "active_edge_cells": 186
+  },
+  "whole": {
+   "iou": 0.6455742056266509,
+   "growth_iou": 0.1567202906071614,
+   "no_growth_iou": 0.8599763187552605,
+   "predicted_growth_cells": 122187,
+   "observed_growth_cells": 29385,
+   "area_ratio": 4.158141909137315,
+   "boundary_mean_m": 1332.0213722936312,
+   "hotspots": {
+    "targets": 4,
+    "hits": 4,
+    "false_alarm_cells": 1633,
+    "model_cells": 1659,
+    "hit_rate": 1.0,
+    "csi": 0.002443494196701283
+   },
+   "score": 0.15916378480386267,
+   "active_mode": "front_whole",
+   "active_edge_cells": 4468
+  }
+ },
+ "forecast": {
+  "d6_375m": {
+   "iou": 0.7013443613561129,
+   "growth_iou": 0.08240211044254082,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 61648,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.2869340124835604,
+   "boundary_mean_m": 1070.8399778728867,
+   "hotspots": {
+    "targets": 29,
+    "hits": 26,
+    "false_alarm_cells": 823,
+    "model_cells": 888,
+    "hit_rate": 0.896551724137931,
+    "csi": 0.03051643192488263
+   },
+   "score": 0.11291854236742345,
+   "active_mode": "detections",
+   "active_edge_cells": 2036
+  },
+  "d6_0.75": {
+   "iou": 0.7097587818436337,
+   "growth_iou": 0.15890108497950392,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 80166,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.6735068784836022,
+   "boundary_mean_m": 1042.1450659410143,
+   "hotspots": {
+    "targets": 29,
+    "hits": 27,
+    "false_alarm_cells": 1034,
+    "model_cells": 1113,
+    "hit_rate": 0.9310344827586207,
+    "csi": 0.02539981185324553
+   },
+   "score": 0.18430089683274944,
+   "active_mode": "detections",
+   "active_edge_cells": 2894
+  },
+  "d6_1.5": {
+   "iou": 0.7202438880303959,
+   "growth_iou": 0.19350900031422544,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 85036,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.775170657370102,
+   "boundary_mean_m": 1028.3483683182812,
+   "hotspots": {
+    "targets": 29,
+    "hits": 28,
+    "false_alarm_cells": 1085,
+    "model_cells": 1170,
+    "hit_rate": 0.9655172413793104,
+    "csi": 0.025134649910233394
+   },
+   "score": 0.21864365022445884,
+   "active_mode": "detections",
+   "active_edge_cells": 3183
+  },
+  "d12_0.75": {
+   "iou": 0.7097587818436337,
+   "growth_iou": 0.15890108497950392,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 80166,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.6735068784836022,
+   "boundary_mean_m": 1042.1450659410143,
+   "hotspots": {
+    "targets": 29,
+    "hits": 27,
+    "false_alarm_cells": 1034,
+    "model_cells": 1113,
+    "hit_rate": 0.9310344827586207,
+    "csi": 0.02539981185324553
+   },
+   "score": 0.18430089683274944,
+   "active_mode": "detections",
+   "active_edge_cells": 2894
+  },
+  "d12_1.5": {
+   "iou": 0.7202438880303959,
+   "growth_iou": 0.19350900031422544,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 85036,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.775170657370102,
+   "boundary_mean_m": 1028.3483683182812,
+   "hotspots": {
+    "targets": 29,
+    "hits": 28,
+    "false_alarm_cells": 1085,
+    "model_cells": 1170,
+    "hit_rate": 0.9655172413793104,
+    "csi": 0.025134649910233394
+   },
+   "score": 0.21864365022445884,
+   "active_mode": "detections",
+   "active_edge_cells": 3183
+  },
+  "d24_0.75": {
+   "iou": 0.7097587818436337,
+   "growth_iou": 0.15890108497950392,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 80166,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.6735068784836022,
+   "boundary_mean_m": 1042.1450659410143,
+   "hotspots": {
+    "targets": 29,
+    "hits": 27,
+    "false_alarm_cells": 1034,
+    "model_cells": 1113,
+    "hit_rate": 0.9310344827586207,
+    "csi": 0.02539981185324553
+   },
+   "score": 0.18430089683274944,
+   "active_mode": "detections",
+   "active_edge_cells": 2894
+  },
+  "d24_1.5": {
+   "iou": 0.7202438880303959,
+   "growth_iou": 0.19350900031422544,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 85036,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.775170657370102,
+   "boundary_mean_m": 1028.3483683182812,
+   "hotspots": {
+    "targets": 29,
+    "hits": 28,
+    "false_alarm_cells": 1085,
+    "model_cells": 1170,
+    "hit_rate": 0.9655172413793104,
+    "csi": 0.025134649910233394
+   },
+   "score": 0.21864365022445884,
+   "active_mode": "detections",
+   "active_edge_cells": 3183
+  },
+  "d6_0.75+r0.8": {
+   "iou": 0.7127538870117078,
+   "growth_iou": 0.16791469965814748,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 81238,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.6958854351501993,
+   "boundary_mean_m": 1038.1694492394643,
+   "hotspots": {
+    "targets": 29,
+    "hits": 28,
+    "false_alarm_cells": 1044,
+    "model_cells": 1127,
+    "hit_rate": 0.9655172413793104,
+    "csi": 0.0260950605778192
+   },
+   "score": 0.19400976023596667,
+   "active_mode": "detections+r",
+   "active_edge_cells": 2965
+  },
+  "d6_0.75+r1.0": {
+   "iou": 0.7097587818436337,
+   "growth_iou": 0.15890108497950392,
+   "no_growth_iou": 0.8138691645263635,
+   "predicted_growth_cells": 80166,
+   "observed_growth_cells": 47903,
+   "area_ratio": 1.6735068784836022,
+   "boundary_mean_m": 1042.1450659410143,
+   "hotspots": {
+    "targets": 29,
+    "hits": 27,
+    "false_alarm_cells": 1034,
+    "model_cells": 1113,
+    "hit_rate": 0.9310344827586207,
+    "csi": 0.02539981185324553
+   },
+   "score": 0.18430089683274944,
+   "active_mode": "detections+r",
+   "active_edge_cells": 2894
+  },
+  "whole": {
+   "iou": 0.6385141936782767,
+   "growth_iou": 0.18499605348130785,
+   "no_growth_iou": 0.8138334960256589,
+   "predicted_growth_cells": 150274,
+   "observed_growth_cells": 47900,
+   "area_ratio": 3.1372442588726512,
+   "boundary_mean_m": 1411.8890028428968,
+   "hotspots": {
+    "targets": 29,
+    "hits": 29,
+    "false_alarm_cells": 1857,
+    "model_cells": 1958,
+    "hit_rate": 1.0,
+    "csi": 0.015376458112407211
+   },
+   "score": 0.20037251159371505,
+   "active_mode": "front_whole",
+   "active_edge_cells": 4830
+  }
+ },
+ "no_growth": {
+  "iou": 0.8138880818176536,
+  "growth_iou": 0.0,
+  "no_growth_iou": 0.8138880818176536,
+  "predicted_growth_cells": 0,
+  "observed_growth_cells": 47903,
+  "area_ratio": 0.0,
+  "boundary_mean_m": 743.3477041403673
+ },
+ "chosen": "d6_375m",
+ "oracle": "d6_1.5"
+}
