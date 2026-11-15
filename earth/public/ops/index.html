@@ -29,37 +29,40 @@
   </nav>
 <section class="conditions"><h3>Incident conditions</h3><dl><div><dt>Mapped fuel type</dt><dd id="fuel"></dd></div><div><dt>Wind at 10 m</dt><dd id="wind"></dd></div><div><dt>Weather</dt><dd id="weather"></dd></div></dl><p id="wx-source"></p></section>
 <section class="fieldnotes"><h3>Incident access route</h3><p id="route-note"></p><button type="button" id="pick-access" aria-pressed="false">Choose access point on map</button><p id="access-note"></p><button type="button" id="fit-route" hidden>Show full route</button> <a id="road-directions" hidden target="_blank" rel="noopener noreferrer">Directions to route start ↗</a>
-<label class="upload">Load dispatch route<input id="route-file" type="file" accept=".geojson,.json,application/geo+json,application/json"></label><p id="saved" role="status"></p><a href="storage.html">Offline maps</a></section><div id="status" class="status" role="status" aria-live="polite"></div><section id="timeline" class="timeline" aria-label="Fire timeline" hidden>
-    <div class="time-key" aria-label="Fire progression colors"><span>Past</span><span>Current</span><span>Future</span></div><div class="tl-bar">
-      <div role="group" aria-label="Timeline mode" class="seg">
-        <button type="button" data-mode="progression" aria-pressed="true">Progression</button>
-        <button type="button" data-mode="step" aria-pressed="false">Step</button>
-      </div>
-      <button type="button" id="play">Play</button>
-      <button type="button" id="compare" aria-pressed="false" hidden>Compare with what happened <small>(later data)</small></button>
-      <p class="tl-hint">Step: ← → keys</p>
-    </div>
-    <ol id="stops" class="stops"></ol>
-  </section>
-<details class="settings"><summary>Map settings</summary><div class="mapctl" role="group" aria-label="Map view">
-    <div role="group" aria-label="Basemap" class="seg" id="basemaps">
-      <button type="button" data-base="satellite">Satellite</button>
-      <button type="button" data-base="imagerytopo">Satellite + topo</button>
-      <button type="button" data-base="topo">Topo map</button>
-    </div>
-    <button type="button" id="view3d" aria-pressed="false" title="3D terrain (key 3)">3D</button>
-    <button type="button" id="labels" aria-pressed="false">Labels</button>
-  </div></details>
+<label class="upload">Load dispatch route<input id="route-file" type="file" accept=".geojson,.json,application/geo+json,application/json"></label><p id="saved" role="status"></p><a href="storage.html">Offline maps</a></section>
+<section class="layerctl" aria-label="Wind and prediction model">
+      <div class="ctlrow"><label for="wind-level">Wind</label>
+        <select id="wind-level">
+          <option value="off">Off</option>
+          <option value="surface">Surface (10 m)</option>
+          <option value="1000">1000 hPa · ~100 m</option>
+          <option value="850">850 hPa · ~1.5 km</option>
+          <option value="700">700 hPa · ~3 km</option>
+          <option value="500">500 hPa · ~5.5 km</option>
+          <option value="250">250 hPa · ~10 km</option>
+          <option value="70">70 hPa · ~18 km</option>
+          <option value="10">10 hPa · ~26 km</option>
+        </select><small id="wind-note"></small></div>
+      <div class="ctlrow"><label for="activity-arm">Model</label>
+        <select id="activity-arm">
+          <option value="viirs-only">VIIRS only (2012–19)</option>
+          <option value="harm-all">Harmonized MODIS + VIIRS</option>
+          <option value="raw-all">Raw MODIS + VIIRS</option>
+          <option value="harm-pre">Harmonized MODIS (2003–11)</option>
+          <option value="raw-pre">Raw MODIS (2003–11)</option>
+        </select><small id="activity-note"></small></div>
+</section>
 </div>
 <main class="mapwrap" aria-label="Map">
   <div id="map" class="map"></div><div class="controls">
       <label for="filter" class="sr-only">Filter fires</label>
       <input id="filter" type="search" placeholder="Search fire name or location" autocomplete="off" spellcheck="false">
-    </div><div class="mapnav"><button id="home">⌂ Home</button><button id="return">← Back</button></div><button id="locate" aria-label="Show my GPS position">◎ GPS</button><div id="viewtoggle" class="viewtoggle" role="group" aria-label="Map view"><button type="button" data-view="2d" aria-pressed="true">2D</button><button type="button" data-view="3d" aria-pressed="false" title="3D terrain (key 3)">3D</button></div>
+    </div><div class="mapnav"><button id="home">⌂ Home</button><button id="return">← Back</button></div><button type="button" id="locate" aria-label="Center the map on my location" title="My location"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm8.94 3A8.99 8.99 0 0 0 13 3.06V1h-2v2.06A8.99 8.99 0 0 0 3.06 11H1v2h2.06A8.99 8.99 0 0 0 11 20.94V23h2v-2.06A8.99 8.99 0 0 0 20.94 13H23v-2h-2.06zM12 19a7 7 0 1 1 0-14 7 7 0 0 1 0 14z"/></svg></button><button type="button" id="labels" class="labelsbtn" aria-pressed="true" title="State, city and river names">Labels</button><div id="viewtoggle" class="viewtoggle" role="group" aria-label="Map view"><button type="button" data-view="2d" aria-pressed="true">2D</button><button type="button" data-view="3d" aria-pressed="false" title="3D terrain (key 3)">3D</button></div>
   
   
   <div class="bottom">
-  <section class="legend" id="legend" aria-labelledby="legend-h">
+  <details class="keybox onmap" id="keybox"><summary>Key</summary>
+  <section class="legend open" id="legend" aria-labelledby="legend-h">
     <h2 id="legend-h" class="sr-only">Map layers</h2>
     <ul id="legend-list">
       <li><button type="button" aria-pressed="true" data-layer="current"><span class="sw sw-cur"></span><span class="s">Perimeter</span><span class="l">Current perimeter (FEDS)</span></button></li>
@@ -69,8 +72,15 @@
       <li><button type="button" aria-pressed="false" data-layer="interior"><span class="sw sw-faint"></span><span class="s">Burnout</span><span class="l">Burnout inside perimeter (predicted)</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="detached"><span class="sw sw-faint"></span><span class="s">Detached</span><span class="l">Growth on hotspots &gt; 1 km from fire (predicted)</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="hotspots"><span class="sw sw-hot"></span><span class="s">Hotspots</span><span class="l">VIIRS hotspots, last 12 h</span></button></li>
+      <li><button type="button" aria-pressed="false" data-layer="activity"><span class="sw sw-act"></span><span class="s">Likely tomorrow</span><span class="l">Fire likely tomorrow: watch area, 10 km squares (not a perimeter)</span></button></li>
+
     </ul>
-    <button type="button" id="legend-toggle" class="lg-toggle" aria-expanded="false" aria-controls="legend-list">Key</button>
+  </section>
+</details>
+  <section id="timeline" class="tl-mini" aria-label="Fire timeline" hidden>
+    <button type="button" id="tl-all" aria-pressed="true" title="Show every perimeter at once">All</button>
+    <ol id="stops" class="stops"></ol>
+    <button type="button" id="compare" aria-pressed="false" hidden title="Compare the forecast with perimeters observed later">Actual</button>
   </section>
   
   </div>

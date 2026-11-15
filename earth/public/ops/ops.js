@@ -1,4 +1,6 @@
 import {registerOffline, applyUpdate, saveArea, listAreas} from "./offline.js";
+import {setActivity} from "./predictions.js";
+import {windLayer} from "./wind.js";
 // Ignopticon Ops: fire list, map, forecast and timeline from /api/fires (dev-server.js).
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -6,14 +8,16 @@ const num = (n) => Math.round(n).toLocaleString("en-US");
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const params = new URLSearchParams(location.search);
-const BASEMAPS = ["satellite", "imagerytopo", "topo"];
+const BASEMAPS = ["satellite"];
 const state = {
   t: params.get("t"), fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
-  base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") === "on",
+  base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") !== "off",
   filter: "", mode: "progression", step: 0, compare: false,
-  layers: {current: true, previous: true, forecast: true, arrows: true, hotspots: false, interior: false, detached: false},
+  layers: {current: true, previous: true, forecast: true, arrows: true, hotspots: false, interior: false, detached: false, activity: false},
+  arm: params.get("arm") || "harm-all",
+  wind: params.get("wind") || "surface",  // wind particle height (wind.js): off, surface, or hPa  // which next-day prediction model (data/samples/predictions)
 };
-let fires = [], byId = new Map(), at = null, map = null, cur = null, playing = null;
+let fires = [], byId = new Map(), at = null, map = null, cur = null;
 
 
 let gps = null, gpsMarker = null, gpsWatch = null, gpsMessage = "Waiting for GPS";
@@ -138,7 +142,8 @@ function writeUrl() {
   if (state.fire) p.set("fire", state.fire);
   if (state.view === "3d") p.set("view", "3d");
   if (state.base !== "satellite") p.set("base", state.base);
-  if (state.labels) p.set("labels", "on");
+  if (!state.labels) p.set("labels", "off");
+  if (state.wind !== "surface") p.set("wind", state.wind);
   history.replaceState(null, "", "?" + p);
 }
 
@@ -156,16 +161,6 @@ function renderList() {
   }).join("");
 }
 
-function renderStatus() {
-  if (!at) return;
-  const f = byId.get(state.fire), zone = zoneOf(f), perimeter = f ? f.perimeter_time : at.snapshot;
-  const age = hoursBetween(perimeter, at.time), old = age > 12;
-  const fc = f ? (f.forecast ? `Forecast: issued ${when(f.forecast.issued, zone)}` : "Forecast: none for this fire")
-    : `Forecasts: ${fires.filter((x) => x.forecast).length} fire(s)`;
-  $("#status").className = "status" + (old ? " warn" : "");
-  $("#status").innerHTML = `<span>Perimeters: ${when(perimeter, zone)}</span><span>${fc}</span>` +
-    `<span class="age">${old ? "⚠ " : ""}Data age ${num(age)} h at view time${old ? " (over 12 h old)" : ""}</span>`;
-}
 
 const where = (x) => x.properties.where || "front";  // files without classes are all front
 const bandAcres = (fc, h, w) => fc.features.filter((x) => x.properties.kind === "band" && (h == null || x.properties.hours === h) && where(x) === w)
@@ -195,12 +190,11 @@ function renderDetail(f, d) {
   const hs = d && d.hotspots;
   $("#detail").innerHTML = `<button type="button" class="back" id="back">← All fires (Esc)</button>
 <h2 id="detail-name">${esc(label(f))}</h2><p class="muted">${esc(f.place || "")} · FEDS fire ${f.id}</p>
-<dl><div><dt>Mapped area</dt><dd class="big">${num(f.acres)} ac</dd></div><div><dt>12 h growth</dt><dd class="${g.cls}">${g.text}</dd></div>
-${f.incident_acres != null ? `<div><dt>Incident record (WFIGS, as of ${day(f.incident_as_of)})</dt><dd>${num(f.incident_acres)} ac${f.contained != null ? `, ${f.contained}% contained` : ""}${f.incident_state && f.incident_state !== f.state ? `. Incident registered in ${esc(f.incident_state)}` : ""}</dd></div>` : ""}
-<div><dt>Burning</dt><dd>${num(f.days)} days</dd></div></dl>${fcHtml}
+<dl class="stats"><div><dt>Mapped area</dt><dd class="big">${num(f.acres)} <small>ac</small></dd></div><div><dt>Burning</dt><dd class="big">${num(f.days)} <small>days</small></dd></div>
+<div class="growth"><dd class="${g.cls}">${/^[+−]/.test(g.text) ? g.text.replace(/ \([^)]*\)/, "").replace(/ in 12 h$/, " growth in 12h") : g.text}</dd></div></dl>${fcHtml}
 <details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(f.perimeter_time, zone)}</li>
 <li>Hotspots: VIIRS S-NPP, NOAA-20, NOAA-21: ${hs ? `${num(hs.length)} detections in the 12 h to view time` : "none downloaded for this time"}</li>
-${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li>Map: USGS The National Map; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
+${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li><li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
   $("#detail").hidden = false;
   if (d) legendForecast(fc);
   $("#back").onclick = overview;
@@ -224,10 +218,8 @@ const front = ["==", ["get", "where"], "front"];
 // cloud-free 10 m image of the whole world (land and sea), free for non-commercial use (CC BY-NC-SA 4.0).
 const BASE_TILES = {
   satellite: {src: "s2cloudless", maxzoom: 14, attribution: "EOxCloudless 2024 by EOX IT Services GmbH (contains modified Copernicus Sentinel data 2024)"},
-  imagerytopo: {src: "imagerytopo", maxzoom: 16, attribution: "USGS The National Map"},
-  topo: {src: "topo", maxzoom: 16, attribution: "USGS The National Map"},
 };
-const keyed = (b, maxzoom) => maxzoom > 8 && b === "imagerytopo";  // only USGS imagery has the white fill
+const keyed = () => false;  // USGS imagery (which has the white fill) is no longer a basemap; keyedTile stays for reuse
 const baseSource = (b, maxzoom = 16) => {
   const t = BASE_TILES[b];
   return {type: "raster", tiles: [`${keyed(b, maxzoom) ? "keyed://" : origin + "/"}tiles/${t.src}/{z}/{x}/{y}`], tileSize: 256,
@@ -255,6 +247,30 @@ async function keyedTile(params, abort) {
   g.putImageData(img, 0, 0);
   return {data: await (await c.convertToBlob({type: "image/png"})).arrayBuffer()};
 }
+const lowVisible = (b) => BASE_TILES[b].src !== "s2cloudless";  // Sentinel-2 has no gaps to fill
+// State, city and river names (data/labels/na-labels.json, scripts/make_labels.py): white text on a dark halo, no
+// fills or lines, so nothing competes with the imagery or the fire colours. Natural Earth's z says from which zoom a
+// name is worth showing; there is one layer per whole zoom because filters cannot compare a feature with the zoom.
+function labelLayers() {
+  const vis = state.labels ? "visible" : "none", kind = (k) => ["==", ["get", "k"], k];
+  const text = (size, extra = {}) => ({"text-field": ["get", "n"], "text-font": FONT, "text-size": size, visibility: vis, ...extra});
+  const paint = (color = "#FFFFFF") => ({"text-color": color, "text-halo-color": "rgba(0,0,0,0.75)", "text-halo-width": 1.4});
+  // State and country borders: thin, uncoloured lines (so they never read as fire outlines), toggled with the names.
+  const border = (id, k, paint) => ({id, type: "line", source: "borders", filter: kind(k), layout: {visibility: vis, "line-join": "round"}, paint});
+  const layers = [
+    border("lbl-border-state", "state", {"line-color": "rgba(255,255,255,0.45)", "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.6, 10, 1.4]}),
+    border("lbl-border-country", "country", {"line-color": "rgba(255,255,255,0.8)", "line-width": ["interpolate", ["linear"], ["zoom"], 3, 1, 10, 2.2]}),
+    {id: "lbl-state", type: "symbol", source: "labels", minzoom: 3, maxzoom: 8, filter: kind("state"), paint: paint("rgba(255,255,255,0.85)"),
+    layout: text(["interpolate", ["linear"], ["zoom"], 3, 10, 7, 14], {"text-transform": "uppercase", "text-letter-spacing": 0.15})}];
+  for (let m = 2; m <= 8; m++) {
+    const band = m === 8 ? [">", ["get", "z"], 7] : ["all", [">", ["get", "z"], m - 1], ["<=", ["get", "z"], m]];
+    layers.push({id: `lbl-city-${m}`, type: "symbol", source: "labels", minzoom: m, filter: ["all", kind("city"), band], paint: paint(),
+      layout: text(["interpolate", ["linear"], ["zoom"], 4, 11, 10, 14], {"symbol-sort-key": ["-", 0, ["get", "p"]]})});
+    layers.push({id: `lbl-river-${m}`, type: "symbol", source: "labels", minzoom: m + 2, filter: ["all", kind("river"), band], paint: paint("#DCEBFF"),
+      layout: text(11, {"symbol-placement": "line", "symbol-spacing": 400, "text-max-angle": 70})});
+  }
+  return layers;
+}
 // Point markers show only while a fire is narrower than ~12 px (zh = that zoom, from the API's bbox).
 const smallOnly = ["step", ["zoom"], ...Array.from({length: 17}, (_, z) => [z, ["case", [">", ["get", "zh"], z + 0.5], 1, 0]]).flat().slice(1)];
 
@@ -267,13 +283,15 @@ function style() {
   return {
     version: 8, glyphs: new URL("vendor/fonts/", import.meta.url).href + "{fontstack}/{range}.pbf",
     sky: {"sky-color": "#6E9CC8", "horizon-color": "#D9E4EE", "fog-color": "#D9E4EE"},
-    sources: {"base-low": baseSource(state.base, 8), base: baseSource(state.base), hydro: {type: "raster", tiles: [`${origin}/tiles/hydro/{z}/{x}/{y}`], tileSize: 256, maxzoom: 16},
+    sources: {"base-low": baseSource(state.base, 8), base: baseSource(state.base),
+      labels: {type: "geojson", data: new URL("../data/labels/na-labels.json", import.meta.url).href, attribution: "Natural Earth"},
+      borders: {type: "geojson", data: new URL("../data/labels/na-borders.json", import.meta.url).href},
       fires: geo(), points: geo(), hist: geo(), fc: geo(), heads: geo(), hot: geo(), obs: geo(), access: geo()},
     layers: [
       // Sentinel-2 has no gaps, so the fallback would only take request slots from the real tiles.
-      L("base-low", "raster", "base-low", {}, {visibility: state.base === "satellite" ? "none" : "visible"}),
+      L("base-low", "raster", "base-low", {}, {visibility: lowVisible(state.base) ? "visible" : "none"}),
       L("base", "raster", "base", {}),
-      L("hydro", "raster", "hydro", {}, {visibility: state.labels ? "visible" : "none"}),
+      ...labelLayers(),
       L("fires-fill", "fill", "fires", {"fill-color": RED, "fill-opacity": 0.1}),
       L("sel-fill", "fill", "fires", {"fill-color": RED, "fill-opacity": 0.12}),
       L("fc-fill", "fill", "fc", {"fill-color": byRank(BANDS), "fill-opacity": ["case", front, byRank(BAND_OPACITY), 0.15]}),
@@ -403,6 +421,30 @@ function applyView() {
   vis(["arrow-case", "arrow-line", "arrow-head", "arrow-label"], L.arrows);
   vis(["hot"], L.hotspots && !(step && step.kind === "past"));
   vis(["obs-case", "obs-line", "obs-label"], state.compare);
+  updateActivity();
+}
+// Eric's next-day fire activity prediction (predictions.js), shown only for the dates it covers.
+let setWind = null, windSource = "";  // the wind file in use, listed under Data sources
+// Wind particles (wind.js) for the view date, at the chosen height.
+function updateWind() {
+  if (!setWind || !at) return;
+  // Particles are drawn in 2D screen space and do not follow 3D terrain, so wind pauses in 3D (the choice is kept).
+  const flat = state.view !== "3d";
+  $("#wind-level").disabled = !flat;
+  setWind(flat ? state.wind : "off", at.time).then((note) => {
+    if (!flat) note = state.wind === "off" ? "" : "Wind is paused in 3D";
+    // Success ("GFS ...") goes to Data sources; only problems stay under the Wind selector.
+    const ok = note.startsWith("GFS");
+    windSource = ok ? `Wind particles: ${note}` : "";
+    $("#wind-note").textContent = ok ? "" : note;
+    const li = $("#wind-src");
+    if (li) { li.textContent = windSource; li.hidden = !windSource; }
+  });
+}
+function updateActivity() {
+  if (!map || !at) return;
+  setActivity(map, {on: state.layers.activity, date: at.time.slice(0, 10), arm: state.arm, beforeId: "fires-fill"})
+    .then((note) => { $("#activity-note").textContent = note; }).catch(() => { $("#activity-note").textContent = "Predictions failed to load"; });
 }
 
 function buildStops(d) {
@@ -421,20 +463,17 @@ function renderTimeline() {
   const tl = $("#timeline");
   if (!cur) { tl.hidden = true; return; }
   tl.hidden = false;
-  if (!cur.stops) { $("#stops").innerHTML = '<li class="muted">Loading timeline…</li>'; return; }
+  if (!cur.stops) { $("#stops").innerHTML = '<li class="muted">…</li>'; return; }
   const zone = zoneOf(cur.fire), fc = cur.detail.forecast;
   $("#stops").innerHTML = cur.stops.map((s, i) => {
     const pressed = state.mode === "step" && i === state.step;
-    const head = s.kind === "now" ? "Now" : s.kind === "fc" ? `+${s.hours} h` : "Observed";
+    const label = s.kind === "now" ? "Now" : s.kind === "fc" ? `+${s.hours} h` : short(s.time, zone);
     const progress = i / Math.max(1, cur.detail.history.length - 2);
     const color = s.kind === "past" ? `color-mix(in srgb, ${PAST[0]}, ${PAST[1]} ${Math.round(100 * progress)}%)` : s.kind === "fc" ? BANDS[Math.min(2, fc.hours.indexOf(s.hours))] : RED;
-    const stop = `<li class="stop ${s.kind}" style="--stop-color:${color}"><button type="button" data-step="${i}" aria-pressed="${pressed}"><span class="k">${head}</span>` +
-      `<span>${short(s.time, zone)}</span><span class="a">${s.kind === "fc" ? "+" : ""}${num(s.acres)} ac</span></button></li>`;
-    return s.kind === "now" ? stop + '<li class="divider" aria-hidden="true">NOW<small>observed | predicted</small></li>' : stop;
-  }).join("") + (fc ? "" : `<li class="stop none"><button type="button" disabled><span class="k">+6 / +12 / +24 h</span><span>No forecast</span></button></li>`);
-  for (const b of document.querySelectorAll("[data-mode]")) b.setAttribute("aria-pressed", b.dataset.mode === state.mode);
-  $("#play").hidden = state.mode !== "step";
-  $("#play").textContent = playing ? "Pause" : "Play";
+    const title = `${s.kind === "fc" ? "Predicted" : "Observed"} ${when(s.time, zone)} · ${s.kind === "fc" ? "+" : ""}${num(s.acres)} ac`;
+    return `<li class="stop ${s.kind}" style="--stop-color:${color}"><button type="button" data-step="${i}" aria-pressed="${pressed}" title="${title}">${label}</button></li>`;
+  }).join("");
+  $("#tl-all").setAttribute("aria-pressed", state.mode !== "step");
   $("#compare").hidden = !(cur.detail.observed_after && cur.detail.observed_after.length);
   $("#compare").setAttribute("aria-pressed", state.compare);
 }
@@ -447,18 +486,6 @@ function setStep(i, announce = true) {
     const s = cur.stops[state.step];
     say(`${s.kind === "fc" ? `Predicted +${s.hours} h` : s.kind === "now" ? "Now" : "Observed"}, ${short(s.time, zoneOf(cur.fire))}, ${s.kind === "fc" ? "plus " : ""}${num(s.acres)} acres`);
   }
-}
-function play() {
-  if (playing) { clearTimeout(playing); playing = null; renderTimeline(); return; }
-  if (reduced) return setStep(cur.stops.length - 1);
-  if (state.step >= cur.stops.length - 1) setStep(0, false);
-  const tick = () => {
-    if (state.step >= cur.stops.length - 1) { playing = null; renderTimeline(); return; }
-    setStep(state.step + 1, false);
-    playing = setTimeout(tick, 1200);
-  };
-  playing = setTimeout(tick, 1200);
-  renderTimeline();
 }
 
 const say = (msg) => { $("#announce").textContent = msg; };
@@ -569,15 +596,14 @@ $("#route-file").onchange = async e => {
 async function select(id, {fitMap = true} = {}) {
   const f = byId.get(id);
   if (!f) return;
-  if (playing) play();
-  document.body.classList.add("selected"); placeLegend(true); $(".sidebar").scrollTop = 0; map?.resize();
+  document.body.classList.add("selected"); $(".sidebar").scrollTop = 0; map?.resize();
   state.fire = id; pickMode(false); accessPoint = null;
   try {
     const point = JSON.parse(localStorage.getItem(routeKey()+".point"));
     if (Array.isArray(point) && point.length === 2 && point.every(Number.isFinite)) accessPoint = point;
   } catch {}
   restoreRoute(null); readConditions(f); cacheFire(f); state.mode = "progression"; cur = {fire: f};
-  writeUrl(); renderList(); renderStatus(); renderDetail(f, null); renderTimeline();
+  writeUrl(); renderList(); renderDetail(f, null); renderTimeline();
   if (fitMap) fit(fireBounds(f));
   if (map && map.getSource("fires")) { clearDetail(); drawRoute(); applyView(); }
   try {
@@ -595,19 +621,25 @@ async function select(id, {fitMap = true} = {}) {
   }
 }
 function overview() {
-  if (playing) play();
-  document.body.classList.remove("selected"); placeLegend(false); setLegend(false); map?.resize();
+  document.body.classList.remove("selected"); map?.resize();
   state.fire = null; cur = null; accessRoute = null; accessPoint = null; accessMarker?.remove(); pickMode(false);
   $("#detail").hidden = true; $("#timeline").hidden = true;
-  writeUrl(); renderList(); renderStatus(); legendForecast(null);
+  writeUrl(); renderList(); legendForecast(null);
   if (map && map.getSource("fires")) { clearDetail(); applyView(); }
   if (fires.length) fit(allBounds());
   say("All fires");
 }
 
+// Rotation and tilt only make sense in 3D: in 2D the map stays north-up and flat, and the compass is hidden.
+function allowRotation(on) {
+  if (!map) return;
+  for (const h of [map.dragRotate, map.touchPitch]) on ? h.enable() : h.disable();
+  on ? map.touchZoomRotate.enableRotation() : map.touchZoomRotate.disableRotation();
+  on ? map.keyboard.enableRotation() : map.keyboard.disableRotation();
+  map.getContainer().classList.toggle("flat", !on);
+}
 function setView(v) {
-  state.view = v; writeUrl();
-  $("#view3d").setAttribute("aria-pressed", v === "3d");
+  state.view = v; writeUrl(); allowRotation(v === "3d"); updateWind();
   for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === v);
   if (!map || !map.getLayer("base")) return;  // style.load applies the URL's view later
   if (v === "3d") {
@@ -621,19 +653,11 @@ function setView(v) {
   }
   map.once("idle", () => performance.mark("ops-view-" + v));
 }
-function setBase(b) {
-  state.base = b; writeUrl();
-  for (const x of document.querySelectorAll("[data-base]")) x.setAttribute("aria-pressed", x.dataset.base === b);
-  if (!map || !map.getLayer("base")) return;
-  for (const id of ["base", "base-low"]) { map.removeLayer(id); map.removeSource(id); }
-  map.addSource("base-low", baseSource(b, 8)); map.addSource("base", baseSource(b));
-  map.addLayer({id: "base-low", type: "raster", source: "base-low", layout: {visibility: b === "satellite" ? "none" : "visible"}}, "hydro");
-  map.addLayer({id: "base", type: "raster", source: "base"}, "hydro");
-}
 function setLabels(on) {
   state.labels = on; writeUrl();
   $("#labels").setAttribute("aria-pressed", on);
-  if (map && map.getLayer("hydro")) map.setLayoutProperty("hydro", "visibility", on ? "visible" : "none");
+  if (!map) return;
+  for (const l of map.getStyle().layers) if (l.id.startsWith("lbl-")) map.setLayoutProperty(l.id, "visibility", on ? "visible" : "none");
 }
 
 function initMap() {
@@ -641,18 +665,20 @@ function initMap() {
   maplibregl.addProtocol("keyed", keyedTile);
   map = new maplibregl.Map({container: "map", style: style(), bounds: [[-125, 24], [-66, 50]], fitBoundsOptions: {padding: 40},
     attributionControl: {compact: true}, maxPitch: 70, fadeDuration: reduced ? 0 : 300});
-  window.opsMap = map; showPosition();
+  window.opsMap = map; setWind = windLayer(map); allowRotation(state.view === "3d"); showPosition();
   if (at) fit(state.fire && byId.has(state.fire) ? fireBounds(byId.get(state.fire)) : allBounds());
   map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), "top-right");
+  // "My location" (Google-Maps-style crosshair) sits in the zoom group: under + / −, above the compass (3D only).
+  $(".maplibregl-ctrl-zoom-out").after($("#locate"));
   map.addControl(new maplibregl.ScaleControl({unit: "imperial"}), "bottom-right");
-  // GPS and the 2D/3D switch join MapLibre's bottom-right stack (added later = higher), so neither covers the scale bar.
+  // The 2D/3D switch and Labels join MapLibre's bottom-right row with the scale bar and the credit.
   const control = (el) => ({onAdd: () => { el.classList.add("maplibregl-ctrl"); return el; }, onRemove: () => {}});
-  map.addControl(control($("#locate")), "bottom-right");
   map.addControl(control($("#viewtoggle")), "bottom-right");
+  map.addControl(control($("#labels")), "bottom-right");
   map.on("style.load", () => {
     addImages();
     listReady.then(() => {
-      setFires(); applyView();
+      setFires(); applyView(); updateWind();
       if (cur && cur.detail) setDetail(cur.detail);
       if (state.view === "3d") setView("3d");
     });
@@ -687,6 +713,10 @@ $("#list").addEventListener("keydown", (e) => {
   e.preventDefault();
   buttons[Math.max(0, Math.min(buttons.length - 1, to))].focus();
 });
+$("#wind-level").value = state.wind;
+$("#wind-level").addEventListener("change", (e) => { state.wind = e.target.value; writeUrl(); updateWind(); });
+$("#activity-arm").value = state.arm;
+$("#activity-arm").addEventListener("change", (e) => { state.arm = e.target.value; updateActivity(); });
 document.querySelector(".legend").addEventListener("click", (e) => {
   const b = e.target.closest("[data-layer]");
   if (!b) return;
@@ -694,37 +724,14 @@ document.querySelector(".legend").addEventListener("click", (e) => {
   b.setAttribute("aria-pressed", state.layers[b.dataset.layer]);
   applyView();
   if (cur && cur.detail && /interior|detached/.test(b.dataset.layer)) renderDetail(cur.fire, cur.detail);
-  // On a phone the expanded key is a temporary menu, not a map overlay.
-  if (window.matchMedia("(max-width: 1099px)").matches) setLegend(false);
 });
-function setLegend(open) {
-  $("#legend").classList.toggle("open", open);
-  $("#legend-toggle").setAttribute("aria-expanded", open);
-  $("#legend-toggle").setAttribute("aria-label", open ? "Hide map key" : "Show map key");
-  $("#legend-toggle").textContent = open ? "Key ▾" : "Key";
-  try { localStorage.setItem("ops.legend", open ? "open" : ""); } catch {}
-}
-// On phones, the selected-fire sheet is the useful place for layer controls:
-// the map remains clear, while the key stays adjacent to that fire's forecast.
-function placeLegend(selected) {
-  const bottom = $(".bottom"), sidebar = $(".sidebar"), detail = $("#detail");
-  if (selected && window.matchMedia("(max-width: 1099px)").matches) sidebar.insertBefore(bottom, detail);
-  else $(".mapwrap").append(bottom);
-}
-setLegend(false);
-window.addEventListener("resize", () => placeLegend(document.body.classList.contains("selected")));
-$("#legend-toggle").addEventListener("click", () => setLegend(!$("#legend").classList.contains("open")));
-$("#basemaps").addEventListener("click", (e) => { const b = e.target.closest("[data-base]"); if (b) setBase(b.dataset.base); });
-$("#view3d").addEventListener("click", () => setView(state.view === "3d" ? "2d" : "3d"));
 $("#viewtoggle").addEventListener("click", (e) => { const b = e.target.closest("[data-view]"); if (b && b.dataset.view !== state.view) setView(b.dataset.view); });
 $("#labels").addEventListener("click", () => setLabels(!state.labels));
 $("#timeline").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
   if (b.dataset.step) setStep(+b.dataset.step);
-  else if (b.dataset.mode === "step") setStep(state.step);
-  else if (b.dataset.mode === "progression") { if (playing) play(); state.mode = "progression"; renderTimeline(); applyView(); say("Progression: all perimeters"); }
-  else if (b.id === "play") play();
+  else if (b.id === "tl-all") { state.mode = "progression"; renderTimeline(); applyView(); say("All perimeters"); }
   else if (b.id === "compare") { state.compare = !state.compare; renderTimeline(); applyView(); }
 });
 document.addEventListener("keydown", (e) => {
@@ -744,13 +751,11 @@ $("#return").onclick = () => { overview(); const matches = fires.filter(matchesF
 $("#locate").onclick = () => { if (gps && map) map.easeTo({center:gps, zoom:12}); else requestGps(); };
 requestGps();
 // The list renders from the API without waiting for the map.
-for (const x of document.querySelectorAll("[data-base]")) x.setAttribute("aria-pressed", x.dataset.base === state.base);
 $("#labels").setAttribute("aria-pressed", state.labels);
-$("#view3d").setAttribute("aria-pressed", state.view === "3d");
 for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === state.view);
 listReady.then((data) => {
   at = data; fires = data.fires; byId = new Map(fires.map((f) => [f.id, f]));
-  renderList(); renderStatus();
+  renderList();
   performance.mark("ops-list");
   if (state.fire && byId.has(state.fire)) select(state.fire);
   else if (map) { state.fire = null; fit(allBounds()); }

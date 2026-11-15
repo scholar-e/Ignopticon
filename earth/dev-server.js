@@ -850,6 +850,8 @@ app.get("/api/fires/:id", apiFire);
 app.get("/api/fires/:id/weather", apiWeather);
 app.all("/api/*", function(req, res) { apiError(res, 404, "No API endpoint " + req.path); });
 app.use(i4Tile);
+// Next-day fire activity predictions (Eric, data/samples/predictions): PNG grids + index.json.
+app.use("/data/predictions", express.static(path.join(__dirname, "..", "data", "samples", "predictions")));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.listen(port);
