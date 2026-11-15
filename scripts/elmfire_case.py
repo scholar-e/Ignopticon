@@ -39,6 +39,9 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            WSMULT=x scales wind speed, MOIST=p adds p percentage points to dead fuel moisture, WXSTART=k starts at
            the weather's band k (for an ISSUE k hours after the weather run). ACTIVE_BUFFER=n (default 2): burned
            cells within n state cells of a hot cell keep their fuel; only the rest become non-burnable.
+           ADJ_GR=, ADJ_SH=, ADJ_TIMBER= set the spread multiplier of grass + grass-shrub, shrub and timber fuels
+           (other cells keep ADJ); ADJ_WIND_EXP=b then multiplies it by (the cell's mean 20-ft wind over the run /
+           ADJ_WIND_REF, default 10 mph) ** b, clipped to x0.1-x10.
        elmfire_case.py outputs CASE [NAME]
            after ELMFIRE has run in CASE: its .bil outputs to GeoTIFF (with the case's CRS, which ELMFIRE leaves out)
            and CASE/outputs/run.json naming the run, for heat_frames.py CASE/outputs.
@@ -173,6 +176,12 @@ def parse_value(text):
         return text
 
 
+# Fuel groups for per-group spread multipliers (FBFM40 codes): grass and grass-shrub, shrub, timber (understory,
+# litter, slash-blowdown).
+ADJ_GROUPS = {"ADJ_GR": list(range(101, 110)) + list(range(121, 125)), "ADJ_SH": list(range(141, 150)),
+              "ADJ_TIMBER": list(range(161, 166)) + list(range(181, 190)) + list(range(201, 205))}
+
+
 def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     import datetime
     with rasterio.open(landscape_tif) as src:
@@ -192,10 +201,20 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     burned_fine = np.kron(burned, np.ones((refine, refine), dtype=bool))[:bands.shape[1], :bands.shape[2]]
     adj_value, observed, active_hours, extra = 1.0, None, 6.0, {"SIMULATOR": {"NUM_IGNITIONS": 0}}
     ws_mult, moist_add, wx_start, active_buffer = 1.0, 0.0, 0, 2
+    adj_group, adj_wind_exp, adj_wind_ref = {}, 0.0, 10.0
     for item in overrides:
         key, value = item.split("=", 1)
         if key.upper() == "ADJ":
             adj_value = float(value)
+            continue
+        if key.upper() in ADJ_GROUPS:
+            adj_group[key.upper()] = float(value)
+            continue
+        if key.upper() == "ADJ_WIND_EXP":
+            adj_wind_exp = float(value)
+            continue
+        if key.upper() == "ADJ_WIND_REF":
+            adj_wind_ref = float(value)
             continue
         if key.upper() == "WSMULT":
             ws_mult = float(value)
@@ -266,10 +285,23 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     else:
         phi = np.where(burned_fine, -1.0, 1.0)
     adj = np.full(phi.shape, adj_value)
+    # Per-fuel-group multipliers (absolute: ADJ_GR=0.03 sets grass and grass-shrub cells to 0.03; groups not given
+    # keep ADJ), by the cell's FBFM40 code.
+    for name, value in adj_group.items():
+        adj[np.isin(landscape["fbfm40"], ADJ_GROUPS[name])] = value
     # Weather adjustments: start at band WXSTART (hours after the weather's first band), scale the wind speed,
     # add MOIST (percentage points) to the dead fuel moisture.
     weather = {k: v[wx_start:] for k, v in weather.items()}
     weather["ws"] = weather["ws"] * ws_mult
+    if adj_wind_exp:
+        # Wind term: ADJ x (cell's mean 20-ft wind over the run / ADJ_WIND_REF mph) ** ADJ_WIND_EXP, factor clipped
+        # to [0.1, 10]. ELMFIRE's adj raster is static, so the run's mean wind stands for the cell's wind.
+        ws_mean = weather["ws"][: int(float(hours)) + 1].mean(0)
+        k = int(round(wx_transform.a / transform.a))
+        ws_fine = np.kron(ws_mean, np.ones((k, k)))[:phi.shape[0], :phi.shape[1]]
+        factor = np.clip((np.maximum(ws_fine, 0.1) / adj_wind_ref) ** adj_wind_exp, 0.1, 10.0)
+        adj = adj * factor
+        log.info("ADJ wind term: exponent %g, factor %.2f-%.2f", adj_wind_exp, factor.min(), factor.max())
     for k in ("m1", "m10", "m100"):
         weather[k] = weather[k] + moist_add
     # Keys given without a group go to the group write_case already uses them in, else SIMULATOR.

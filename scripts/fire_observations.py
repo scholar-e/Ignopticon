@@ -14,7 +14,8 @@ Sources, all put on one 375 m grid (azimuthal equidistant, centered on the fire)
     threshold is counted too. A cell with a detection keeps the detection's FRP, which the fire algorithm takes
     from the unsaturated 4 µm M13 band when I4 saturates.
   - NASA FEDS perimeters (VEDA features API) at every 12-hourly snapshot from the day before to the day after: the
-    area already burned, and later perimeters to verify against.
+    area already burned, and later perimeters to verify against. FEDS covers 2025 on (NRT) and 2018-2021 (archive);
+    other years, or FEDS unreachable, give detections only.
 
 The fire state is each cell's arrival time: the first overpass that saw it hot, or, for cells inside a FEDS
 perimeter but never seen hot, midway between the snapshot that first contains them and the one before. A model is
@@ -67,6 +68,9 @@ SATURATION, OUT_OF_RANGE = 4, 2  # I04_quality_flags bits, as in viirs_i4_tiles.
 WARM_I5 = 270.0              # an out-of-range I4 pixel is a fire if I5 is warmer than this...
 CLOUD_I5 = 265.0             # ...and a pixel whose I5 is colder than this is a cloud top, not ground
 FEDS = "https://openveda.cloud/api/features/collections/public.eis_fire_lf_perimeter_nrt/items"
+# FEDS's archive of large-fire perimeters (CONUS, 2018-2021 as far as checked; fire ids like "F13066"). 2022-2024
+# and anything before 2018 have no FEDS perimeters: the fire state then comes from detections only.
+FEDS_ARCHIVE = "https://openveda.cloud/api/features/collections/public.eis_fire_lf_perimeter_archive/items"
 NODATA = -9999.0
 LAMBDA_I4 = 3.74             # µm
 C1, C2 = 1.191042e8, 1.4387752e4  # W µm^4 m^-2 sr^-1, µm K
@@ -234,6 +238,14 @@ def i4_frames(grid, granule_dir, date):
     return frames
 
 
+def fire_id(value):
+    """FEDS NRT fire ids are numbers, archive ones strings like "F13066"."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return str(value)
+
+
 def perimeters(grid, lon, lat, radius_m, date, end_date=None):
     """FEDS large-fire perimeters within the grid from the day before DATE to the day after, as
     [{time, fireid, area_km2, geometry (lon/lat GeoJSON), mask (cells inside)}], the biggest fire per snapshot."""
@@ -244,8 +256,16 @@ def perimeters(grid, lon, lat, radius_m, date, end_date=None):
     params = {"bbox": "%f,%f,%f,%f" % (lon - dlon, lat - dlat, lon + dlon, lat + dlat), "limit": 1000,
               "datetime": "%sT00:00:00Z/%sT23:59:59Z" % (day - datetime.timedelta(days=1),
                                                        last + datetime.timedelta(days=1))}
-    with urllib.request.urlopen(FEDS + "?" + urllib.parse.urlencode(params), timeout=300) as response:
-        features = json.load(response)["features"]
+    url = FEDS if day.year >= 2025 else FEDS_ARCHIVE if 2018 <= day.year <= 2021 else None
+    if url is None:
+        log.info("no FEDS perimeters for %s: detections only", date)
+        return []
+    try:
+        with urllib.request.urlopen(url + "?" + urllib.parse.urlencode(params), timeout=300) as response:
+            features = json.load(response)["features"]
+    except Exception as err:  # FEDS down or slow: carry on from detections only
+        log.warning("FEDS perimeters unavailable (%s): detections only", err)
+        return []
     biggest = {}
     for f in features:
         p = f["properties"]
@@ -259,7 +279,7 @@ def perimeters(grid, lon, lat, radius_m, date, end_date=None):
         mask = rasterize([(mapping(projected), 1)], out_shape=(grid.n, grid.n), transform=grid.transform,
                          all_touched=False, dtype=np.uint8).astype(bool)
         stamp = datetime.datetime.fromisoformat(t).replace(tzinfo=datetime.timezone.utc).timestamp()
-        result.append({"time": stamp, "fireid": int(f["properties"]["fireid"]),
+        result.append({"time": stamp, "fireid": fire_id(f["properties"]["fireid"]),
                        "area_km2": round(f["properties"]["farea"], 1),
                        "geometry": mapping(geometry.simplify(0.001)), "mask": mask})
     return result
