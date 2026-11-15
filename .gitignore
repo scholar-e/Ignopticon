@@ -77,3 +77,4 @@ data/growth/cache/
 data/growth/runs/*.txt
 data/growth/runs/*.parquet
 data/growth/heldout_eval/*/
+earth/public/data/history
