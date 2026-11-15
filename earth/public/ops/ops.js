@@ -13,7 +13,7 @@ const state = {
   t: params.get("t"), fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
   base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") !== "off",
   filter: "", mode: "progression", step: 0, compare: false,
-  layers: {current: true, previous: true, forecast: true, arrows: true, hotspots: false, interior: false, detached: false, activity: false},
+  layers: {current: true, previous: true, forecast: true, arrows: false, hotspots: false, interior: false, detached: false, activity: false},
   arm: params.get("arm") || "harm-all",
   wind: params.get("wind") || "surface",  // wind particle height (wind.js): off, surface, or hPa  // which next-day prediction model (data/samples/predictions)
 };
