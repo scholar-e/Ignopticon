@@ -1,0 +1,426 @@
+{
+ "runs": {
+  "map20260802-66433/scar_harm": "complete",
+  "map20260802-66433/scar_raw": "complete",
+  "map20260802-66433/scar_viirs_only": "complete",
+  "map20260802-65395/scar_harm": "complete",
+  "map20260802-65395/scar_raw": "complete",
+  "map20260802-65395/scar_viirs_only": "complete",
+  "map20260802-65682/scar_harm": "complete",
+  "map20260802-65682/scar_raw": "complete",
+  "map20260802-65682/scar_viirs_only": "complete",
+  "map20260802-65080/scar_harm": "complete",
+  "map20260802-65080/scar_raw": "complete",
+  "map20260802-65080/scar_viirs_only": "complete",
+  "map20260802-20036/scar_harm": "complete",
+  "map20260802-20036/scar_raw": "complete",
+  "map20260802-20036/scar_viirs_only": "complete",
+  "map20260802-66055/scar_harm": "complete",
+  "map20260802-66055/scar_raw": "complete",
+  "map20260802-66055/scar_viirs_only": "complete",
+  "map20260802-64816/scar_harm": "complete",
+  "map20260802-64816/scar_raw": "complete",
+  "map20260802-64816/scar_viirs_only": "complete",
+  "map20260802-340/scar_harm": "complete",
+  "map20260802-340/scar_raw": "complete",
+  "map20260802-340/scar_viirs_only": "complete",
+  "map20260802-19/scar_harm": "complete",
+  "map20260802-19/scar_raw": "complete",
+  "map20260802-19/scar_viirs_only": "complete",
+  "map20260802-62041/scar_harm": "complete",
+  "map20260802-62041/scar_raw": "complete",
+  "map20260802-62041/scar_viirs_only": "complete",
+  "map20260802-53363/scar_harm": "complete",
+  "map20260802-53363/scar_raw": "complete",
+  "map20260802-53363/scar_viirs_only": "complete",
+  "map20260802-53095/scar_harm": "complete",
+  "map20260802-53095/scar_raw": "complete",
+  "map20260802-53095/scar_viirs_only": "complete"
+ },
+ "burnscar": {
+  "map20260802-66433": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1638400,
+    "recent_cells": 210047,
+    "recent_cells_burnable": 199266,
+    "own_excluded_cells": 639509,
+    "cells": 1638400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1638400,
+    "recent_cells": 210047,
+    "recent_cells_burnable": 199266,
+    "own_excluded_cells": 639509,
+    "cells": 1638400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1495418,
+    "recent_cells": 210047,
+    "recent_cells_burnable": 199266,
+    "own_excluded_cells": 639509,
+    "cells": 1638400
+   }
+  },
+  "map20260802-65395": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 887939,
+    "recent_cells": 42700,
+    "recent_cells_burnable": 42508,
+    "own_excluded_cells": 435967,
+    "cells": 1000000
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 918230,
+    "recent_cells": 42700,
+    "recent_cells_burnable": 42508,
+    "own_excluded_cells": 435967,
+    "cells": 1000000
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 846068,
+    "recent_cells": 42700,
+    "recent_cells_burnable": 42508,
+    "own_excluded_cells": 435967,
+    "cells": 1000000
+   }
+  },
+  "map20260802-65682": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1154772,
+    "recent_cells": 231764,
+    "recent_cells_burnable": 217634,
+    "own_excluded_cells": 59200,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1154772,
+    "recent_cells": 231764,
+    "recent_cells_burnable": 217634,
+    "own_excluded_cells": 59200,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1154772,
+    "recent_cells": 231764,
+    "recent_cells_burnable": 217634,
+    "own_excluded_cells": 59200,
+    "cells": 1166400
+   }
+  },
+  "map20260802-65080": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 285536,
+    "recent_cells_burnable": 275682,
+    "own_excluded_cells": 122529,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 285536,
+    "recent_cells_burnable": 275682,
+    "own_excluded_cells": 122529,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 285536,
+    "recent_cells_burnable": 275682,
+    "own_excluded_cells": 122529,
+    "cells": 1166400
+   }
+  },
+  "map20260802-20036": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1066035,
+    "recent_cells": 114740,
+    "recent_cells_burnable": 74346,
+    "own_excluded_cells": 65819,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1115379,
+    "recent_cells": 114740,
+    "recent_cells_burnable": 74346,
+    "own_excluded_cells": 65819,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1009193,
+    "recent_cells": 114740,
+    "recent_cells_burnable": 74346,
+    "own_excluded_cells": 65819,
+    "cells": 1166400
+   }
+  },
+  "map20260802-66055": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 651100,
+    "recent_cells": 0,
+    "recent_cells_burnable": 0,
+    "own_excluded_cells": 406234,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 718920,
+    "recent_cells": 0,
+    "recent_cells_burnable": 0,
+    "own_excluded_cells": 406234,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 578724,
+    "recent_cells": 0,
+    "recent_cells_burnable": 0,
+    "own_excluded_cells": 406234,
+    "cells": 1166400
+   }
+  },
+  "map20260802-64816": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1006527,
+    "recent_cells": 239155,
+    "recent_cells_burnable": 169356,
+    "own_excluded_cells": 373422,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1148943,
+    "recent_cells": 239155,
+    "recent_cells_burnable": 169356,
+    "own_excluded_cells": 373422,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1006527,
+    "recent_cells": 239155,
+    "recent_cells_burnable": 169356,
+    "own_excluded_cells": 373422,
+    "cells": 1166400
+   }
+  },
+  "map20260802-340": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 603238,
+    "recent_cells_burnable": 603238,
+    "own_excluded_cells": 131151,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 603238,
+    "recent_cells_burnable": 603238,
+    "own_excluded_cells": 131151,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 603238,
+    "recent_cells_burnable": 603238,
+    "own_excluded_cells": 131151,
+    "cells": 1166400
+   }
+  },
+  "map20260802-19": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 699593,
+    "recent_cells": 386007,
+    "recent_cells_burnable": 94414,
+    "own_excluded_cells": 0,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 699593,
+    "recent_cells": 386007,
+    "recent_cells_burnable": 94414,
+    "own_excluded_cells": 0,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 699593,
+    "recent_cells": 386007,
+    "recent_cells_burnable": 94414,
+    "own_excluded_cells": 0,
+    "cells": 1166400
+   }
+  },
+  "map20260802-62041": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 510184,
+    "recent_cells": 58829,
+    "recent_cells_burnable": 57018,
+    "own_excluded_cells": 58694,
+    "cells": 1345600
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 510184,
+    "recent_cells": 58829,
+    "recent_cells_burnable": 57018,
+    "own_excluded_cells": 58694,
+    "cells": 1345600
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 473894,
+    "recent_cells": 58829,
+    "recent_cells_burnable": 57018,
+    "own_excluded_cells": 58694,
+    "cells": 1345600
+   }
+  },
+  "map20260802-53363": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 771615,
+    "recent_cells_burnable": 726070,
+    "own_excluded_cells": 75157,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 771615,
+    "recent_cells_burnable": 726070,
+    "own_excluded_cells": 75157,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 771615,
+    "recent_cells_burnable": 726070,
+    "own_excluded_cells": 75157,
+    "cells": 1166400
+   }
+  },
+  "map20260802-53095": {
+   "scar_harm": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/harm_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 842627,
+    "recent_cells_burnable": 672578,
+    "own_excluded_cells": 73160,
+    "cells": 1166400
+   },
+   "scar_raw": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/raw_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 842627,
+    "recent_cells_burnable": 672578,
+    "own_excluded_cells": 73160,
+    "cells": 1166400
+   },
+   "scar_viirs_only": {
+    "file": "/home/elinzi/Coding/ignopticon/data/burnscar/rasters/viirs_only_2026-08-02.tif",
+    "years": 1.0,
+    "mult": 0.3,
+    "covered_cells": 1166400,
+    "recent_cells": 842627,
+    "recent_cells_burnable": 672578,
+    "own_excluded_cells": 73160,
+    "cells": 1166400
+   }
+  }
+ }
+}

@@ -829,3 +829,24 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
   recovers about 3/4 of the control's recall at about half the false-alarm area; raw and viirs-only uppers are nearly the same (0.283 recall, 13.2 km2).
 - Export: lower and upper GeoJSON for all 73 Aug 2 forecasts (`earth/public/data/forecasts_bounds`, index.json lists areas and footprint source). Caveats: 12 fires/one date;
   harm/raw/viirs-only differences within noise; the K-NN feature set and K were chosen once without tuning; weather/fuel for fires without a VIIRS cluster looked up on the 0.1 deg grid.
+
+### 26. 2026-11-15 — Burn-scar fuel correction from the harmonized record (`scripts/burnscar.py`, `BURNSCAR_*` in `elmfire_case.py`)
+- Idea: LANDFIRE fuels may not show recent fires, so ELMFIRE would spread freely into ground that burned lately. New opt-in (default unchanged)
+  `BURNSCAR_FILE=path BURNSCAR_YEARS=N BURNSCAR_MULT=m`: fuel cells whose burn-history cell has years-since-fire <= N get spread multiplier m after every other ADJ
+  term (m = 0: non-burnable, fbfm40 99). Burn-history cells that touch the fire's own start area (burned at issue, FEDS perimeter, burning cells) are excluded
+  whole. Emitted adj/fuel tested in `tests/test_burnscar.py` (3 mask/adj/fuel/composition/validation checks, plus a coarse-raster exclusion check).
+- History rasters (`data/burnscar/rasters/ARM_ISSUE.tif`, 0.1 deg, years since last fire, -1 = none, 2003 to the day before issue; `rasters.json`): pre-2012 harm =
+  strict `p_viirs >= 0.5`, raw = MODIS Terra/Aqua presence, viirs-only = nothing; 2012+ VNP14A1 fire > 0 for all arms. Consequence: the three arms are
+  identical in any window starting after 2011. Cells differing (2026-08-02): N <= 10: 0; N = 15: harm vs raw 616, harm vs viirs-only 235; N = 23 (all history): 7505 / 3548.
+  So with N in {1,2,3,5} harm vs raw vs viirs-only cannot differ for these fires; the arms were still run separately and are identical.
+- Finer variant (VIIRS 375 m): not built. `data/raw/viirs_fire` holds only 2026 days 211-218 (the days around the forecast), no multi-year archive. A whole 0.1 deg
+  cell (~85 km2) counts as burned if any pixel fired: over-inclusive.
+- Dev choice (harm arm, 3 dev fires + Widemouth 66510, N in {1,2,3,5} x m in {0, 0.3}; in-sample): mean growth IoU control 0.0664; m = 0 0.0678 and m = 0.3 0.0674
+  for every N (N makes no difference; per-fire growth IoU control 0.044/0.079/0.060/0.082 (2021-038, 2021-031, 2020-008, 66510), m = 0: 0.044/0.080/0.065/0.082).
+  Rule (frozen in `data/burnscar/manifest.json` first): best within 0.002 ties go to the smaller perturbation. Chosen N = 1, m = 0.3; gain +0.0009 is below 0.002 (`no_dev_benefit` true).
+- Held-out (12 frozen 2026-08-02T12 fires, same cases/weather as control; `data/burnscar/heldout_table.md`): scar_harm = scar_raw = scar_viirs_only = control to every
+  reported digit (growth IoU 0.0580 mean / 0.0238 median, whole IoU 0.7601, area ratio 36.97 mean / 2.71 median, false growth 0.911; no_growth growth IoU 0, whole IoU 0.9098). No fire changed (0 better / 0 worse).
+- Coverage: 11 of 12 held-out landscapes contain scar cells (<= 1 y after exclusion; 11-52% of 1.0-1.6 M fuel cells; 66055 none; 66433 210 k, 65395 43 k, 340 603 k, 53095 843 k), but
+  every history cell touching the start area is excluded (up to 640 k cells) and a 0.1 deg cell is 8-11 km, so the remaining scar starts well beyond what a 12 h spread reaches; the correction is inert here.
+- Caveats: coarse history cells plus whole-cell own exclusion make the option nearly inert at 12 h; a useful test needs a fine (perimeter-based) scar map and fires that run into old scars. LF2025 fuels
+  already reflect disturbance through about 2024, so only 2025-26 scars could matter for the held-out date. Dev numbers in-sample; N makes no difference. Not recommended for the demo.

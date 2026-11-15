@@ -72,6 +72,12 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            after every other ADJ term; cells beyond the band, inside the perimeter, burning at t=0 or uncovered
            keep x1. The start front is unchanged (whatever the other options select).
            case.json init.front records the effective weighting. A deterministic weighting, not a probability.
+           BURNSCAR_FILE=path BURNSCAR_YEARS=N BURNSCAR_MULT=m: burn-scar fuel correction. PATH is a one-band GeoTIFF in
+           any CRS (scripts/burnscar.py: years since the last fire at ISSUE, from data before ISSUE; nodata / negative =
+           no recorded fire). Fuel cells (nearest raster cell) with years <= N get spread multiplier m after every
+           other ADJ term (m = 0: non-burnable, fbfm40 = 99; else adj x m). Raster cells that touch the fire's own
+           start area (burned at ISSUE, FEDS perimeter, burning cells) are excluded whole, so the fire's own recent
+           detections never down-weight it. All three keys are needed; default off. case.json "burnscar" records it.
            FRONT=whole: the whole edge band burns. If a rule selects no edge cell the whole band burns (as before).
            DT_METEOROLOGY is WXDIR/wx.json "dt_s" (3600 if absent; 900 for hrrr_weather.py --subhourly); WXSTART
            counts weather bands.
@@ -294,6 +300,37 @@ def outward_band_adj(start, burning, probability, covered, band_m, cell_m, p_ref
     return weight, info
 
 
+def read_burnscar(path, shape, transform, crs):
+    """(years (shape) float32, NaN = no fire recorded; ids (shape) int64 raster cell index, -1 outside) on the fuel
+    grid, by nearest raster cell at each fuel cell centre."""
+    from pyproj import Transformer
+    with rasterio.open(path) as src:
+        data = src.read(1).astype("float32")
+        if src.nodata is not None:
+            data[data == src.nodata] = np.nan
+        data[data < 0] = np.nan
+        rows, cols = np.indices(shape)
+        x, y = rasterio.transform.xy(transform, rows, cols)
+        x, y = np.asarray(x).ravel(), np.asarray(y).ravel()
+        if src.crs != crs:
+            x, y = Transformer.from_crs(crs, src.crs, always_xy=True).transform(x, y)
+        r, c = rasterio.transform.rowcol(src.transform, x, y)
+        r, c = np.asarray(r).reshape(shape), np.asarray(c).reshape(shape)
+    inside = (r >= 0) & (r < data.shape[0]) & (c >= 0) & (c < data.shape[1])
+    years = np.full(shape, np.nan, np.float32)
+    years[inside] = data[r[inside], c[inside]]
+    ids = np.where(inside, r * data.shape[1] + c, -1).astype("int64")
+    return years, ids
+
+
+def burnscar_mask(years, ids, start, n_years):
+    """Fuel cells recently burned (years <= n_years) in raster cells that do not touch the start area."""
+    own = np.unique(ids[start & (ids >= 0)])
+    recent = np.isfinite(years) & (years <= n_years)
+    own_cells = recent & np.isin(ids, own)
+    return recent & ~own_cells, int(own_cells.sum())
+
+
 def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     import datetime
     with rasterio.open(landscape_tif) as src:
@@ -325,6 +362,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     front_weight = None
     band_pfile, band_m, band_pref, band_floor, band_cap, band_weight = None, None, None, 0.25, 2.0, None
     front_km, front_rfile, front_r, front_whole = None, None, None, False
+    scar, feds_start = {}, None
     for item in overrides:
         key, value = item.split("=", 1)
         if key.upper() == "ADJ":
@@ -338,6 +376,9 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         if key.upper() == "ADJ_FILE":
             adj_file = value
+            continue
+        if key.upper() in ("BURNSCAR_FILE", "BURNSCAR_YEARS", "BURNSCAR_MULT"):
+            scar[key.upper()] = value
             continue
         if key.upper() == "ADJ_WIND_REF":
             adj_wind_ref = float(value)
@@ -502,6 +543,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         burnable = lambda h: int((fine(h) & ~np.isin(landscape["fbfm40"], list(range(91, 100)))).sum())
         if init_mode == "feds" and feds_fine is not None and feds_fine.any():
             from scipy.ndimage import binary_erosion
+            feds_start = feds_fine
             band = feds_fine & ~binary_erosion(feds_fine, iterations=edge_cells)
             if front_km is not None:
                 from scipy.ndimage import distance_transform_edt
@@ -619,6 +661,28 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         adj = adj * correction
         log.info("ADJ_FILE %s: factor %.2f-%.2f (median %.2f)", adj_file, correction.min(), correction.max(),
                  float(np.median(correction)))
+    burnscar_info = None
+    if scar:
+        if set(scar) != {"BURNSCAR_FILE", "BURNSCAR_YEARS", "BURNSCAR_MULT"}:
+            raise ValueError("BURNSCAR_FILE, BURNSCAR_YEARS and BURNSCAR_MULT go together")
+        n_years, mult = float(scar["BURNSCAR_YEARS"]), float(scar["BURNSCAR_MULT"])
+        if n_years < 0 or mult < 0:
+            raise ValueError("BURNSCAR_YEARS and BURNSCAR_MULT must be >= 0")
+        years, ids = read_burnscar(scar["BURNSCAR_FILE"], phi.shape, transform, crs)
+        start = (phi < 0) | burned_fine
+        if feds_start is not None:
+            start = start | feds_start
+        recent, own = burnscar_mask(years, ids, start, n_years)
+        if mult == 0:
+            landscape["fbfm40"] = np.where(recent, 99, landscape["fbfm40"]).astype("int16")
+        else:
+            adj = np.where(recent, adj * mult, adj)
+        burnscar_info = {"file": scar["BURNSCAR_FILE"], "years": n_years, "mult": mult,
+                         "covered_cells": int(np.isfinite(years).sum()), "recent_cells": int(recent.sum()),
+                         "recent_cells_burnable": int((recent & ~np.isin(landscape["fbfm40"], list(range(91, 100)))).sum())
+                         if mult else int(recent.sum()),
+                         "own_excluded_cells": own, "cells": int(phi.size)}
+        log.info("BURNSCAR: %s", burnscar_info)
     if front_weight is not None:
         # Weighted front: multiply after the physical terms and ADJ_FILE, so they stay composable.
         base = adj.copy()
@@ -669,7 +733,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         json.dump({"landscape": landscape_tif, "weather": wxdir, "state": state_tif, "issue": issue, "hours": hours,
                    "burned_at_issue_cells_375m": int(burned.sum()), "hot_cells_375m": int(hot.sum()),
                    "overrides": list(overrides), "min_start": min_start_info, "live_moisture": live_info,
-                   "init": init_info, "dt_meteorology_s": dt_met}, f, indent=1)
+                   "init": init_info, "burnscar": burnscar_info, "dt_meteorology_s": dt_met}, f, indent=1)
     log.info("%d state cells burned at %s; weather %d bands", burned.sum(), issue, weather["ws"].shape[0])
 
 

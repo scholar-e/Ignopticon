@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 import numpy as np
 
-ORDER = ['no_growth', 'control', 'binary', 'binary_pos', 'weighted', 'band750', 'band2000', 'physics_mw']
+ORDER = ['no_growth', 'control', 'binary', 'binary_pos', 'weighted', 'band750', 'band2000', 'physics_mw', 'scar_harm', 'scar_raw', 'scar_viirs_only']
 METRICS = [('growth_iou', 'Growth IoU', '%.4f'), ('iou', 'Whole IoU', '%.4f'), ('area_ratio', 'Area ratio', '%.2f'),
            ('boundary_mean_m', 'Boundary m', '%.0f'), ('false_growth_fraction', 'False growth', '%.3f')]
 
