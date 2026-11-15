@@ -5,31 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <title>Ignopticon Ops: fires and spread forecasts</title>
-<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-192.png"><meta name="theme-color" content="#162c25">
-<link rel="preload" href="vendor/maplibre-gl.js" as="script">
-<link rel="stylesheet" href="vendor/maplibre-gl.css">
-<link rel="stylesheet" href="ops.css">
-<script type="module" src="ops.js"></script>
-<script src="vendor/maplibre-gl.js" defer></script>
+<link rel="manifest" href="/ops/manifest.webmanifest"><link rel="apple-touch-icon" href="/ops/icons/icon-192.png"><meta name="theme-color" content="#162c25">
+<link rel="preload" href="/ops/vendor/maplibre-gl.js" as="script">
+<link rel="stylesheet" href="/ops/vendor/maplibre-gl.css">
+<link rel="stylesheet" href="/ops/ops.css">
+<script type="module" src="/ops/ops.js"></script>
+<script src="/ops/vendor/maplibre-gl.js" defer></script>
 </head>
 <body>
-<div class="fresh"><span>IGNOPTICON / OPS</span><span id="fresh">Updated every 12 hours</span></div>
+<div class="fresh"><span class="wordmark">Ignopticon</span><span id="fresh">Updated every 12 hours</span></div>
 <div class="sidebar">
   <header class="brand">
-    <h1>Wildfires</h1>
+    <h1>Track Fires</h1>
   </header>
   <section id="detail" class="detail" aria-labelledby="detail-name" hidden></section>
   <nav class="fires" aria-label="Fires">
     
     <div class="order">
-      <span><label for="date">Select date</label>
-      <select id="date"><option value="now">Today</option></select></span>
+      <span class="flabel" id="date-l">Date</span>
+      <span class="ctl"><span class="joined" role="group" aria-labelledby="date-l">
+        <select id="d-month" aria-label="Month"></select><select id="d-day" aria-label="Day"></select><select id="d-year" aria-label="Year"></select>
+      </span><button type="button" id="d-today" class="today" aria-pressed="false">Today</button></span>
+      <label class="flabel" for="sort">Sort by</label>
+      <span class="ctl"><select id="sort">
+        <option value="closest">Closest to me</option>
+        <option value="size">Largest</option>
+        <option value="growth">Fastest growing (12 h)</option>
+        <option value="newest">Newest</option>
+        <option value="name">Name A–Z</option>
+      </select></span>
 </div><p id="count" class="count"></p>
     <ul id="list" class="list"></ul>
   </nav>
-<section class="conditions"><h2>Incident conditions</h2><dl><div><dt>Mapped fuel type</dt><dd id="fuel"></dd></div><div><dt>Wind at 10 m</dt><dd id="wind"></dd></div><div><dt>Weather</dt><dd id="weather"></dd></div></dl><p id="wx-source"></p></section>
-<section class="fieldnotes"><h2>Incident access route</h2><p id="route-note"></p><button type="button" id="pick-access" aria-pressed="false">Choose access point on map</button><p id="access-note"></p><button type="button" id="fit-route" hidden>Show full route</button> <a id="road-directions" hidden target="_blank" rel="noopener noreferrer">Directions to route start ↗</a>
-<label class="upload">Load dispatch route<input id="route-file" type="file" accept=".geojson,.json,application/geo+json,application/json"></label><p id="saved" role="status"></p><a href="storage.html">Offline maps</a></section>
+<section class="conditions"><h2>Conditions <small id="wx-time"></small></h2><dl><div><dt>Fuel</dt><dd id="fuel"></dd></div><div><dt>Wind</dt><dd id="wind"></dd></div><div><dt>Weather</dt><dd id="weather"></dd></div></dl></section>
+<section class="navpanel" id="navpanel" aria-labelledby="nav-h"><h2 id="nav-h">Navigate to the fire</h2>
+<p id="nav-status" class="nav-status"></p>
+<div class="navfield"><span class="nf-l">From</span><span id="nav-from" class="nf-v"></span><span class="nf-b"><button type="button" id="nav-use-gps">My location</button><button type="button" id="nav-pick-start" aria-pressed="false">Set on map</button></span></div>
+<label class="sr-only" for="nav-coords">Start as latitude, longitude</label><input id="nav-coords" class="nav-coords" placeholder="or type a start: lat, lon" autocomplete="off" spellcheck="false">
+<div class="navfield"><span class="nf-l">To</span><span id="nav-to" class="nf-v"></span><span class="nf-b"><button type="button" id="nav-pick-dest" aria-pressed="false">Set on map</button></span></div>
+<div class="navopts"><div class="navseg" role="group" aria-label="Travel mode"><button type="button" data-navmode="both">Drive + walk</button><button type="button" data-navmode="drive">Drive</button><button type="button" data-navmode="walk">Walk</button></div>
+<label class="chk"><input type="checkbox" id="nav-4x4"> Rough 4×4 tracks</label></div>
+<div class="navopts"><button type="button" id="nav-add-rptr" aria-pressed="false">Add repeater</button><label class="upload">Load dispatch route<input id="route-file" type="file" accept=".geojson,.json,application/geo+json,application/json"></label></div>
+<div id="nav-rform" class="nav-rform" hidden><p>Tap the map where the repeater stands.</p>
+<label>Type <select id="nav-preset"><option value="vhf">NIRSC portable VHF repeater</option><option value="uhf">NIRSC UHF repeater</option><option value="vehicle">Vehicle repeater</option><option value="custom">Custom</option></select></label>
+<label>Name <input id="nav-rname" placeholder="e.g. Cmd rptr, Lookout Pk"></label>
+<span class="rf-nums"><label>Mast m <input id="nav-mast" type="number" min="1" max="60" value="6"></label><label>MHz <input id="nav-freq" type="number" min="20" max="6000" value="168"></label><label>Watts <input id="nav-watts" type="number" min="0.5" max="500" step="0.5" value="5"></label></span></div>
+<ul id="nav-repeaters" class="nav-reps"></ul>
+<button type="button" id="nav-go" class="nav-go">Find routes</button>
+<ol id="nav-routes" class="nav-routes"></ol>
+<button type="button" id="nav-start" class="nav-go nav-startbtn" hidden>Start navigation</button>
+<p id="nav-note" class="nav-note" role="status"></p>
+<p class="nav-foot"><span id="saved" role="status"></span> <a href="/ops/storage.html">Offline maps</a></p></section>
 <section class="layerctl" aria-label="Wind and prediction model">
       <div class="ctlrow"><label for="wind-level">Wind</label>
         <select id="wind-level">
@@ -52,8 +78,11 @@
           <option value="raw-pre">Raw MODIS (2003–11)</option>
         </select><small id="activity-note"></small></div>
 </section>
+<section id="sources" class="sources" aria-label="Data sources" hidden></section>
 </div>
 <main class="mapwrap" aria-label="Map">
+  <div id="navbar" class="navbar" hidden><div class="nb-txt"><b id="nb-left"></b><span id="nb-next"></span></div><button type="button" id="nb-reroute">Reroute</button><button type="button" id="nb-end">End</button></div>
+  <div id="navalert" class="navalert" role="alert" hidden></div>
   <div id="map" class="map"></div><div class="controls">
       <label for="filter" class="sr-only">Filter fires</label>
       <input id="filter" type="search" placeholder="Search fire name or location" autocomplete="off" spellcheck="false">
@@ -67,19 +96,26 @@
     <ul id="legend-list">
       <li><button type="button" aria-pressed="true" data-layer="current"><span class="sw sw-cur"></span><span class="s">Perimeter</span><span class="l">Current perimeter (FEDS)</span></button></li>
       <li><button type="button" aria-pressed="true" data-layer="previous"><span class="sw sw-prev"></span><span class="s">Past</span><span class="l">Past perimeters (brown to yellow)</span></button></li>
-      <li><button type="button" aria-pressed="true" data-layer="forecast"><span class="sw-fc"><span class="sw sw-b0"></span><span class="sw sw-b1"></span><span class="sw sw-b2"></span></span><span class="s">Forecast</span><span class="l" id="fc-legend">Predicted front growth +6 / +12 / +24 h (hatched)</span></button></li>
+      <li><button type="button" aria-pressed="true" data-layer="forecast"><span class="sw-fc"><span class="sw sw-b0"></span><span class="sw sw-b1"></span><span class="sw sw-b2"></span></span><span class="s">Forecast</span><span class="l" id="fc-legend">Predicted growth since now, at the chosen forecast hour (hatched)</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="interior"><span class="sw sw-faint"></span><span class="s">Burnout</span><span class="l">Burnout inside perimeter (predicted)</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="detached"><span class="sw sw-faint"></span><span class="s">Detached</span><span class="l">Growth on hotspots &gt; 1 km from fire (predicted)</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="hotspots"><span class="sw sw-hot"></span><span class="s">Hotspots</span><span class="l">VIIRS hotspots, last 12 h</span></button></li>
+      <li><button type="button" id="nav-cov-toggle" aria-pressed="false"><span class="sw sw-dead"></span><span class="s">Dead zones</span><span class="l">No radio or phone coverage near the fire (lighter hatch: marginal)</span></button></li>
       <li><button type="button" aria-pressed="false" data-layer="activity"><span class="sw sw-act"></span><span class="s">Likely tomorrow</span><span class="l">Fire likely tomorrow: watch area, 10 km squares (not a perimeter)</span></button></li>
 
     </ul>
   </section>
 </details>
-  <section id="timeline" class="tl-mini" aria-label="Fire timeline" hidden>
-    <button type="button" id="tl-all" aria-pressed="true" title="Show every perimeter at once">All</button>
+  <section id="forecast" class="tl-mini fcbar" aria-label="Spread forecast" hidden>
+    <span class="tl-h">Forecast</span>
+    <ol id="fc-stops" class="stops"></ol>
+    <button type="button" id="compare" aria-pressed="false" title="Draw the perimeter observed at the chosen forecast hour">Compare actual</button>
+    <p id="fc-read" class="fc-read" aria-live="polite"></p>
+  </section>
+  <section id="timeline" class="tl-mini" aria-label="Observed perimeters" hidden>
+    <span class="tl-h">Observed</span>
     <ol id="stops" class="stops"></ol>
-    <button type="button" id="compare" aria-pressed="false" hidden title="Compare the forecast with perimeters observed later">Actual</button>
+    <button type="button" id="tl-all" class="showall" aria-pressed="true" title="Show every observed perimeter at once">Show all</button>
   </section>
   
   </div>

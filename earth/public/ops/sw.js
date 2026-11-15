@@ -1,11 +1,11 @@
-// Ignopticon Ops service worker (scope /ops/): keeps the ops page, its data and saved map areas usable offline.
+// Ignopticon Ops service worker (scope /; the ops page is at / and /ops/, and the globe's requests pass through): keeps the ops page, its data and saved map areas usable offline.
 // Caches: ops-shell-VERSION (app shell, cache-first), ops-api (network-first), ops-tiles (cache-first, trimmed),
 // ops-area-{id} (tiles and data of areas saved by offline.js, never trimmed), ops-data (/data/, stale-while-revalidate).
 // Bump VERSION whenever a shell file changes: the new worker precaches, then waits until the page asks it to take over.
-const VERSION = "v27";
+const VERSION = "v36";
 const SHELL = "ops-shell-" + VERSION;
 const SHELL_FILES = [
-  "/ops/", "/ops/index.html", "/ops/ops.css", "/ops/ops.js", "/ops/predictions.js", "/ops/wind.js", "/ops/offline.js", "/ops/storage.html",
+  "/", "/ops/", "/ops/index.html", "/ops/ops.css", "/ops/ops.js", "/ops/nav.js", "/ops/predictions.js", "/ops/wind.js", "/ops/offline.js", "/ops/storage.html",
   "/ops/manifest.webmanifest", "/ops/icons/icon-192.png", "/ops/icons/icon-512.png", "/ops/icons/maskable-512.png",
   "/ops/vendor/maplibre-gl.js", "/ops/vendor/maplibre-gl.css", "/ops/vendor/fonts/Noto%20Sans%20Bold/0-255.pbf",
 ];
@@ -39,12 +39,18 @@ self.addEventListener("fetch", (event) => {
   const req = event.request, url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== location.origin) return count("other", "passthrough");
   const p = url.pathname;
-  if (p.startsWith("/api/") || p === "/identify/fuel") event.respondWith(networkFirst(event));
-  else if (p.startsWith("/tiles/")) event.respondWith(tile(event));
-  else if (p.startsWith("/data/")) event.respondWith(staleWhileRevalidate(event));
-  else if (p.startsWith("/ops/")) event.respondWith(shell(req));
-  else count("other", "passthrough");
+  if (req.mode === "navigate") return opsPage(p) ? event.respondWith(shell(req)) : count("other", "passthrough");
+  if (p.startsWith("/ops/")) return event.respondWith(shell(req));
+  if (!(p.startsWith("/api/") || p === "/identify/fuel" || p.startsWith("/tiles/") || p.startsWith("/data/"))) return count("other", "passthrough");
+  // The globe (/index.html, /globe) shares /data/ and /tiles/: its requests go straight to the network.
+  event.respondWith(self.clients.get(event.clientId).then((c) => {
+    if (c && !opsPage(new URL(c.url).pathname)) return count("other", "passthrough"), fetch(req);
+    if (p.startsWith("/tiles/")) return tile(event);
+    if (p.startsWith("/data/")) return staleWhileRevalidate(event);
+    return networkFirst(event);
+  }));
 });
+const opsPage = (p) => p === "/" || p.startsWith("/ops/");
 
 // Tells the open pages whether the network worked, and how old the cached data they now show is.
 async function notify(msg) {

@@ -1,3 +1,4 @@
+import {createNav} from "./nav.js";
 import {registerOffline, applyUpdate, saveArea, listAreas} from "./offline.js";
 import {setActivity} from "./predictions.js";
 import {windLayer} from "./wind.js";
@@ -12,8 +13,9 @@ const BASEMAPS = ["satellite"];
 const state = {
   t: params.get("t"), fire: +params.get("fire") || null, view: params.get("view") === "3d" ? "3d" : "2d",
   base: BASEMAPS.includes(params.get("base")) ? params.get("base") : "satellite", labels: params.get("labels") !== "off",
-  filter: "", mode: "progression", step: 0, compare: false,
-  layers: {current: true, previous: true, forecast: true, arrows: false, hotspots: false, interior: false, detached: false, activity: false},
+  filter: "", sort: ["closest", "size", "growth", "newest", "name"].includes(params.get("sort")) ? params.get("sort") : "closest",
+  mode: "progression", step: 0, fc: null, compare: false,  // fc: forecast hour shown, or null (off)
+  layers: {current: true, previous: true, forecast: true, hotspots: false, interior: false, detached: false, activity: false},
   arm: params.get("arm") || "harm-all",
   wind: params.get("wind") || "surface",  // wind particle height (wind.js): off, surface, or hPa  // which next-day prediction model (data/samples/predictions)
 };
@@ -59,6 +61,7 @@ function requestGps() {
   if (!navigator.geolocation) { gpsMessage = "GPS unavailable"; if (at) renderList(); return; }
   gpsWatch = navigator.geolocation.watchPosition(({coords}) => {
     gps = [coords.longitude, coords.latitude]; showPosition(); if (at) renderList();
+    nav.gps(coords.longitude, coords.latitude, coords.accuracy);
   }, () => { gps = null; gpsMarker?.remove(); gpsMessage = "GPS unavailable"; if (at) renderList(); },
   {enableHighAccuracy: true, maximumAge: 10000, timeout: 15000});
 }
@@ -98,7 +101,6 @@ function when(iso, zone) { // "06:00 MDT Aug 2 · 12:00 UTC"
   const l = parts(iso, zone);
   return `${l.time} ${l.tz} ${l.day} · ${u.time} UTC${u.day !== l.day ? " " + u.day : ""}`;
 }
-const day = (iso) => iso ? new Date(iso).toLocaleDateString("en-US", {month: "short", day: "numeric", year: "numeric", timeZone: "UTC"}) : "date unknown";
 const short = (iso, zone) => { const l = parts(iso, zone || "UTC"); return `${l.day} ${l.time}`; };
 const zoneOf = (f) => f && f.tz;
 const hoursBetween = (a, b) => (new Date(b) - new Date(a)) / 3600e3;
@@ -126,15 +128,37 @@ function detail(id) {
 const listReady = api(`/api/fires${query()}`);
 // #count only shows load errors.
 const showError = (msg) => $("#count").insertAdjacentHTML("beforeend", `<span class="error" role="alert">${esc(msg)}</span> `);
-// Date picker: "Today" is t=now; each past FEDS day opens at its latest snapshot (12:00 UTC).
+// Date picker: Year, then Month, then Day, each listing only dates with a FEDS snapshot; a day opens at its latest
+// snapshot (12:00 UTC). Changing the year or month moves to the latest available day in it. "Today" is t=now.
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const go = (t) => { const p = new URLSearchParams(location.search); p.set("t", t); location.search = "?" + p; };
 Promise.all([api("/data/fires/feds/index.json"), listReady.catch(() => null)]).then(([index, data]) => {
-  const latest = {};
+  const latest = {};  // "YYYY-MM-DD" -> its latest snapshot
   for (const s of index.snapshots) latest[s.slice(0, 10)] = s + "Z";
-  $("#date").insertAdjacentHTML("beforeend", Object.keys(latest).reverse().map((d) => `<option value="${latest[d]}">${day(latest[d])}</option>`).join(""));
-  const shown = state.t === "now" ? "now" : (data?.time || state.t || "").slice(0, 10);
-  $("#date").value = shown && [...$("#date").options].find((o) => o.value.startsWith(shown))?.value || "";
+  const days = Object.keys(latest).sort();
+  const today = state.t === "now" || !state.t && !data;
+  const shown = today ? days[days.length - 1] : days.find((d) => d === (data?.time || state.t || "").slice(0, 10)) || days[days.length - 1];
+  const opts = (sel, values, text, pick) => {
+    sel.innerHTML = (today ? '<option value="" hidden>—</option>' : "") + values.map((v) => `<option value="${v}">${text(v)}</option>`).join("");
+    sel.value = today ? "" : pick;
+  };
+  const fill = (d) => {
+    const [y, m] = d.split("-");
+    opts($("#d-year"), [...new Set(days.map((x) => x.slice(0, 4)))].reverse(), (v) => v, y);
+    opts($("#d-month"), [...new Set(days.filter((x) => x.startsWith(y)).map((x) => x.slice(5, 7)))], (v) => MONTHS[+v - 1], m);
+    opts($("#d-day"), days.filter((x) => x.startsWith(`${y}-${m}`)).map((x) => x.slice(8)), (v) => +v, d.slice(8));
+  };
+  if (!days.length) return;
+  fill(shown);
+  $("#d-today").setAttribute("aria-pressed", today);
+  const latestIn = (prefix) => days.filter((x) => x.startsWith(prefix)).pop();
+  $("#d-year").onchange = (e) => go(latest[latestIn(e.target.value)]);
+  $("#d-month").onchange = (e) => go(latest[latestIn(`${$("#d-year").value}-${e.target.value}`)]);
+  $("#d-day").onchange = (e) => go(latest[`${$("#d-year").value}-${$("#d-month").value}-${e.target.value}`]);
 }).catch(() => {});
-$("#date").addEventListener("change", (e) => { const p = new URLSearchParams(location.search); p.set("t", e.target.value); location.search = "?" + p; });
+$("#d-today").onclick = () => go("now");
+$("#sort").value = state.sort;
+$("#sort").addEventListener("change", (e) => { state.sort = e.target.value; writeUrl(); renderList(); });
 
 function writeUrl() {
   const p = new URLSearchParams();
@@ -143,15 +167,23 @@ function writeUrl() {
   if (state.view === "3d") p.set("view", "3d");
   if (state.base !== "satellite") p.set("base", state.base);
   if (!state.labels) p.set("labels", "off");
+  if (state.sort !== "closest") p.set("sort", state.sort);
   if (state.wind !== "surface") p.set("wind", state.wind);
   history.replaceState(null, "", "?" + p);
 }
 
-// Always nearest to your GPS position first; without a position every distance is Infinity, so it falls back to A-Z.
-const nearest = (a, b) => distance(a) - distance(b) || label(a).localeCompare(label(b));
+// List order. Closest needs a GPS position; without one every distance is Infinity, so it falls back to A-Z.
+const byName = (a, b) => label(a).localeCompare(label(b));
+const SORTS = {
+  closest: (a, b) => distance(a) - distance(b) || byName(a, b),
+  size: (a, b) => b.acres - a.acres || byName(a, b),
+  growth: (a, b) => (b.growth_acres ?? -Infinity) - (a.growth_acres ?? -Infinity) || byName(a, b),
+  newest: (a, b) => (a.days ?? Infinity) - (b.days ?? Infinity) || b.acres - a.acres,
+  name: byName,
+};
 function renderList() {
   if (!at) return;
-  const rows = fires.filter(matchesFire).sort(nearest);
+  const rows = fires.filter(matchesFire).sort(SORTS[state.sort]);
   $("#list").innerHTML = rows.map((f) => {
     const g = growthText(f);
     return `<li><button type="button" class="fire" data-id="${f.id}"${f.id === state.fire ? ' aria-current="true"' : ""}>
@@ -180,7 +212,7 @@ function summary(fc, zone) {
       `${num(bandAcres(fc, null, "detached"))} ac on detached hotspots${state.layers.detached ? "" : " (hidden)"}</p>` : "");
 }
 function legendForecast(fc) {
-  $("#fc-legend").textContent = fc || !cur ? "Predicted front growth +6 / +12 / +24 h (hatched)" : "No forecast for this fire";
+  $("#fc-legend").textContent = fc || !cur ? "Predicted growth since now, at the chosen forecast hour (hatched)" : "No forecast for this fire";
   $("#fc-legend").closest("li").classList.toggle("none", !fc);
 }
 function renderDetail(f, d) {
@@ -192,10 +224,11 @@ function renderDetail(f, d) {
 <h2 id="detail-name">${esc(label(f))}</h2><p class="muted">${esc(f.place || "")} · FEDS fire ${f.id}</p>
 <dl class="stats"><div><dt>Mapped area</dt><dd class="big">${num(f.acres)} <small>ac</small></dd></div><div><dt>Burning</dt><dd class="big">${num(f.days)} <small>days</small></dd></div>
 <div class="growth"><dd class="${g.cls}">${/^[+−]/.test(g.text) ? g.text.replace(/ \([^)]*\)/, "").replace(/ in 12 h$/, " growth in 12h") : g.text}</dd></div></dl>${fcHtml}
-<details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(f.perimeter_time, zone)}</li>
+`;
+  $("#sources").innerHTML = `<details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(f.perimeter_time, zone)}</li>
 <li>Hotspots: VIIRS S-NPP, NOAA-20, NOAA-21: ${hs ? `${num(hs.length)} detections in the 12 h to view time` : "none downloaded for this time"}</li>
-${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li><li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
-  $("#detail").hidden = false;
+${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
+  $("#detail").hidden = false; $("#sources").hidden = false;
   if (d) legendForecast(fc);
   $("#back").onclick = overview;
 }
@@ -203,6 +236,7 @@ ${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li id="wind-src"
 const RED = "#FF453A", CASE = "#0B0D10", BANDS = ["#FF45C6", "#C75AF5", "#9464FF"], BAND_OPACITY = [0.5, 0.4, 0.3];
 const PAST = ["#995B30", "#FFD649"], OBSERVED = "#F0A8FF", HOT = "#FFFFFF", FONT = ["Noto Sans Bold"];
 const EMPTY = {type: "FeatureCollection", features: []};
+const FOG = "#D9E4EE";  // 3D horizon and fog
 const origin = location.origin;
 const byRank = (v) => ["match", ["get", "rank"], 0, v[0], 1, v[1], v[2]];
 const pastColor = ["interpolate", ["linear"], ["get", "age"], 0, PAST[0], 1, PAST[1]];
@@ -282,7 +316,7 @@ function style() {
   const cased = (id, source, w, cw, paint, layout) => [L(id + "-case", "line", source, {"line-color": CASE, "line-width": cw}, layout), L(id + "-line", "line", source, {"line-width": w, ...paint}, layout)];
   return {
     version: 8, glyphs: new URL("vendor/fonts/", import.meta.url).href + "{fontstack}/{range}.pbf",
-    sky: {"sky-color": "#6E9CC8", "horizon-color": "#D9E4EE", "fog-color": "#D9E4EE"},
+    sky: {"sky-color": "#6E9CC8", "horizon-color": FOG, "fog-color": FOG},
     sources: {"base-low": baseSource(state.base, 8), base: baseSource(state.base),
       labels: {type: "geojson", data: new URL("../data/labels/na-labels.json", import.meta.url).href, attribution: "Natural Earth"},
       borders: {type: "geojson", data: new URL("../data/labels/na-borders.json", import.meta.url).href},
@@ -303,13 +337,9 @@ function style() {
       ...cased("obs", "obs", 2.5, 5, {"line-color": OBSERVED, "line-dasharray": [0.5, 1.5]}, {"line-cap": "round"}),
       ...cased("access", "access", 4, 7, {"line-color": "#59DAD0"}),
       L("hot", "circle", "hot", {"circle-color": HOT, "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 1.5, 15, 5], "circle-stroke-color": CASE, "circle-stroke-width": 1}),
-      ...cased("arrow", "fc", 3.5, 8, {"line-color": "#FFFFFF"}, {"line-cap": "round"}),
-      L("arrow-head", "symbol", "heads", {}, {"icon-image": "head", "icon-rotate": ["get", "bearing"], "icon-rotation-alignment": "map",
-        "icon-anchor": "top", "icon-allow-overlap": true, "icon-ignore-placement": true}),
       L("hist-label", "symbol", "hist", halo(pastColor), text("label", 14, alongLine)),
       L("obs-label", "symbol", "obs", halo(OBSERVED), text("label", 14, alongLine)),
       L("fc-label", "symbol", "heads", halo(byRank(BANDS), 2.5), text("label", 17, {"text-anchor": "left", "text-offset": [0.6, 0], "text-allow-overlap": true})),
-      L("arrow-label", "symbol", "heads", halo("#FFFFFF", 2.5), text("label", 15, {"text-variable-anchor": ["left", "right", "top", "bottom"], "text-radial-offset": 1.6})),
       L("points", "circle", "points", {"circle-color": RED, "circle-radius": 6, "circle-stroke-color": CASE, "circle-stroke-width": 2,
         "circle-opacity": smallOnly, "circle-stroke-opacity": smallOnly}),
       {id: "fire-label", type: "symbol", source: "points", maxzoom: 11, paint: halo("#FFFFFF"), layout: text("label", 13, {"text-anchor": "top", "text-offset": [0, 0.9], "text-optional": true})},
@@ -330,10 +360,6 @@ function addImages() {
     g.strokeStyle = "rgba(0,0,0,0.55)"; g.lineWidth = 3; g.beginPath();
     for (let o = -24; o <= 24; o += 12) { g.moveTo(o, 24); g.lineTo(o + 24, 0); }
     g.stroke();
-  }), {pixelRatio: 2});
-  map.addImage("head", image(44, (g) => { // points up; the tip is the icon's top anchor
-    g.beginPath(); g.moveTo(22, 3); g.lineTo(39, 40); g.lineTo(5, 40); g.closePath();
-    g.lineJoin = "round"; g.lineWidth = 4; g.strokeStyle = CASE; g.fillStyle = "#FFFFFF"; g.fill(); g.stroke();
   }), {pixelRatio: 2});
 }
 
@@ -360,21 +386,16 @@ function setFires() {
 }
 
 function setDetail(d) {
-  drawRoute();
   const zone = zoneOf(d.fire), fc = d.forecast, n = d.history.length;
   const collection = (features) => ({type: "FeatureCollection", features});
   const ft = (geometry, properties) => ({type: "Feature", geometry, properties});
   map.getSource("hist").setData(collection(d.history.map((h, k) => ft(h.geometry, {k, age: n > 2 ? k / (n - 2) : 1, label: short(h.time, zone)}))));
   const hours = fc ? fc.hours : [];
   const rank = (h) => Math.min(Math.max(hours.indexOf(h), 0), 2);
-  const bandOf = (h) => hours.find((x) => x >= h) ?? hours[hours.length - 1];  // arrows show from the band they reach into
-  const fcFeatures = fc ? fc.features.filter((x) => x.properties.kind !== "start" && x.geometry).map((x) => ft(x.geometry,
-    {...x.properties, where: where(x), rank: rank(x.properties.hours), label: x.properties.kind === "band" ? `+${x.properties.hours} h` : "", band: bandOf(x.properties.hours)})) : [];
+  const fcFeatures = fc ? fc.features.filter((x) => !["start", "arrow"].includes(x.properties.kind) && x.geometry).map((x) => ft(x.geometry,
+    {...x.properties, where: where(x), rank: rank(x.properties.hours), label: x.properties.kind === "band" ? `+${x.properties.hours} h` : ""})) : [];
   map.getSource("fc").setData(collection(fcFeatures));
-  const heads = fcFeatures.filter((x) => x.properties.kind === "arrow").map((x) => {
-    const p = x.properties, c = x.geometry.coordinates;
-    return ft({type: "Point", coordinates: c[c.length - 1]}, {kind: "arrow", where: p.where, band: p.band, bearing: p.bearing_deg, label: `${miles(p.distance_m)} mi · ${chains(p.rate_ch_per_h)} ch/h`});
-  });
+  const heads = [];
   // One label per band, on the outer edge of its largest piece (labelling every piece is noise).
   const area = (r) => Math.abs(r.reduce((a, p, i) => { const q = r[(i + 1) % r.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0));
   const c0 = d.fire.centroid, far = (p) => (p[0] - c0[0]) ** 2 + (p[1] - c0[1]) ** 2;
@@ -392,35 +413,37 @@ function clearDetail() {
   for (const s of ["hist", "fc", "heads", "hot", "obs", "access"]) map.getSource(s).setData(EMPTY);
 }
 
-// Which stop and layers show. Switching stops only changes filters and visibility.
+// What the map shows. Observed strip: one past perimeter, Now (the current one), or Show all (every perimeter).
+// Forecast bar, separately: one hour's predicted extent (its outline, with all growth since now filled in that hour's
+// colour), drawn over Now; a past perimeter turns it off. Switching only changes filters and visibility.
 function applyView() {
   if (!map || !map.getLayer("sel-line")) return;
   const L = state.layers, sel = state.fire ?? -1, d = cur && cur.detail;
   const step = state.mode === "step" && cur && cur.stops ? cur.stops[state.step] : null;
-  const nowK = d ? d.history.length - 1 : -1;
-  const histK = !step ? ["<", ["get", "k"], nowK] : step.kind === "past" ? ["==", ["get", "k"], step.k] : ["==", ["get", "k"], -9];
-  const horizon = !step ? 1e9 : step.kind === "fc" ? step.hours : -1;
-  const showCur = L.current && !(step && step.kind === "past");
+  const past = !!(step && step.kind === "past"), nowK = d ? d.history.length - 1 : -1;
+  const histK = !step ? ["<", ["get", "k"], nowK] : past ? ["==", ["get", "k"], step.k] : ["==", ["get", "k"], -9];
+  const h = d && d.forecast && !past && state.fc != null ? state.fc : -1;
+  const r = h < 0 ? 0 : Math.min(Math.max(d.forecast.hours.indexOf(h), 0), 2);
   const vis = (ids, on) => ids.forEach((id) => map.setLayoutProperty(id, "visibility", on ? "visible" : "none"));
   const filter = (ids, f) => ids.forEach((id) => map.setFilter(id, f));
+  const atHour = ["==", ["get", "hours"], h];
   filter(["fires-fill", "fires-case", "fires-line"], ["!=", ["get", "id"], sel]);
   filter(["sel-fill", "sel-case", "sel-line"], ["==", ["get", "id"], sel]);
   filter(["hist-case", "hist-line", "hist-label"], histK);
   const shown = ["in", ["get", "where"], ["literal", ["front", ...["interior", "detached"].filter((w) => L[w])]]];
-  filter(["fc-fill", "fc-hatch", "fc-case", "fc-line"], ["all", kind("band"), ["<=", ["get", "hours"], horizon], shown]);
-  filter(["fc-label"], ["all", kind("label"), ["<=", ["get", "hours"], horizon]]);
-  const arrows = ["all", kind("arrow"), ["<=", ["get", "band"], horizon], shown];
-  filter(["arrow-case", "arrow-line", "arrow-head"], arrows);
-  filter(["arrow-label"], [...arrows, front]);
+  filter(["fc-fill", "fc-hatch"], ["all", kind("band"), ["<=", ["get", "hours"], h], shown]);
+  map.setPaintProperty("fc-fill", "fill-color", BANDS[r]);
+  map.setPaintProperty("fc-fill", "fill-opacity", ["case", front, BAND_OPACITY[r], 0.15]);
+  filter(["fc-case", "fc-line"], ["all", kind("extent"), atHour]);
+  filter(["fc-label"], ["all", kind("label"), atHour]);
   filter(["fire-label"], ["!=", ["get", "id"], sel]);
-  filter(["obs-case", "obs-line", "obs-label"], step ? ["==", ["get", "hours"], horizon] : ["<=", ["get", "hours"], horizon]);
+  filter(["obs-case", "obs-line", "obs-label"], atHour);
   vis(["fires-fill", "fires-case", "fires-line", "points", "fire-label"], L.current);
-  vis(["sel-fill", "sel-case", "sel-line"], showCur);
+  vis(["sel-fill", "sel-case", "sel-line"], L.current && !past);
   vis(["hist-case", "hist-line", "hist-label"], L.previous);
   vis(["fc-fill", "fc-hatch", "fc-case", "fc-line", "fc-label"], L.forecast);
-  vis(["arrow-case", "arrow-line", "arrow-head", "arrow-label"], L.arrows);
-  vis(["hot"], L.hotspots && !(step && step.kind === "past"));
-  vis(["obs-case", "obs-line", "obs-label"], state.compare);
+  vis(["hot"], L.hotspots && !past);
+  vis(["obs-case", "obs-line", "obs-label"], state.compare && h >= 0);
   updateActivity();
 }
 // Eric's next-day fire activity prediction (predictions.js), shown only for the dates it covers.
@@ -447,45 +470,65 @@ function updateActivity() {
     .then((note) => { $("#activity-note").textContent = note; }).catch(() => { $("#activity-note").textContent = "Predictions failed to load"; });
 }
 
+// Observed perimeters only; forecast hours are a separate bar (fcStops).
 function buildStops(d) {
-  const fc = d.forecast, n = d.history.length;
-  const stops = d.history.map((h, k) => ({kind: k === n - 1 ? "now" : "past", k, time: h.time, acres: h.acres}));
-  if (fc) {
-    let acres = 0;  // predicted growth since issue; the model's start area can differ from FEDS's
-    for (const h of fc.hours) {
-      acres += bandAcres(fc, h, "front");
-      stops.push({kind: "fc", hours: h, time: new Date(Date.parse(fc.issued) + h * 3600e3).toISOString(), acres});
-    }
-  }
-  return stops;
+  const n = d.history.length;
+  return d.history.map((h, k) => ({kind: k === n - 1 ? "now" : "past", k, time: h.time, acres: h.acres}));
+}
+function fcStops(fc) {
+  let acres = 0;  // predicted front growth since issue; the model's start area can differ from FEDS's
+  return fc.hours.map((h) => ({hours: h, time: new Date(Date.parse(fc.issued) + h * 3600e3).toISOString(), acres: acres += bandAcres(fc, h, "front")}));
 }
 function renderTimeline() {
   const tl = $("#timeline");
-  if (!cur) { tl.hidden = true; return; }
+  if (!cur) { tl.hidden = true; $("#forecast").hidden = true; return; }
   tl.hidden = false;
-  if (!cur.stops) { $("#stops").innerHTML = '<li class="muted">…</li>'; return; }
-  const zone = zoneOf(cur.fire), fc = cur.detail.forecast;
+  if (!cur.stops) { $("#stops").innerHTML = '<li class="muted">…</li>'; $("#forecast").hidden = true; return; }
+  const zone = zoneOf(cur.fire), n = cur.stops.length;
   $("#stops").innerHTML = cur.stops.map((s, i) => {
     const pressed = state.mode === "step" && i === state.step;
-    const label = s.kind === "now" ? "Now" : s.kind === "fc" ? `+${s.hours} h` : short(s.time, zone);
-    const progress = i / Math.max(1, cur.detail.history.length - 2);
-    const color = s.kind === "past" ? `color-mix(in srgb, ${PAST[0]}, ${PAST[1]} ${Math.round(100 * progress)}%)` : s.kind === "fc" ? BANDS[Math.min(2, fc.hours.indexOf(s.hours))] : RED;
-    const title = `${s.kind === "fc" ? "Predicted" : "Observed"} ${when(s.time, zone)} · ${s.kind === "fc" ? "+" : ""}${num(s.acres)} ac`;
-    return `<li class="stop ${s.kind}" style="--stop-color:${color}"><button type="button" data-step="${i}" aria-pressed="${pressed}" title="${title}">${label}</button></li>`;
+    const label = s.kind === "now" ? "Now" : short(s.time, zone);
+    const color = s.kind === "past" ? `color-mix(in srgb, ${PAST[0]}, ${PAST[1]} ${Math.round(100 * i / Math.max(1, n - 2))}%)` : RED;
+    return `<li class="stop ${s.kind}" style="--stop-color:${color}"><button type="button" data-step="${i}" aria-pressed="${pressed}" title="Observed ${when(s.time, zone)} · ${num(s.acres)} ac">${label}</button></li>`;
   }).join("");
   $("#tl-all").setAttribute("aria-pressed", state.mode !== "step");
-  $("#compare").hidden = !(cur.detail.observed_after && cur.detail.observed_after.length);
-  $("#compare").setAttribute("aria-pressed", state.compare);
+  renderForecast();
+}
+function renderForecast() {
+  const fc = cur.detail.forecast, bar = $("#forecast");
+  bar.hidden = !fc;
+  if (!fc) return;
+  const zone = zoneOf(cur.fire), stops = fcStops(fc);
+  $("#fc-stops").innerHTML = [{hours: null}, ...stops].map((s, i) => {
+    const label = s.hours == null ? "Off" : `+${s.hours} h`, color = s.hours == null ? "transparent" : BANDS[Math.min(2, i - 1)];
+    const title = s.hours == null ? "Hide the forecast" : `Predicted by ${when(s.time, zone)} · +${num(s.acres)} ac`;
+    return `<li class="stop" style="--stop-color:${color}"><button type="button" data-fc="${s.hours ?? "off"}" aria-pressed="${state.fc === s.hours}" title="${title}">${label}</button></li>`;
+  }).join("");
+  const s = stops.find((x) => x.hours === state.fc), obs = s && (cur.detail.observed_after || []).find((o) => o.hours === s.hours);
+  const compare = $("#compare");
+  compare.disabled = !obs;
+  compare.title = !s ? "Choose a forecast hour first" : obs ? `Draw the perimeter observed ${when(obs.time, zone)}` : `No perimeter mapped at ${when(s.time, zone)} (FEDS maps every 12 h)`;
+  compare.setAttribute("aria-pressed", state.compare && !!obs);
+  const nowAcres = cur.detail.history[cur.detail.history.length - 1].acres;
+  $("#fc-read").innerHTML = !s ? "" : `<span>Predicted by ${short(s.time, zone)}: <b>+${num(s.acres)} ac</b></span>` +
+    (state.compare && obs ? `<span class="obs">Observed by ${short(obs.time, zone)}: <b>${obs.acres >= nowAcres ? "+" : "−"}${num(Math.abs(obs.acres - nowAcres))} ac</b></span>` : "");
 }
 function setStep(i, announce = true) {
   if (!cur || !cur.stops) return;
   state.mode = "step";
   state.step = Math.max(0, Math.min(cur.stops.length - 1, i));
+  const s = cur.stops[state.step];
+  if (s.kind === "past") state.fc = null;  // a forecast starts from now, not from an earlier perimeter
   renderTimeline(); applyView();
-  if (announce) {
-    const s = cur.stops[state.step];
-    say(`${s.kind === "fc" ? `Predicted +${s.hours} h` : s.kind === "now" ? "Now" : "Observed"}, ${short(s.time, zoneOf(cur.fire))}, ${s.kind === "fc" ? "plus " : ""}${num(s.acres)} acres`);
-  }
+  if (announce) say(`${s.kind === "now" ? "Now" : "Observed"}, ${short(s.time, zoneOf(cur.fire))}, ${num(s.acres)} acres`);
+}
+function setForecast(h) {
+  if (!cur || !cur.detail || !cur.detail.forecast) return;
+  state.fc = h;
+  if (h != null && state.mode === "step" && cur.stops[state.step].kind === "past") state.step = cur.stops.length - 1;
+  renderTimeline(); applyView();
+  const s = h != null && fcStops(cur.detail.forecast).find((x) => x.hours === h);
+  say(s ? `Predicted +${h} h, ${short(s.time, zoneOf(cur.fire))}, plus ${num(s.acres)} acres` : "Forecast off");
 }
 
 const say = (msg) => { $("#announce").textContent = msg; };
@@ -497,25 +540,33 @@ function fuelName(code) {
     [161,165,"Timber–understory"],[181,189,"Timber litter"],[201,204,"Slash / blowdown"]];
   const group = groups.find(([lo,hi]) => code >= lo && code <= hi);
   const nonburnable = {91:"Urban / developed",92:"Snow / ice",93:"Agriculture",98:"Open water",99:"Barren"};
-  return (group?.[2] || nonburnable[code] || "Unclassified") + " · FBFM " + code;
+  return (group?.[2] || nonburnable[code] || "Unclassified") + " (FBFM " + code + ")";
 }
+// Conditions at the mapped fire center: one short line each; where they come from goes under Data sources.
+let wxSource = "";
+const conditionSources = () => `<li>Fuel: LANDFIRE LF2025 FBFM40 · Fire center</li><li id="wx-src"${wxSource ? "" : " hidden"}>${esc(wxSource)}</li>`;
 function readConditions(f) {
   const active = () => state.fire === f.id;
   for (const id of ["fuel","wind","weather"]) $("#"+id).textContent = "Loading…";
-  $("#wx-source").textContent = "Sampled at the mapped fire center.";
+  $("#wx-time").textContent = ""; wxSource = "";
   const [lon,lat] = f.centroid;
   api("/identify/fuel?lon="+lon+"&lat="+lat).then(data => {
-    if (active()) $("#fuel").textContent = fuelName(data.value) + " · LANDFIRE";
+    if (active()) $("#fuel").textContent = fuelName(data.value);
   }).catch(() => { if (active()) $("#fuel").textContent = "Unavailable"; });
   api("/api/fires/"+f.id+"/weather?time="+encodeURIComponent(at.time)).then(wx => {
     if (!active()) return;
-    $("#wind").textContent = metric(wx.wind_mph," mph") + (Number.isFinite(wx.wind_from) && wx.wind_mph > 0 ? " from "+compass(wx.wind_from) : "");
-    $("#weather").textContent = "Air "+metric(wx.temp_f," °F")+" · Humidity "+metric(wx.humidity,"%")+" · Precipitation "+metric(wx.rain_mm," mm",1);
-    $("#wx-source").textContent = wx.source + " · " + when(wx.time,zoneOf(f)) + " · Fire center";
-  }).catch(() => { if (active()) { $("#wind").textContent = "Unavailable"; $("#weather").textContent = "Unavailable for this incident hour"; } });
+    const zone = zoneOf(f), rain = Number.isFinite(wx.rain_mm) ? (wx.rain_mm > 0 ? `rain ${wx.rain_mm.toFixed(1)} mm` : "no rain") : "rain unavailable";
+    $("#wx-time").textContent = "· " + when(wx.time, zone).split(" · ")[0];
+    $("#wind").textContent = metric(wx.wind_mph," mph") + (Number.isFinite(wx.wind_from) && wx.wind_mph > 0 ? " from "+compass(wx.wind_from) : "") + " (10 m)";
+    $("#weather").textContent = metric(wx.temp_f," °F") + " · " + metric(wx.humidity,"% RH") + " · " + rain;
+    wxSource = `Weather: ${wx.source} · ${when(wx.time, zone)} · Fire center`;
+    const li = $("#wx-src");
+    if (li) { li.textContent = wxSource; li.hidden = false; }
+  }).catch(() => { if (active()) { $("#wind").textContent = "Unavailable"; $("#weather").textContent = "Unavailable for this hour"; } });
 }
-let accessRoute = null, accessPoint = null, accessMarker = null, pickingAccess = false;
-function routeKey() { return "ops.route."+at.snapshot+"."+state.fire; }
+// Navigation (nav.js) replaces the old access-route box: the access point is its destination, a loaded dispatch
+// route is drawn and offered as a route option.
+function routeKey() { return "ops.route." + (at && at.snapshot) + "." + state.fire; }
 function parseRoute(value) {
   const feature = value?.type === "FeatureCollection" && value.features?.length === 1 ? value.features[0] : value;
   const geometry = feature?.type === "Feature" ? feature.geometry : feature;
@@ -525,92 +576,48 @@ function parseRoute(value) {
     throw new Error("Choose a GeoJSON file containing one route LineString.");
   const props = feature.properties || {};
   if (props.fire_id != null && String(props.fire_id) !== String(state.fire)) throw new Error("This route belongs to another fire.");
-  return {type:"Feature",geometry:{type:"LineString",coordinates:points.map(p=>p.slice(0,2))},properties:{name:String(props.name || "Incident access route").slice(0,120),fire_id:state.fire}};
+  return {type:"Feature",geometry:{type:"LineString",coordinates:points.map(p=>p.slice(0,2))},properties:{name:String(props.name || "Dispatch route").slice(0,120),fire_id:state.fire}};
 }
-function drawRoute() {
-  map?.getSource("access")?.setData(accessRoute || EMPTY);
-}
-function pickMode(active) {
-  pickingAccess = active;
-  $("#pick-access").setAttribute("aria-pressed", String(active));
-  $("#pick-access").textContent = active ? "Cancel point selection" : "Choose access point on map";
-  $("#access-note").textContent = active ? "Tap the dispatch-designated road access point." : "";
-  if (map) map.getCanvas().style.cursor = active ? "crosshair" : "";
-}
-$("#pick-access").onclick = () => {
-  if (!map) { $("#access-note").textContent = "Map unavailable."; return; }
-  pickMode(!pickingAccess);
-};
-function showRoute() {
-  drawRoute();
-  $("#fit-route").hidden = !accessRoute;
-  const link = $("#road-directions");
-  const destination = accessPoint || accessRoute?.geometry.coordinates[0];
-  link.hidden = !destination;
-  accessMarker?.remove();
-  if (destination) {
-    const [lon,lat] = destination;
-    link.textContent = accessPoint ? "Road directions to access point ↗" : "Road directions to route start ↗";
-    if (map) {
-      const dot = document.createElement("div");
-      dot.className = "access-dot"; dot.title = "Incident access point";
-      accessMarker = new maplibregl.Marker({element:dot}).setLngLat(destination).addTo(map);
-    }
-    link.href = "https://www.google.com/maps/dir/?" + new URLSearchParams({api:"1",destination:lat+","+lon,travelmode:"driving"});
-  } else link.removeAttribute("href");
-  $("#route-note").textContent = accessRoute ? accessRoute.properties.name + " · Follow the teal line. Road status, slope and radio coverage are unverified." :
-    "No incident access route supplied. Load a dispatch GeoJSON route to display it alongside your GPS position.";
-}
-function restoreRoute(provided) {
-  let saved;
-  try { saved = localStorage.getItem(routeKey()); } catch {}
-  accessRoute = null;
-  for (const source of [provided,saved]) {
+function savedDispatch(provided) {
+  let saved; try { saved = localStorage.getItem(routeKey()); } catch {}
+  for (const source of [provided, saved]) {
     if (!source) continue;
-    try { accessRoute = parseRoute(typeof source === "string" ? JSON.parse(source) : source); break; } catch {}
+    try { return parseRoute(typeof source === "string" ? JSON.parse(source) : source); } catch {}
   }
-  showRoute();
+  return null;
 }
-$("#fit-route").onclick = () => {
-  if (!accessRoute) return;
-  const coords = accessRoute.geometry.coordinates;
-  fit(coords.map(([x,y])=>[x,y,x,y]).reduce(union));
-};
+const nav = createNav({$, esc, say: (m) => say(m), fit: (b) => fit(b), getMap: () => map, getFire: () => cur && cur.fire, getDetail: () => cur && cur.detail,
+  query: () => query(), requestGps: () => requestGps(),
+  accessPoint: () => { try { const p = JSON.parse(localStorage.getItem(routeKey() + ".point")); return Array.isArray(p) && p.length === 2 && p.every(Number.isFinite) ? p : null; } catch { return null; } },
+  saveAccessPoint: (p) => { try { localStorage.setItem(routeKey() + ".point", JSON.stringify(p)); } catch {} }});
 $("#route-file").onchange = async e => {
   const file = e.target.files[0], key = routeKey();
   e.target.value = "";
   if (!file) return;
   try {
     if (file.size > 2000000) throw new Error("Route file exceeds 2 MB.");
-    const value = JSON.parse(await file.text());
+    const route = parseRoute(JSON.parse(await file.text()));
     if (!state.fire || routeKey() !== key) return;
-    accessRoute = parseRoute(value);
-    accessPoint = null; pickMode(false);
-    try { localStorage.removeItem(key+".point"); } catch {}
-    showRoute(); $("#fit-route").click();
-    try { localStorage.setItem(key,JSON.stringify(accessRoute)); }
-    catch { $("#route-note").textContent += " Device storage unavailable; route is open for this session only."; }
-  } catch (err) { if (state.fire && routeKey() === key) $("#route-note").textContent = err.message; }
+    try { localStorage.setItem(key, JSON.stringify(route)); } catch {}
+    nav.dispatch(route);
+    fit(route.geometry.coordinates.map(([x,y])=>[x,y,x,y]).reduce(union));
+  } catch (err) { if (state.fire && routeKey() === key) $("#nav-note").textContent = err.message; }
 };
 
 async function select(id, {fitMap = true} = {}) {
   const f = byId.get(id);
   if (!f) return;
   document.body.classList.add("selected"); $(".sidebar").scrollTop = 0; map?.resize();
-  state.fire = id; pickMode(false); accessPoint = null;
-  try {
-    const point = JSON.parse(localStorage.getItem(routeKey()+".point"));
-    if (Array.isArray(point) && point.length === 2 && point.every(Number.isFinite)) accessPoint = point;
-  } catch {}
-  restoreRoute(null); readConditions(f); cacheFire(f); state.mode = "progression"; cur = {fire: f};
+  state.fire = id;
+  nav.select(f); readConditions(f); cacheFire(f); state.mode = "progression"; state.fc = null; cur = {fire: f};
   writeUrl(); renderList(); renderDetail(f, null); renderTimeline();
   if (fitMap) fit(fireBounds(f));
-  if (map && map.getSource("fires")) { clearDetail(); drawRoute(); applyView(); }
+  if (map && map.getSource("fires")) { clearDetail(); applyView(); }
   try {
     const d = await detail(id);
     if (state.fire !== id) return;
     cur = {fire: f, detail: d, stops: buildStops(d)};
-    restoreRoute(d.access_route);
+    nav.dispatch(savedDispatch(d.access_route)); nav.detail(d);
     state.step = d.history.length - 1;
     renderDetail(f, d); renderTimeline();
     if (map && map.getSource("fires")) setDetail(d);
@@ -620,11 +627,18 @@ async function select(id, {fitMap = true} = {}) {
     $("#detail").insertAdjacentHTML("beforeend", `<p class="error" role="alert">Could not load fire details: ${esc(e.message)}</p>`);
   }
 }
+function listSources() {
+  if (!at) return;
+  $("#sources").innerHTML = `<details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(at.time)}</li>
+<li>Fire names: NIFC WFIGS incidents, else county</li><li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>
+<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
+  $("#sources").hidden = false;
+}
 function overview() {
   document.body.classList.remove("selected"); map?.resize();
-  state.fire = null; cur = null; accessRoute = null; accessPoint = null; accessMarker?.remove(); pickMode(false);
-  $("#detail").hidden = true; $("#timeline").hidden = true;
-  writeUrl(); renderList(); legendForecast(null);
+  state.fire = null; cur = null; nav.clear();
+  $("#detail").hidden = true; $("#timeline").hidden = true; $("#forecast").hidden = true;
+  writeUrl(); renderList(); legendForecast(null); listSources();
   if (map && map.getSource("fires")) { clearDetail(); applyView(); }
   if (fires.length) fit(allBounds());
   say("All fires");
@@ -642,6 +656,9 @@ function setView(v) {
   state.view = v; writeUrl(); allowRotation(v === "3d"); updateWind();
   for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === v);
   if (!map || !map.getLayer("base")) return;  // style.load applies the URL's view later
+  // Past the terrain's far edge (and between terrain tiles still loading) the page shows through: in 3D make that
+  // the fog colour, so it reads as haze instead of a black streak or spike.
+  map.getContainer().style.background = v === "3d" ? FOG : "";
   if (v === "3d") {
     if (!map.getSource("dem")) map.addSource("dem", {type: "raster-dem", tiles: [`${origin}/tiles/terrain/{z}/{x}/{y}`], encoding: "terrarium", tileSize: 256, maxzoom: 15, attribution: "Terrain: AWS Terrain Tiles"});
     map.setTerrain({source: "dem", exaggeration: 1.5});
@@ -678,7 +695,7 @@ function initMap() {
   map.on("style.load", () => {
     addImages();
     listReady.then(() => {
-      setFires(); applyView(); updateWind();
+      setFires(); applyView(); updateWind(); nav.styleLoaded();
       if (cur && cur.detail) setDetail(cur.detail);
       if (state.view === "3d") setView("3d");
     });
@@ -687,13 +704,7 @@ function initMap() {
   // The compact credit opens on load; start it closed (just the i button).
   map.once("load", () => $(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"));
   const pick = (e) => {
-    if (pickingAccess && state.fire) {
-      accessPoint = [e.lngLat.wrap().lng,e.lngLat.lat];
-      pickMode(false); showRoute();
-      try { localStorage.setItem(routeKey()+".point",JSON.stringify(accessPoint)); } catch {}
-      $("#access-note").textContent = "Selected access point: "+accessPoint[1].toFixed(5)+", "+accessPoint[0].toFixed(5)+". Road directions open in Google Maps; slope and radio coverage are unverified.";
-      return;
-    }
+    if (state.fire && nav.click(e.lngLat.wrap())) return;
     const hit = map.queryRenderedFeatures(e.point, {layers: ["sel-fill", "fires-fill", "points"]}).find((x) => x.layer.id !== "points" || map.getZoom() < x.properties.zh);
     if (hit) select(hit.properties.id, {fitMap: hit.properties.id !== state.fire});
   };
@@ -731,7 +742,12 @@ $("#timeline").addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
   if (b.dataset.step) setStep(+b.dataset.step);
-  else if (b.id === "tl-all") { state.mode = "progression"; renderTimeline(); applyView(); say("All perimeters"); }
+  else if (b.id === "tl-all") { state.mode = "progression"; renderTimeline(); applyView(); say("All observed perimeters"); }
+});
+$("#forecast").addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b || b.disabled) return;
+  if (b.dataset.fc) setForecast(b.dataset.fc === "off" ? null : +b.dataset.fc);
   else if (b.id === "compare") { state.compare = !state.compare; renderTimeline(); applyView(); }
 });
 document.addEventListener("keydown", (e) => {
@@ -742,7 +758,12 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "3") setView(state.view === "3d" ? "2d" : "3d");
   else if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && cur && cur.stops && !e.target.closest(".maplibregl-canvas-container")) {
     e.preventDefault();
-    setStep((state.mode === "step" ? state.step : cur.stops.findIndex((s) => s.kind === "now")) + (e.key === "ArrowRight" ? 1 : -1));
+    const hours = cur.detail.forecast ? cur.detail.forecast.hours : [], now = cur.stops.length - 1;
+    const pos = state.fc != null ? now + 1 + hours.indexOf(state.fc) : state.mode === "step" ? state.step : now;
+    const next = Math.max(0, Math.min(now + hours.length, pos + (e.key === "ArrowRight" ? 1 : -1)));
+    if (next > now) { if (state.mode === "step") state.step = now; setForecast(hours[next - now - 1]); }
+    else if (next === now && state.fc != null) setForecast(null);
+    else setStep(next);
   }
 });
 
@@ -755,7 +776,7 @@ $("#labels").setAttribute("aria-pressed", state.labels);
 for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === state.view);
 listReady.then((data) => {
   at = data; fires = data.fires; byId = new Map(fires.map((f) => [f.id, f]));
-  renderList();
+  renderList(); if (!state.fire) listSources();
   performance.mark("ops-list");
   if (state.fire && byId.has(state.fire)) select(state.fire);
   else if (map) { state.fire = null; fit(allBounds()); }
