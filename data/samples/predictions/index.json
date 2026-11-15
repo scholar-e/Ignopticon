@@ -1,0 +1,53 @@
+{
+  "target_date": "2026-08-02",
+  "input_date": "2026-08-01",
+  "model": "gbm",
+  "quantity": "Probability of S-NPP fire presence conditional on a clear look",
+  "weather": "Observed gridMET on input and target dates; retrospective, perfect-forecast weather",
+  "grid": {
+    "width": 590,
+    "height": 260,
+    "west": -125,
+    "north": 50,
+    "resolution_degrees": 0.1,
+    "row_order": "north to south"
+  },
+  "png_encoding": {
+    "R": "round(P(VIIRS S-NPP fire on target date)*255)",
+    "G": "255 = observed S-NPP fire on target date, clear land cells; else 0",
+    "B": "255 = S-NPP clear on target date, land cells; else 0",
+    "A": "255 = land; else 0"
+  },
+  "arms": {
+    "raw-pre": {
+      "png": "gbm_raw-pre/2026-08-02.png",
+      "threshold": 0.10931396484375,
+      "model_sha256": "46a1fcc100f4c2a1938ae699cf5e9c9230aaa783316e3e8b84d3486f94a42eaa"
+    },
+    "harm-pre": {
+      "png": "gbm_harm-pre/2026-08-02.png",
+      "threshold": 0.1495361328125,
+      "model_sha256": "069f149c65304838d9c71ffc9768df307701aa73d212a3734314d8036365aad7"
+    },
+    "raw-all": {
+      "png": "gbm_raw-all/2026-08-02.png",
+      "threshold": 0.108154296875,
+      "model_sha256": "c84ae1de5ae013b52cfb55e7a86d7552ebfccfd9166a4d77b297ad085e3bc6bd"
+    },
+    "harm-all": {
+      "png": "gbm_harm-all/2026-08-02.png",
+      "threshold": 0.0853271484375,
+      "model_sha256": "67ca0c70075f4d5b4ae52d3356441f2bddee6e952395961f2024ad5405b6d9fd"
+    },
+    "viirs-only": {
+      "png": "gbm_viirs-only/2026-08-02.png",
+      "threshold": 0.112060546875,
+      "model_sha256": "cd34c66b23543f08eda71b109dfe65b7a51faf127ecbcd1efce8175050a2e9e2"
+    }
+  },
+  "dates": [
+    "2026-08-02"
+  ],
+  "default_arm": "viirs-only",
+  "observations_usage": "G/B are retrospective evaluation only; target-day fire observations were not prediction inputs."
+}

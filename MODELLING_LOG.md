@@ -356,3 +356,45 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
   - **Fuel groups:** raising all groups together was best. On the shrub fire, lowering shrub or timber cost more than lowering grass.
 - **Open question:** these best multipliers are 10–50x Widemouth's 0.02–0.05. Widemouth used NOAA-21, its fire band and FEDS live perimeters; the pilot used S-NPP and NOAA-20 detections only. So the gap may come from the pipeline rather than fuel or weather. Running Widemouth through `build_fire_case.py` would settle it.
 - **Status:** the full-scale run was estimated at about 63k runs, roughly $60–120 of Tillicum time. It was not run: the user chose to use Tillicum for training on data, not for ELMFIRE prediction runs.
+
+### 12. Raw versus harmonized next-day activity comparison (2026-11-14, resumed)
+- Recovered Claude's interrupted experiment: five arms (raw-pre, harm-pre,
+  raw-all, harm-all, viirs-only), training 2003–2011 and/or 2012–2019;
+  validation 2020, evaluation 2021–2024. Strict harmonization was fitted
+  on 2012–2020 and applied to 2003–2011. See docs/COMPARISON.md.
+- Nine U-Net seed runs completed on Tillicum (471814); six harmonized runs
+  await their newly completed inputs. Same settings for every arm: seeds
+  0/1/2, 16 epochs, 500 steps/epoch, batch 128, patience 16. Mean of the
+  three calibrated probabilities; threshold selected on 2020 only.
+- Fixed ensemble CSI threshold selection to include all equal probabilities
+  and select on the stored float16 probabilities. Reject missing seeds,
+  mismatched dates/arms, invalid shapes, and nonfinite/out-of-range values.
+  A tied-probability regression check passed (CSI 2/3).
+- Caveats: prior Claude notes inspected first-round test results before
+  choosing the three-seed second round. Thus test years were excluded from
+  fitting, but this is exploratory evaluation, not an untouched confirmatory
+  test. Weather on t+1 is observed gridMET (perfect-forecast assumption).
+  New activity in this comparison means no S-NPP fire in the 3×3 on t−2..t,
+  not absence across all sensors. This predicts coarse daily activity,
+  not a fire perimeter. Results are pending; no superiority claim yet.
+
+### 12a. First daily GBM export (2026-11-14)
+- Exported all five trained arms for target 2026-08-02 using S-NPP inputs
+  through 2026-08-01, with the same 44 feature names/order and float16 input
+  representation as training. No refitting. Script: scripts/compare_day.py.
+- Output: data/compare/daily/2026-08-02/{predictions.npz,index.json,gbm_*.png}.
+  Grid 260×590 at 0.1°, 84,722 land cells. Checked feature order, input-day
+  coverage, finite weather, and finite probabilities in [0,1].
+- Retrospective activity probabilities conditional on clear S-NPP viewing,
+  not a perimeter or an operational forecast: observed Aug 2 gridMET is an
+  input. PNG green/blue channels are zero (no observed truth exported),
+  red is probability×255, alpha is land. Metadata includes model hashes.
+
+### 12b. GitHub daily prediction sample (2026-11-14)
+- Packaged August 2, 2026 in data/samples/predictions using the comparison
+  RGBA schema and model_arm/YYYY-MM-DD.png paths. R is float16 probability
+  quantized to 8 bits; G/B now include observed target-day S-NPP fire/clear
+  flags for retrospective evaluation only. A is land.
+- Verified PNG round trips for all five arms (590×260); 82,757 clear land
+  cells and 155 observed fire cells. Metadata records model hashes,
+  thresholds, input/target dates, grid and the perfect-weather caveat.
