@@ -46,7 +46,7 @@ echo "== Building and starting on the server, served at $SITE"
 echo "== Checking https://$SITE/"
 for i in $(seq 1 24); do
     if curl -fsS -o /dev/null "https://$SITE/api/fires"; then
-        echo "Live: https://$SITE/  and  https://$SITE/ops/"
+        echo "Live: https://$SITE/  (globe: https://$SITE/globe)"
         exit 0
     fi
     sleep 5

@@ -1,6 +1,6 @@
 # Deploying the web app (AWS EC2)
 
-What goes online is `earth/`: the globe at `/` and the ops page at `/ops/`, both served by `earth/dev-server.js`
+What goes online is `earth/`: the ops (fire-watch) page at `/` (also `/ops/`) and the globe at `/globe`, both served by `earth/dev-server.js`
 (Node + Express). It is not a static site: the server answers `/api/fires*`, proxies and caches map tiles
 (`/tiles/*`), and recolours the heat tiles. Everything it serves is in `earth/public/` (~140 MB); the modelling
 pipeline (ELMFIRE, Python scripts, `data/`) stays on the workstation, and new forecasts or snapshots go online by
@@ -54,7 +54,7 @@ no domain is needed. With your own domain, point an A record at the instance's I
    earth/deploy/ec2/deploy.sh 203.0.113.10
    ```
 
-   It prints the live URL, e.g. `https://203-0-113-10.sslip.io/` and `.../ops/`.
+   It prints the live URL, e.g. `https://203-0-113-10.sslip.io/` (the ops page; the globe is at `.../globe`).
 
 ## Updating
 
