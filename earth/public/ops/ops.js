@@ -675,7 +675,7 @@ const nav = createNav({$, esc, say: (m) => say(m), fit: (b) => fit(b), getMap: (
   accessPoint: () => { try { const p = JSON.parse(localStorage.getItem(routeKey() + ".point")); return Array.isArray(p) && p.length === 2 && p.every(Number.isFinite) ? p : null; } catch { return null; } },
   saveAccessPoint: (p) => { try { localStorage.setItem(routeKey() + ".point", JSON.stringify(p)); } catch {} }});
 // The navigation panel is a popup over the map, opened from the fire card's "Navigate to this fire" button.
-function navPopup(open) { $("#navpanel").hidden = !open; if (open) $("#nav-close").focus(); }
+function navPopup(open) { $("#navpanel").hidden = !open; if (open) { nav.opened(); $("#nav-close").focus(); } }
 $("#detail").addEventListener("click", (e) => { if (e.target.closest("[data-nav-open]")) navPopup(true); });
 $("#nav-close").onclick = () => navPopup(false);
 $("#nav-start").addEventListener("click", () => navPopup(false));

@@ -380,15 +380,16 @@ export function createNav(ctx) {
     }
     const t0 = performance.now(), results = [];
     for (const lambda of LAMBDAS) { const r = trace(search(start, dest, lambda, long), start, dest, long); if (r) results.push(r); }
-    if (!results.length) { routes = []; chosen = null; render(); return note("No route found within the routing area. Try Drive + walk, allow 4×4 roads, or move the destination."); }
+    if (!results.length) { routes = []; chosen = null; render(); return note("No route found within the routing area. Try Drive + walk, allow rough roads, or move the destination."); }
     const fastest = results[0], cap = fastest.time * 1.5;
     const best = results.filter((r) => r.time <= cap).reduce((p, q) => q.keyCost < p.keyCost - 1e-6 ? q : p, fastest);
     // Best coverage is always listed; when it can't beat the fastest by a minute it is the fastest route itself.
     const same = fastest.keyCost - best.keyCost < 60;
-    routes = [{...fastest, id: "fast", label: "Fastest"}, {...(same ? fastest : best), id: "cover", label: "Best coverage", same}];
+    routes = [{...(same ? fastest : best), id: "cover", label: "Best coverage", same}, {...fastest, id: "fast", label: "Fastest"}];
     const dr = evaluateDispatch(); if (dr) routes.push(dr);
     chosen = chosen && routes.find((r) => r.id === chosen.id) || routes[0];
     note(same && !quiet ? "No route within 1.5× the fastest time has at least 1 min less without coverage, so Best coverage is the same route." : "");
+    if (!quiet) showCoverage(true);  // dead zones show with the routes, not only once navigation starts
     performance.mark("nav-routed"); console.log(`routes in ${Math.round(performance.now() - t0)} ms`);
     render();
     if (!quiet) { const f = ctx.getFire(), b = bboxOf(chosen.coords.concat([start, dest])); ctx.fit(f ? [Math.min(b[0], f.bbox[0]), Math.min(b[1], f.bbox[1]), Math.max(b[2], f.bbox[2]), Math.max(b[3], f.bbox[3])] : b); }
@@ -758,6 +759,7 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
       start = [lon, lat]; startAcc = acc; startManual = false; render(); updateNav();
     },
     styleLoaded,
+    opened() { showCoverage(true); },  // dead zones show while choosing a start and destination
     sourceText: () => sourceText,
   };
 }
