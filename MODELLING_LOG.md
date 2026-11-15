@@ -419,3 +419,23 @@ Held-out test years. AP = average precision; "new" = new-activity cell-days (bas
 - Full results and 14-fire visual comparisons: data/compare/results/unet.*
   and data/compare/figures/unet/. Earlier entry 12 caveats apply, especially
   exploratory test inspection and observed target-day weather.
+
+### 17. Self-calibration from the fire's recent progression (Widemouth test) (2026-11-14; single case)
+- User-approved idea: correct spread per direction from how the model did over the fire's last 12-24 h.
+  New scripts/selfcal_adj.py: hindcast ELMFIRE (physics3 inputs, ADJ=1, INIT=feds) from the FEDS perimeter at
+  T-24 h, else T-12 h, to T, with HRRR sub-hourly stitched from the hourly runs in the window (f00 + 15/30/45 min
+  leads); compare with observed growth (FEDS perimeters in the window + VIIRS cells, cut at T); per 16 bearing
+  sectors r = (obs p90 advance + 187.5 m)/(model p90 advance + 187.5 m), clamped [0.1, 5], smoothed, blended to
+  the fire-wide median with exp(-d/3 km). elmfire_case.py: ADJ_FILE=path multiplies the spread raster (default
+  off; earlier runs unchanged). Only data available at T is used.
+- Widemouth 66510, T = 2026-08-02 12Z: no FEDS at T-24 h, used T-12 h (00Z, whole-edge start, no recent
+  detections). Hindcast overshot: 42,459 vs 10,211 acres growth (area ratio 4.16), growth IoU 0.157.
+  Sector r 0.13-1.55, median 0.35; >1 only N/NNE and S.
+- +12 h vs FEDS Aug 3 00Z, growth IoU / whole IoU / area ratio / boundary mean m: selfcal 0.057 / 0.799 / 0.25
+  / 715; physics3 adj1 0.082 / 0.701 / 1.29 / 1,071; no growth 0 / 0.814 / 0 / 743.
+- Direction signal did persist (T->T+12 growth was NNE and S, where r > 1; none E/W where r was smallest), but
+  neither forecast's detection-limited start spreads N or S, so a multiplier cannot add that growth; the global
+  shrink trims false E/W growth. Not adopted; not added to the batch; no Hyak run.
+- Caveats: one fire, one issue time; the hindcast start (whole edge) differs from the forecast start (active
+  edges), inflating the overshoot; FEDS/VIIRS 375 m observations; constants (EPS, decay, sectors) untuned.
+  Details: data/perimeter_batch/SELFCAL_NOTES.md.

@@ -42,6 +42,8 @@ Usage: elmfire_case.py tutorial CASE    rebuilds ELMFIRE's tutorials/01-constant
            ADJ_GR=, ADJ_SH=, ADJ_TIMBER= set the spread multiplier of grass + grass-shrub, shrub and timber fuels
            (other cells keep ADJ); ADJ_WIND_EXP=b then multiplies it by (the cell's mean 20-ft wind over the run /
            ADJ_WIND_REF, default 10 mph) ** b, clipped to x0.1-x10.
+           ADJ_FILE=path: a one-band raster on the landscape grid (same shape) that multiplies the spread multiplier
+           after ADJ, ADJ_GR/SH/TIMBER and the wind term (e.g. selfcal_adj.py's correction map); default none.
            MIN_START_CELLS=n (OBSERVED only, default 0 = off): if fewer than n burnable fuel cells start burning,
            grow the hot cells by one state (375 m VIIRS) cell, up to twice, so tiny or non-burnable starts can spread.
            INIT=feds (OBSERVED only; default INIT=hotcells, the above): start from the latest FEDS perimeter known at
@@ -217,6 +219,7 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
     adj_group, adj_wind_exp, adj_wind_ref = {}, 0.0, 10.0
     min_start, min_start_info = 0, None
     init_mode, edge_cells, init_info = "hotcells", 2, None
+    adj_file = None
     for item in overrides:
         key, value = item.split("=", 1)
         if key.upper() == "ADJ":
@@ -227,6 +230,9 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
             continue
         if key.upper() == "ADJ_WIND_EXP":
             adj_wind_exp = float(value)
+            continue
+        if key.upper() == "ADJ_FILE":
+            adj_file = value
             continue
         if key.upper() == "ADJ_WIND_REF":
             adj_wind_ref = float(value)
@@ -376,6 +382,14 @@ def fire(landscape_tif, wxdir, state_tif, issue, hours, case, *overrides):
         factor = np.clip((np.maximum(ws_fine, 0.1) / adj_wind_ref) ** adj_wind_exp, 0.1, 10.0)
         adj = adj * factor
         log.info("ADJ wind term: exponent %g, factor %.2f-%.2f", adj_wind_exp, factor.min(), factor.max())
+    if adj_file:
+        with rasterio.open(adj_file) as src:
+            correction = src.read(1).astype("float64")
+        if correction.shape != adj.shape:
+            raise ValueError("ADJ_FILE %s is %s, landscape grid is %s" % (adj_file, correction.shape, adj.shape))
+        adj = adj * correction
+        log.info("ADJ_FILE %s: factor %.2f-%.2f (median %.2f)", adj_file, correction.min(), correction.max(),
+                 float(np.median(correction)))
     for k in ("m1", "m10", "m100"):
         weather[k] = weather[k] + moist_add
     # Keys given without a group go to the group write_case already uses them in, else SIMULATOR.
