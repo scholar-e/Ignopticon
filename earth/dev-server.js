@@ -850,6 +850,12 @@ app.get("/api/fires/:id", apiFire);
 app.get("/api/fires/:id/weather", apiWeather);
 app.all("/api/*", function(req, res) { apiError(res, 404, "No API endpoint " + req.path); });
 app.use(i4Tile);
+// The fire-watch (ops) page is the front page; the globe stays at /index.html and /globe.
+app.get("/", function(req, res) {
+    var q = req.url.indexOf("?");
+    res.redirect(302, "/ops/" + (q < 0 ? "" : req.url.slice(q)));
+});
+app.get("/globe", function(req, res) { res.sendfile(path.join(__dirname, "public", "index.html")); });
 // Next-day fire activity predictions (Eric, data/samples/predictions): PNG grids + index.json.
 app.use("/data/predictions", express.static(path.join(__dirname, "..", "data", "samples", "predictions")));
 app.use(express.static(path.join(__dirname, "public")));
