@@ -73,7 +73,7 @@ export function createNav(ctx) {
   // ---------- Package ----------
   async function load(fire) {
     pkgFor = fire.id; pkg = null; hz = null;
-    status("Loading route data…");
+    status(""); note("Loading route data…");
     try {
       const t0 = performance.now();
       const r = await fetch(`/data/nav/${fire.id}.json`);
@@ -90,11 +90,11 @@ export function createNav(ctx) {
       buildAdjacency();
       repeaters = loadRepeaters();
       const s = performance.now() - t0;
-      status(`Route data ready (${(s / 1000).toFixed(1)} s) · roads and trails © OpenStreetMap · prepared for the ${raw.fire.snapshot.slice(5, 16).replace("T", " ")}Z perimeter`);
+      note(""); status(`Navigation: roads and trails © OpenStreetMap contributors; route data prepared for the ${raw.fire.snapshot.slice(5, 16).replace("T", " ")}Z perimeter; cell coverage SPLAT! estimates from FCC tower sites`);
       if (ctx.getDetail()) prepareHazards(ctx.getDetail());
     } catch (e) {
       if (pkgFor !== fire.id) return;
-      status(e.message === "missing" ? "Navigation is not prepared for this fire yet." : `Route data unavailable: ${e.message}`);
+      note(e.message === "missing" ? "Navigation is not prepared for this fire yet." : `Route data unavailable: ${e.message}`);
     }
     render();
   }
@@ -515,17 +515,18 @@ export function createNav(ctx) {
   }
 
   // ---------- Panel ----------
-  const status = (msg) => { const el = $("#nav-status"); if (el) el.textContent = msg; };
+  // Where the route data comes from: listed under Data sources in the fire card (#nav-src).
+  let sourceText = "";
+  const status = (msg) => { sourceText = msg; const el = $("#nav-src"); if (el) { el.textContent = msg; el.hidden = !msg; } };
   function note(msg, html) { const el = $("#nav-note"); if (!el) return; if (html) el.innerHTML = msg; else el.textContent = msg; }
   function render() {
     const p = $("#navpanel"); if (!p) return;
-    $("#nav-from").textContent = !start ? "Not set" : startManual ? `Map point ${start[1].toFixed(4)}, ${start[0].toFixed(4)}` :
-      `My location (±${Math.round(startAcc || 0)} m)`;
-    $("#nav-to").textContent = !dest ? "Suggested when you search" : destSuggested ? "Suggested: 0.5–2.5 km outside the fire" : `${dest[1].toFixed(4)}, ${dest[0].toFixed(4)}`;
+    const fromIn = $("#nav-from-in"), toIn = $("#nav-to-in");
+    if (document.activeElement !== fromIn) fromIn.value = picking === "start" ? "Tap the map…" : !start ? (startManual ? "" : "Current location (waiting for GPS)") :
+      startManual ? `${start[1].toFixed(5)}, ${start[0].toFixed(5)}` : `Current location (±${Math.round(startAcc || 0)} m)`;
+    if (document.activeElement !== toIn) toIn.value = picking === "dest" ? "Tap the map…" : !dest || destSuggested ? "Recommended spot (just outside the fire)" : `${dest[1].toFixed(5)}, ${dest[0].toFixed(5)}`;
     for (const b of document.querySelectorAll("[data-navmode]")) b.setAttribute("aria-pressed", b.dataset.navmode === mode);
     $("#nav-4x4").checked = allow4x4;
-    $("#nav-pick-start").setAttribute("aria-pressed", picking === "start");
-    $("#nav-pick-dest").setAttribute("aria-pressed", picking === "dest");
     $("#nav-add-rptr").setAttribute("aria-pressed", picking === "repeater");
     $("#nav-rform").hidden = picking !== "repeater";
     $("#nav-repeaters").innerHTML = repeaters.map((r) => `<li><span>${esc(r.name)} · ${r.mast} m · ${r.freq} MHz · ${r.watts} W <small>(${esc(r.source || "")})</small></span><button type="button" data-delrptr="${r.id}" aria-label="Remove ${esc(r.name)}">Remove</button></li>`).join("");
@@ -601,10 +602,9 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
   $("#navpanel").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
     if (b.dataset.navmode) { mode = b.dataset.navmode; render(); if (routes.length) findRoutes(true); }
-    else if (b.id === "nav-pick-start") { picking = picking === "start" ? null : "start"; render(); }
-    else if (b.id === "nav-pick-dest") { picking = picking === "dest" ? null : "dest"; render(); }
+    else if (b.dataset.from) { menu("from", false); if (b.dataset.from === "gps") { startManual = false; picking = null; ctx.requestGps(); } else picking = "start"; render(); }
+    else if (b.dataset.to) { menu("to", false); if (b.dataset.to === "rec") { dest = null; destSuggested = true; picking = null; ctx.saveAccessPoint(null); } else picking = "dest"; render(); }
     else if (b.id === "nav-add-rptr") { picking = picking === "repeater" ? null : "repeater"; render(); }
-    else if (b.id === "nav-use-gps") { startManual = false; ctx.requestGps(); render(); }
     else if (b.id === "nav-go") findRoutes(false);
     else if (b.id === "nav-start") startNav();
     else if (b.id === "nav-cov-toggle") showCoverage(b.getAttribute("aria-pressed") !== "true");
@@ -613,10 +613,24 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
   });
   $("#nav-4x4").addEventListener("change", (e) => { allow4x4 = e.target.checked; if (routes.length) findRoutes(true); });
   $("#nav-preset").addEventListener("change", (e) => { const p = PRESETS[e.target.value]; $("#nav-mast").value = p.mast; $("#nav-freq").value = p.freq; $("#nav-watts").value = p.watts; });
-  $("#nav-coords").addEventListener("change", (e) => {
-    const m = e.target.value.match(/(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/); if (!m) return;
-    start = [+m[2], +m[1]]; startManual = true; e.target.value = ""; render();
-  });
+  // From / To: type "lat, lon", or pick from the menu that opens on focus.
+  const parseLatLon = (v) => { const m = v.match(/(-?\d+(?:\.\d+)?)\s*[, ]\s*(-?\d+(?:\.\d+)?)/); return m && Math.abs(+m[1]) <= 90 && Math.abs(+m[2]) <= 180 ? [+m[2], +m[1]] : null; };
+  function menu(which, open) {
+    $(`#nav-${which}-menu`).hidden = !open;
+    $(`#nav-${which}-in`).setAttribute("aria-expanded", String(open));
+    if (!open && document.activeElement === $(`#nav-${which}-in`)) $(`#nav-${which}-in`).blur();  // so render() can show the choice
+  }
+  for (const which of ["from", "to"]) {
+    const input = $(`#nav-${which}-in`);
+    input.addEventListener("focus", () => { input.select(); menu(which, true); });
+    input.addEventListener("blur", () => setTimeout(() => { menu(which, false); render(); }, 150));
+    input.addEventListener("keydown", (e) => { if (e.key === "Escape") { input.blur(); } if (e.key === "Enter") input.blur(); });
+    input.addEventListener("change", () => {
+      const p = parseLatLon(input.value); if (!p) return;
+      if (which === "from") { start = p; startManual = true; } else { dest = p; destSuggested = false; ctx.saveAccessPoint(p); }
+      picking = null; render();
+    });
+  }
   $("#nb-reroute").onclick = reroute;
   $("#nb-end").onclick = endNav;
 
@@ -641,5 +655,6 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
       start = [lon, lat]; startAcc = acc; startManual = false; render(); updateNav();
     },
     styleLoaded,
+    sourceText: () => sourceText,
   };
 }

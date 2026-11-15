@@ -26,6 +26,7 @@ const fmt = (v) => v >= 100 ? Math.round(v).toLocaleString("en-US") : v >= 10 ? 
 export function createHistory(ctx) {
   const {$, esc} = ctx;
   let index = null, product = "harmonized", mode = "total", data = null, box = null, boxLabel = "", layerDate = null, loading = 0;
+  let pickDay = null, openMonth = null, daily = null;  // the page's day, the month whose days are shown, its daily values
 
   async function getIndex() {
     if (!index) index = fetch("/data/history/index.json").then((r) => r.ok ? r.json() : null).catch(() => null);
@@ -38,7 +39,8 @@ export function createHistory(ctx) {
     $("#hist-min").setAttribute("aria-expanded", String(!on));
     $("#hist-min").textContent = on ? "Show calendar" : "Hide calendar";
   }
-  async function open() {
+  async function open(opts = {}) {
+    if (opts.pick) { pickDay = opts.pick; openMonth = pickDay.slice(0, 7); }
     $("#hist").hidden = false; collapse(false);
     const idx = await getIndex();
     if (!idx) { $("#hist-body").innerHTML = `<p class="hist-msg">Daily fire layers are not available on this server.</p>`; return; }
@@ -67,7 +69,7 @@ export function createHistory(ctx) {
       const r = await fetch(`/api/history?${q}`), d = await r.json();
       if (!r.ok) throw new Error(d.error);
       if (mine !== loading) return;
-      data = d; drawBox(); render();
+      data = d; daily = null; drawBox(); render(); if (openMonth) showMonth(openMonth);
     } catch (e) { if (mine === loading) $("#hist-body").innerHTML = `<p class="hist-msg error">Could not load history: ${esc(e.message)}</p>`; }
   }
   function render() {
@@ -89,7 +91,7 @@ export function createHistory(ctx) {
         label = med > 0 ? `${Math.round(ratio * 100)}%` : x.v > 0 ? "new" : "–";
       }
       const tip = `${MONTHS[m]} ${y}: ${fmt(x.v)} ${data.unit}${mode === "anomaly" ? ` (median ${fmt(median[m])})` : ""}${x.n < 28 ? ` · ${x.n} days of data` : ""}`;
-      return `<td><button type="button" data-ym="${ym}" style="background:${bg}" title="${esc(tip)}" aria-label="${esc(tip)}"><span>${label}</span></button></td>`;
+      return `<td><button type="button" data-ym="${ym}"${ym === openMonth ? ' aria-current="true"' : ""} style="background:${bg}" title="${esc(tip)}" aria-label="${esc(tip)}"><span>${label}</span></button></td>`;
     };
     const total = (y) => MONTHS.reduce((s, _, m) => s + (byYm.get(`${y}-${String(m + 1).padStart(2, "0")}`)?.v || 0), 0);
     $("#hist-body").innerHTML = `<p class="hist-sub">${esc(PRODUCTS[product].label)} · ${esc(data.unit)} ${esc(boxLabel)} · ${mode === "total" ? "monthly totals" : "% of the median for that month"}</p>
@@ -100,14 +102,40 @@ ${mode === "anomaly" ? `<tr class="med"><th>Median</th>${median.map((v) => `<td>
 <div class="hist-legend">${mode === "total"
       ? `<span>Less</span><i style="background:linear-gradient(90deg,${SEQ.map(rgb).join(",")})"></i><span>More</span>`
       : `<span>Below median</span><i style="background:linear-gradient(90deg,${DIV.map(rgb).join(",")})"></i><span>Above</span>`}
-<span class="hist-note">Click a month to map its busiest day.</span></div>`;
+<span class="hist-note">Pick a month, then a day, to open that date.</span></div>`;
+  }
+
+  // ---- Day strip: the days of one month, shaded by that day's activity; a day opens that date ----
+  async function showMonth(ym) {
+    openMonth = ym;
+    for (const b of document.querySelectorAll(".hist-cal [data-ym]")) b.toggleAttribute("aria-current", b.dataset.ym === ym);
+    const el = $("#hist-days"); el.hidden = false;
+    if (!daily) {
+      el.innerHTML = `<p class="hist-msg">Loading days…</p>`;
+      const q = new URLSearchParams({product, west: box[0], south: box[1], east: box[2], north: box[3], daily: 1});
+      const d = await fetch(`/api/history?${q}`).then((r) => r.json());
+      daily = new Map(d.days || []);
+    }
+    const [y, m] = ym.split("-").map(Number), n = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const days = Array.from({length: n}, (_, i) => `${ym}-${String(i + 1).padStart(2, "0")}`);
+    const max = Math.max(1, ...days.map((d) => daily.get(d) || 0));
+    const lead = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+    el.innerHTML = `<div class="hd-head"><b>${MONTHS[m - 1]} ${y}</b><span>${esc(PRODUCTS[product].short)} · ${esc(boxLabel)} · pick a day</span></div>
+<div class="hd-grid">${["S", "M", "T", "W", "T", "F", "S"].map((w) => `<span class="hd-w">${w}</span>`).join("")}${"<span></span>".repeat(lead)}
+${days.map((d) => { const v = daily.get(d) || 0, c = v ? ramp(SEQ, Math.log1p(v) / Math.log1p(max)) : [30, 32, 34];
+      return `<button type="button" data-day="${d}" style="background:${rgb(c)}"${d === pickDay ? ' aria-current="date"' : ""} title="${d}: ${fmt(v)} ${esc(data.unit)}"><span>${+d.slice(8)}</span></button>`; }).join("")}</div>`;
   }
 
   // ---- Map layer ----
   async function showDay(date) {
-    layerDate = date; $("#hist-day").value = date;
+    layerDate = date;
     const map = ctx.getMap(); if (!map) return;
-    const idx = await getIndex(); const g = idx.grid;
+    const idx = await getIndex(); if (!idx) return; const g = idx.grid;
+    const has = (p) => idx.products[p] && idx.products[p].dates.includes(date);
+    if (!has(product)) {  // use the best product that has this day (harmonized, then VIIRS, then MODIS)
+      const alt = ["harmonized", "VNP14A1", "VJ114A1", "MYD14A1", "MOD14A1"].find(has);
+      if (alt) { product = alt; if ($("#hist-product").options.length) $("#hist-product").value = alt; }
+    }
     const img = new Image(); img.src = `/data/history/${product}/${date}.png`;
     try { await img.decode(); } catch { $("#hist-daynote").textContent = `No ${PRODUCTS[product].short} layer for ${date}.`; hideDay(); return; }
     const src = Object.assign(document.createElement("canvas"), {width: g.cols, height: g.rows}).getContext("2d");
@@ -156,12 +184,7 @@ ${mode === "anomaly" ? `<tr class="med"><th>Median</th>${median.map((v) => `<td>
     }
     map.setLayoutProperty("hist-box", "visibility", "visible");
   }
-  async function busiestDay(ym) {
-    const q = new URLSearchParams({product, west: box[0], south: box[1], east: box[2], north: box[3], daily: 1});
-    const d = await fetch(`/api/history?${q}`).then((r) => r.json());
-    const days = (d.days || []).filter(([date]) => date.startsWith(ym));
-    return days.length ? days.reduce((p, x) => x[1] > p[1] ? x : p)[0] : `${ym}-15`;
-  }
+
 
   // ---- CSV ----
   async function csv(daily) {
@@ -180,18 +203,18 @@ ${mode === "anomaly" ? `<tr class="med"><th>Median</th>${median.map((v) => `<td>
   // ---- Wiring ----
   $("#hist-open").addEventListener("click", open);
   $("#hist-close").addEventListener("click", () => { $("#hist").hidden = true; hideDay(); const m = ctx.getMap(); if (m?.getLayer("hist-box")) m.setLayoutProperty("hist-box", "visibility", "none"); });
-  $("#hist-product").addEventListener("change", (e) => { product = e.target.value; load(); if (layerDate) showDay(layerDate); });
+  $("#hist-product").addEventListener("change", (e) => { product = e.target.value; daily = null; load(); if (layerDate) showDay(layerDate); });
   $("#hist-view").addEventListener("click", useView);
   $("#hist").addEventListener("click", async (e) => {
     const b = e.target.closest("button");
     if (!b) return;
     if (b.dataset.mode) { mode = b.dataset.mode; for (const x of document.querySelectorAll("[data-mode]")) x.setAttribute("aria-pressed", x.dataset.mode === mode); if (data) render(); }
-    else if (b.dataset.ym) { collapse(true); showDay(await busiestDay(b.dataset.ym)); }
+    else if (b.dataset.ym) showMonth(b.dataset.ym);
+    else if (b.dataset.day) ctx.goDay(b.dataset.day);
     else if (b.id === "hist-min") collapse(!$("#hist").classList.contains("min"));
     else if (b.id === "hist-csv") csv(false);
     else if (b.id === "hist-csv-daily") csv(true);
     else if (b.id === "hist-clear") hideDay();
   });
-  $("#hist-day").addEventListener("change", (e) => { if (e.target.value) { collapse(true); showDay(e.target.value); } });
-  return {styleLoaded() { if (data) drawBox(); if (layerDate) showDay(layerDate); }};
+  return {open, showDay, styleLoaded() { if (data) drawBox(); if (layerDate) showDay(layerDate); }};
 }

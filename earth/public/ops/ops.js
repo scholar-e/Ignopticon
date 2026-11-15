@@ -140,30 +140,27 @@ const showError = (msg) => $("#count").insertAdjacentHTML("beforeend", `<span cl
 // snapshot (12:00 UTC). Changing the year or month moves to the latest available day in it. "Today" is t=now.
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const go = (t) => { const p = new URLSearchParams(location.search); p.set("t", t); location.search = "?" + p; };
-Promise.all([api("/data/fires/feds/index.json"), listReady.catch(() => null)]).then(([index, data]) => {
-  const latest = {};  // "YYYY-MM-DD" -> its latest snapshot
-  for (const s of index.snapshots) latest[s.slice(0, 10)] = s + "Z";
-  const days = Object.keys(latest).sort();
-  const today = state.t === "now" || !state.t && !data;
-  const shown = today ? days[days.length - 1] : days.find((d) => d === (data?.time || state.t || "").slice(0, 10)) || days[days.length - 1];
-  const opts = (sel, values, text, pick) => {
-    sel.innerHTML = (today ? '<option value="" hidden>—</option>' : "") + values.map((v) => `<option value="${v}">${text(v)}</option>`).join("");
-    sel.value = today ? "" : pick;
-  };
-  const fill = (d) => {
-    const [y, m] = d.split("-");
-    opts($("#d-year"), [...new Set(days.map((x) => x.slice(0, 4)))].reverse(), (v) => v, y);
-    opts($("#d-month"), [...new Set(days.filter((x) => x.startsWith(y)).map((x) => x.slice(5, 7)))], (v) => MONTHS[+v - 1], m);
-    opts($("#d-day"), days.filter((x) => x.startsWith(`${y}-${m}`)).map((x) => x.slice(8)), (v) => +v, d.slice(8));
-  };
-  if (!days.length) return;
-  fill(shown);
-  $("#d-today").setAttribute("aria-pressed", today);
-  const latestIn = (prefix) => days.filter((x) => x.startsWith(prefix)).pop();
-  $("#d-year").onchange = (e) => go(latest[latestIn(e.target.value)]);
-  $("#d-month").onchange = (e) => go(latest[latestIn(`${$("#d-year").value}-${e.target.value}`)]);
-  $("#d-day").onchange = (e) => go(latest[`${$("#d-year").value}-${$("#d-month").value}-${e.target.value}`]);
+// Date: one button showing the page's day; it opens the fire-history calendar, where a month opens its days and a
+// day sets the page's date. Fire perimeters (FEDS) exist from 2026; earlier days show that day's satellite fire layer.
+let fedsDays = {}, firstFeds = null;  // "YYYY-MM-DD" -> its latest FEDS snapshot
+const pageDay = () => (state.t === "now" ? new Date().toISOString() : state.t || DEMO_DAY).slice(0, 10);
+function setDateButton() {
+  const [y, m, d] = pageDay().split("-");
+  $("#d-pick").textContent = state.t === "now" ? "Today" : `${MONTHS[+m - 1]} ${+d}, ${y}`;
+  $("#d-today").setAttribute("aria-pressed", state.t === "now");
+}
+function goDay(day) {  // a FEDS day opens at its latest snapshot; any other day at 18:00 UTC (afternoon passes), with no fire open
+  const p = new URLSearchParams(location.search);
+  p.set("t", fedsDays[day] || `${day}T18:00:00Z`);
+  if (!fedsDays[day]) p.delete("fire");
+  location.search = "?" + p;
+}
+api("/data/fires/feds/index.json").then((index) => {
+  for (const s of index.snapshots) fedsDays[s.slice(0, 10)] = s + "Z";
+  firstFeds = Object.keys(fedsDays).sort()[0];
 }).catch(() => {});
+setDateButton();
+$("#d-pick").onclick = () => fireHistory.open({pick: pageDay()});
 $("#d-today").onclick = () => go("now");
 $("#sort").value = state.sort;
 $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; writeUrl(); renderList(); });
@@ -205,19 +202,12 @@ function renderList() {
 const where = (x) => x.properties.where || "front";  // files without classes are all front
 const bandAcres = (fc, h, w) => fc.features.filter((x) => x.properties.kind === "band" && (h == null || x.properties.hours === h) && where(x) === w)
   .reduce((s, x) => s + (x.properties.acres || 0), 0);
-function boundsHtml(d) {
-  const lo = d.forecast.bound, up = d.forecast_upper.bound, ac = (b) => num(Math.round(b.area_km2 * 247.105));
-  return `<p>Growth by +${d.forecast.hours[d.forecast.hours.length - 1]} h: most likely <b>${ac(lo)} ac</b>, worst case <b>${ac(up)} ac</b></p>`;
-}
 function summary(fc, zone) {
-  let total = 0;
-  const rows = fc.hours.map((h) => {
-    total += bandAcres(fc, h, "front");
-    return `<li>By +${h} h (${short(new Date(Date.parse(fc.issued) + h * 3600e3).toISOString(), zone)}): <b>+${num(total)} ac</b></li>`;
-  });
+  // Same per-hour figures as the forecast bar.
+  const rows = fcStops(fc).map((s) => `<li>By +${s.hours} h (${short(s.time, zone)}): <b>+${num(s.acres)} ac</b></li>`);
   const a = fc.features.filter((x) => x.properties.kind === "arrow" && where(x) === "front").map((x) => x.properties).reduce((m, p) => !m || p.distance_m > m.distance_m ? p : m, null);
   const start = fc.features.find((x) => x.properties.kind === "start");
-  return `<p class="big">+${num(total)} ac predicted by +${fc.hours[fc.hours.length - 1]} h</p><ul>${rows.join("")}</ul>` +
+  return `<p>${fc.bound ? "Most likely growth" : "Predicted growth"}:</p><ul>${rows.join("")}</ul>` +
     (a ? `<p>Largest advance: <b>${miles(a.distance_m)} mi ${compass(a.bearing_deg)} at ${chains(a.rate_ch_per_h)} ch/h</b></p>` : "") +
     (start && start.properties.acres != null ? `<p class="muted">Model start area ${num(start.properties.acres)} ac</p>` : "") +
     (bandAcres(fc, null, "interior") + bandAcres(fc, null, "detached") ? `<p>Also predicted: ${num(bandAcres(fc, null, "interior"))} ac interior burnout${state.layers.interior ? "" : " (hidden)"}, ` +
@@ -237,34 +227,34 @@ function containmentHtml(c, zone) {
   return `<p class="muted" title="From WFIGS dates at the forecast issue time${c.percent_contained_latest != null ? `; latest reported ${c.percent_contained_latest}% contained, not as of issue` : ""}">Containment as of forecast: ${txt}${c.status === "unmatched" ? "" : " (WFIGS)"}</p>`;
 }
 function sumHtml(f, d, g) {
-  const fc = d && d.forecast, row = (k, v) => `<li><span>${k}</span><b>${v}</b></li>`, rows = [row("Size now", `${num(f.acres)} ac · burning ${num(f.days)} days`)];
+  const fc = d && d.forecast, row = (k, v) => `<li><span>${k}</span><b>${v}</b></li>`, rows = [row("Size now", `${num(f.acres)} ac · day ${num(f.days)}`)];
   const gt = /^[+−]/.test(g.text) ? g.text.replace(/ \([^)]*\)/, "").replace(/ in 12 h$/, "") : "";
-  if (gt) rows.push(row("Last 12 h (observed)", `<span class="${g.cls}">${gt}</span>`));
-  if (!d) rows.push(row("Forecast", "loading…"));
-  else if (!fc) rows.push(row("Forecast", "none for this fire"));
-  else {
-    const h = fc.hours[fc.hours.length - 1];
-    if (d.forecast_upper) rows.push(row(`Growth by +${h} h`, `most likely ${num(Math.round(d.forecast.bound.area_km2 * 247.105))} ac<br>worst case ${num(Math.round(d.forecast_upper.bound.area_km2 * 247.105))} ac`));
-    else { let t = 0; fc.hours.forEach((x) => { t += bandAcres(fc, x, "front"); }); rows.push(row(`Growth by +${h} h`, `+${num(t)} ac`)); }
-    const o = (d.observed_after || []).find((x) => x.hours === h), now = d.history[d.history.length - 1].acres;
-    if (o) rows.push(row(`Observed by +${h} h`, `${o.acres >= now ? "+" : "−"}${num(Math.abs(o.acres - now))} ac`));
-  }
+  if (gt) rows.push(row("Past 12 h", `<span class="${g.cls}">${gt}</span>`));
   return `<ul class="dsum">${rows.join("")}</ul>`;
+}
+// Forecast numbers (likely / worst case, and what actually happened), shown inside the forecast box.
+function fcRowsHtml(d) {
+  const fc = d.forecast, row = (k, v) => `<li><span>${k}</span><b>${v}</b></li>`, rows = [];
+  const h = fc.hours[fc.hours.length - 1], t = fcStops(fc).at(-1).acres;
+  if (d.forecast_upper) rows.push(row(`Next ${h} h, forecast`, `+${num(t)} ac likely<br><span class="muted">+${num(Math.round(d.forecast_upper.bound.area_km2 * 247.105))} ac worst case</span>`));
+  else rows.push(row(`Next ${h} h, forecast`, `+${num(t)} ac`));
+  const o = (d.observed_after || []).find((x) => x.hours === h), now = d.history[d.history.length - 1].acres;
+  if (o) rows.push(row(`Next ${h} h, actual`, `${o.acres >= now ? "+" : "−"}${num(Math.abs(o.acres - now))} ac`));
+  return `<ul class="dsum fcsum">${rows.join("")}</ul>`;
 }
 function renderDetail(f, d) {
   const zone = zoneOf(f), g = growthText(f), fc = d && d.forecast;
-  const fcHtml = !d ? `<p class="muted">Loading forecast…</p>` : fc ? `<div class="fc"><details><summary>Forecast details</summary>${d.forecast_upper ? boundsHtml(d) : ""}${summary(fc, zone)}<p>Model: ${esc(fc.model)}</p><p>Issued ${when(fc.issued, zone)}</p></details>
+  const fcHtml = !d ? `<p class="muted">Loading forecast…</p>` : fc ? `<div class="fc"><details><summary>Forecast details</summary>${fcRowsHtml(d)}${summary(fc, zone)}<p>Model: ${esc(fc.model)}</p><p>Issued ${when(fc.issued, zone)}</p></details>
 <p class="muted">Unsuppressed spread potential — firefighting not modelled</p>
-<p class="dsrc">Sources: NASA FEDS perimeters, VIIRS hotspots${fc ? ", ELMFIRE + fire-history forecast" : ""}${d && d.containment ? ", WFIGS" : ""}.</p>
 <p class="disclaimer">Experimental research forecast, not an official forecast. Do not use it alone for safety decisions.</p></div>` : `<div class="nofc"><h3>No spread forecast</h3><p>This fire has no forecast. The map shows observed perimeters only.</p></div>`;
   const hs = d && d.hotspots;
   $("#detail").innerHTML = `<button type="button" class="back" id="back">← All fires (Esc)</button>
 <h2 id="detail-name">${esc(label(f))}</h2><p class="muted">${esc(f.place || "")} · FEDS fire ${f.id}</p>
-${d ? containmentHtml(d.containment, zone) : ""}${sumHtml(f, d, g)}${fcHtml}
+${d ? containmentHtml(d.containment, zone) : ""}${sumHtml(f, d, g)}<button type="button" class="nav-open" data-nav-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z" fill="currentColor"/></svg>Navigate to this fire</button>${fcHtml}
 `;
   $("#sources").innerHTML = `<details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(f.perimeter_time, zone)}</li>
 <li>Hotspots: VIIRS S-NPP, NOAA-20, NOAA-21: ${hs ? `${num(hs.length)} detections in the 12 h to view time` : "none downloaded for this time"}</li>
-${fc ? `<li>Forecast: ${esc(fc.source || fc.model)}</li>` : ""}<li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
+${fc ? `<li>Forecast: ELMFIRE + fire-history growth model · ${esc(fc.source || fc.model)}</li>` : ""}${d && d.containment ? "<li>Containment: NIFC WFIGS incident records</li>" : ""}<li id="nav-src"${nav.sourceText() ? "" : " hidden"}>${esc(nav.sourceText())}</li><li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
   $("#detail").hidden = false; $("#sources").hidden = false;
   if (d) legendForecast(fc, d);
   $("#back").onclick = overview;
@@ -640,11 +630,17 @@ function savedDispatch(provided) {
   }
   return null;
 }
-const fireHistory = createHistory({$, esc, getMap: () => map, getFire: () => cur && cur.fire});
+const fireHistory = createHistory({$, esc, getMap: () => map, getFire: () => cur && cur.fire, goDay: (d) => goDay(d)});
 const nav = createNav({$, esc, say: (m) => say(m), fit: (b) => fit(b), getMap: () => map, getFire: () => cur && cur.fire, getDetail: () => cur && cur.detail,
   query: () => query(), requestGps: () => requestGps(),
   accessPoint: () => { try { const p = JSON.parse(localStorage.getItem(routeKey() + ".point")); return Array.isArray(p) && p.length === 2 && p.every(Number.isFinite) ? p : null; } catch { return null; } },
   saveAccessPoint: (p) => { try { localStorage.setItem(routeKey() + ".point", JSON.stringify(p)); } catch {} }});
+// The navigation panel is a popup over the map, opened from the fire card's "Navigate to this fire" button.
+function navPopup(open) { $("#navpanel").hidden = !open; if (open) $("#nav-close").focus(); }
+$("#detail").addEventListener("click", (e) => { if (e.target.closest("[data-nav-open]")) navPopup(true); });
+$("#nav-close").onclick = () => navPopup(false);
+$("#nav-start").addEventListener("click", () => navPopup(false));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#navpanel").hidden) { e.stopImmediatePropagation(); navPopup(false); } }, true);
 $("#route-file").onchange = async e => {
   const file = e.target.files[0], key = routeKey();
   e.target.value = "";
@@ -692,7 +688,7 @@ function listSources() {
 }
 function overview() {
   document.body.classList.remove("selected"); map?.resize();
-  state.fire = null; cur = null; nav.clear();
+  state.fire = null; cur = null; nav.clear(); $("#navpanel").hidden = true;
   $("#detail").hidden = true; $("#timeline").hidden = true; $("#forecast").hidden = true;
   writeUrl(); renderList(); legendForecast(null); listSources();
   if (map && map.getSource("fires")) { clearDetail(); applyView(); }
@@ -754,7 +750,7 @@ function initMap() {
       setFires(); applyView(); updateWind(); nav.styleLoaded(); fireHistory.styleLoaded();
       if (cur && cur.detail) setDetail(cur.detail);
       if (state.view === "3d") setView("3d");
-    });
+    }, () => { updateWind(); fireHistory.styleLoaded(); if (state.view === "3d") setView("3d"); });  // no fire list (e.g. before 2026)
   });
   map.once("idle", () => performance.mark("ops-map-idle"));
   // The compact credit opens on load; start it closed (just the i button).
@@ -836,14 +832,24 @@ requestGps();
 $("#labels").setAttribute("aria-pressed", state.labels);
 for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === state.view);
 listReady.then((data) => {
+  if (data.snapshot && data.snapshot.slice(0, 10) !== pageDay() && state.t !== "now") noOutlines(data);
   at = data; fires = data.fires; byId = new Map(fires.map((f) => [f.id, f]));
   renderList(); if (!state.fire) listSources();
   performance.mark("ops-list");
   if (state.fire && byId.has(state.fire)) select(state.fire);
   else if (map) { state.fire = null; fit(allBounds()); }
 }).catch((e) => {
+  if (/No FEDS snapshot/.test(e.message)) return noOutlines(null);
   showError("Could not load fires: " + e.message);
 });
+// Days without FEDS perimeters (before 2026): say so, and map that day's satellite fire cells instead.
+function noOutlines(data) {
+  const day = pageDay();
+  $("#count").innerHTML = `<span class="hint">No fire outlines for ${esc(day)} yet: perimeters start in ${firstFeds ? firstFeds.slice(0, 4) : "2026"}, and outlines for earlier years are being prepared. The map shows the satellite fire detections for that day.</span>`;
+  if (!data) { $("#list").innerHTML = ""; listSources && listSources(); }
+  const show = () => fireHistory.showDay(day);
+  if (map && map.isStyleLoaded()) show(); else (function wait() { map ? map.once("idle", show) : setTimeout(wait, 300); })();
+}
 // The map library is a deferred script after this module; start the map once it has run.
 if (window.maplibregl) initMap(); else $('script[src$="maplibre-gl.js"]').addEventListener("load", initMap);
 if (matchMedia("(min-width:821px)").matches) $("#keybox").open = true;
