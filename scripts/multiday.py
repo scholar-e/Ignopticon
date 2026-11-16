@@ -33,6 +33,9 @@ MD = Path('data/multiday')
 SNAP = Path('earth/public/data/fires/feds/2026/08')
 PB = Path('data/perimeter_batch')
 HOURS = int(os.environ.get('HOURS', '12'))
+TASKS = Path(os.environ.get('TASKS', MD / 'tasks.txt'))      # h2h: data/h2h/tasks_20260813.txt
+CATALOG = Path(os.environ.get('CATALOG', MD / 'catalog.csv'))
+MEMBERS = os.environ.get('MEMBERS')                         # e.g. adj1 = control only
 HRRR_HOURLY, HRRR_SUBH = Path('data/raw/hrrr_hourly'), Path('data/raw/hrrr_subh')
 PYRUN = (os.environ.get('PY') or 'uv run --script').split()
 log = logging.getLogger('multiday')
@@ -154,7 +157,8 @@ def cmd_task(n, only=None):
     from shapely.geometry import shape
     from pyproj import Transformer
     from perimeter_batch import _worstcase
-    kind, issue, fire, feds = (MD / 'tasks.txt').read_text().split('\n')[n].split('\t')
+    only = only or (MEMBERS.split(',') if MEMBERS else None)
+    kind, issue, fire, feds = TASKS.read_text().split('\n')[n].split('\t')
     dest = PB / fire; dest.mkdir(parents=True, exist_ok=True)
     (MD / 'status' / day(issue)).mkdir(parents=True, exist_ok=True)
     stf = MD / 'status' / day(issue) / f'{fire}.json'
@@ -180,7 +184,7 @@ def cmd_task(n, only=None):
             for g in HRRR_HOURLY.glob(f'hrrr_{day(issue)}_t{issue[11:13]}z_f*.grb2'):
                 if not (raw / g.name).exists():
                     os.link(g, raw / g.name)
-            run([*PYRUN, 'scripts/build_fire_case.py', fire, '--catalog', MD / 'catalog.csv', '--issue', issue,
+            run([*PYRUN, 'scripts/build_fire_case.py', fire, '--catalog', CATALOG, '--issue', issue,
                  '--feds-fire-id', feds], dest / 'build.log')
             st['inputs'] = 'built'
         else:
