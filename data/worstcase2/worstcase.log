@@ -1,0 +1,360 @@
+2026-11-15 15:01:43,807 worstcase_calibrate.py:142 class counts with bounds [10.0, 100.0] km2: {0: 7, 1: 6, 2: 11}
+2026-11-15 15:02:45,630 worstcase_calibrate.py:165 map20260802-63374 size 1178.6 km2 obs 17.24 km2 members 1
+2026-11-15 15:02:46,591 worstcase_calibrate.py:165 map20260802-63683 size 260.8 km2 obs 5.79 km2 members 1
+2026-11-15 15:02:47,097 worstcase_calibrate.py:165 map20260802-63962 size 86.6 km2 obs 0.90 km2 members 1
+2026-11-15 15:02:47,621 worstcase_calibrate.py:165 map20260802-63969 size 18.9 km2 obs 0.13 km2 members 1
+2026-11-15 15:02:48,142 worstcase_calibrate.py:165 map20260802-65258 size 16.4 km2 obs 0.31 km2 members 1
+2026-11-15 15:02:48,624 worstcase_calibrate.py:165 map20260802-65401 size 316.9 km2 obs 0.41 km2 members 1
+2026-11-15 15:02:48,972 worstcase_calibrate.py:165 map20260802-65486 size 505.0 km2 obs 50.79 km2 members 1
+2026-11-15 15:02:49,471 worstcase_calibrate.py:165 map20260802-65489 size 151.9 km2 obs 4.19 km2 members 1
+2026-11-15 15:02:49,917 worstcase_calibrate.py:165 map20260802-65718 size 0.3 km2 obs 0.06 km2 members 1
+2026-11-15 15:02:50,338 worstcase_calibrate.py:165 map20260802-65726 size 826.1 km2 obs 0.10 km2 members 1
+2026-11-15 15:02:50,841 worstcase_calibrate.py:165 map20260802-65995 size 5.6 km2 obs 0.94 km2 members 1
+2026-11-15 15:02:51,359 worstcase_calibrate.py:165 map20260802-66555 size 128.4 km2 obs 9.25 km2 members 1
+2026-11-15 15:02:51,874 worstcase_calibrate.py:165 map20260802-66737 size 6.7 km2 obs 0.44 km2 members 1
+2026-11-15 15:02:52,421 worstcase_calibrate.py:165 map20260802-67569 size 47.0 km2 obs 10.02 km2 members 1
+2026-11-15 15:02:52,922 worstcase_calibrate.py:165 map20260802-67572 size 9.5 km2 obs 3.41 km2 members 1
+2026-11-15 15:02:53,425 worstcase_calibrate.py:165 map20260802-67614 size 4.8 km2 obs 1.38 km2 members 1
+2026-11-15 15:02:53,949 worstcase_calibrate.py:165 map20260802-67765 size 7.6 km2 obs 0.30 km2 members 1
+2026-11-15 15:02:54,400 worstcase_calibrate.py:165 map20260802-67766 size 5.7 km2 obs 0.07 km2 members 1
+2026-11-15 15:02:54,845 worstcase_calibrate.py:165 map20260802-67815 size 25.9 km2 obs 9.75 km2 members 1
+2026-11-15 15:02:55,352 worstcase_calibrate.py:165 map20260802-67816 size 18.7 km2 obs 4.63 km2 members 1
+2026-11-15 15:02:55,922 worstcase_calibrate.py:165 2020-008 size 511.4 km2 obs 106.01 km2 members 1
+2026-11-15 15:02:56,771 worstcase_calibrate.py:165 2021-031 size 213.1 km2 obs 91.25 km2 members 1
+2026-11-15 15:02:57,731 worstcase_calibrate.py:165 2021-038 size 244.9 km2 obs 67.17 km2 members 1
+2026-11-15 15:02:58,817 worstcase_calibrate.py:165 map20260802-66510 size 296.7 km2 obs 67.15 km2 members 20
+2026-11-15 15:02:58,817 worstcase_calibrate.py:170 G = 0.171 * size_km2^0.696 (n=24)
+2026-11-15 15:05:22,597 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:23,399 worstcase_calibrate.py:340 map20260802-66433 medium size 10.0 km2 -> A 19.4 km2 (old 45.7)
+2026-11-15 15:05:23,536 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:24,055 worstcase_calibrate.py:340 map20260802-65395 medium size 11.4 km2 -> A 21.2 km2 (old 22.9)
+2026-11-15 15:05:24,201 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:24,618 worstcase_calibrate.py:340 map20260802-65682 small size 0.6 km2 -> A 2.3 km2 (old 45.7)
+2026-11-15 15:05:24,763 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:25,171 worstcase_calibrate.py:340 map20260802-65080 small size 0.8 km2 -> A 2.9 km2 (old 45.7)
+2026-11-15 15:05:25,302 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:25,715 worstcase_calibrate.py:340 map20260802-20036 small size 1.0 km2 -> A 3.1 km2 (old 114.3)
+2026-11-15 15:05:25,853 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:26,274 worstcase_calibrate.py:340 map20260802-66055 small size 0.4 km2 -> A 1.7 km2 (old 45.7)
+2026-11-15 15:05:26,395 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:26,833 worstcase_calibrate.py:340 map20260802-64816 small size 2.1 km2 -> A 5.4 km2 (old 68.6)
+2026-11-15 15:05:26,874 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:27,261 worstcase_calibrate.py:340 map20260802-340 small size 0.2 km2 -> A 1.2 km2 (old 45.7)
+2026-11-15 15:05:27,317 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:27,764 worstcase_calibrate.py:340 map20260802-19 small size 2.0 km2 -> A 5.2 km2 (old 91.5)
+2026-11-15 15:05:27,922 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:28,366 worstcase_calibrate.py:340 map20260802-62041 small size 0.5 km2 -> A 2.1 km2 (old 22.9)
+2026-11-15 15:05:28,507 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:28,907 worstcase_calibrate.py:340 map20260802-53363 small size 0.2 km2 -> A 1.0 km2 (old 45.7)
+2026-11-15 15:05:29,039 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:29,436 worstcase_calibrate.py:340 map20260802-53095 small size 0.2 km2 -> A 1.1 km2 (old 70.9)
+2026-11-15 15:05:29,447 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-331/landscape.tif: No such file or directory'
+2026-11-15 15:05:29,555 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:29,963 worstcase_calibrate.py:340 map20260802-331 small size 1.1 km2 -> A 3.4 km2 (old 93.8)
+2026-11-15 15:05:30,028 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:30,448 worstcase_calibrate.py:340 map20260802-800 small size 0.4 km2 -> A 1.8 km2 (old 93.8)
+2026-11-15 15:05:30,459 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-2143/landscape.tif: No such file or directory'
+2026-11-15 15:05:30,561 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:30,946 worstcase_calibrate.py:340 map20260802-2143 small size 0.0 km2 -> A 0.4 km2 (old 91.5)
+2026-11-15 15:05:31,019 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:31,433 worstcase_calibrate.py:340 map20260802-5450 small size 1.0 km2 -> A 3.1 km2 (old 91.5)
+2026-11-15 15:05:31,546 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:31,949 worstcase_calibrate.py:340 map20260802-11887 small size 0.2 km2 -> A 1.2 km2 (old 93.8)
+2026-11-15 15:05:32,070 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0044100.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:32,457 worstcase_calibrate.py:340 map20260802-18872 small size 0.1 km2 -> A 0.6 km2 (old 48.0)
+2026-11-15 15:05:32,468 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-31094/landscape.tif: No such file or directory'
+2026-11-15 15:05:32,565 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:32,961 worstcase_calibrate.py:340 map20260802-31094 small size 0.1 km2 -> A 0.5 km2 (old 70.9)
+2026-11-15 15:05:32,972 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-48632/landscape.tif: No such file or directory'
+2026-11-15 15:05:33,075 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:33,463 worstcase_calibrate.py:340 map20260802-48632 small size 0.1 km2 -> A 0.7 km2 (old 70.9)
+2026-11-15 15:05:33,526 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:33,946 worstcase_calibrate.py:340 map20260802-49109 small size 0.1 km2 -> A 0.8 km2 (old 91.5)
+2026-11-15 15:05:33,957 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-51849/landscape.tif: No such file or directory'
+2026-11-15 15:05:34,058 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:34,458 worstcase_calibrate.py:340 map20260802-51849 small size 0.2 km2 -> A 1.1 km2 (old 114.3)
+2026-11-15 15:05:34,569 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:34,967 worstcase_calibrate.py:340 map20260802-52611 small size 0.2 km2 -> A 1.1 km2 (old 137.2)
+2026-11-15 15:05:35,083 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:35,483 worstcase_calibrate.py:340 map20260802-53763 small size 0.2 km2 -> A 1.2 km2 (old 45.7)
+2026-11-15 15:05:35,494 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-57204/landscape.tif: No such file or directory'
+2026-11-15 15:05:35,594 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:35,987 worstcase_calibrate.py:340 map20260802-57204 small size 0.1 km2 -> A 0.7 km2 (old 45.7)
+2026-11-15 15:05:35,998 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-57585/landscape.tif: No such file or directory'
+2026-11-15 15:05:36,097 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:36,480 worstcase_calibrate.py:340 map20260802-57585 small size 0.1 km2 -> A 0.6 km2 (old 70.9)
+2026-11-15 15:05:36,491 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-58056/landscape.tif: No such file or directory'
+2026-11-15 15:05:36,591 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:36,984 worstcase_calibrate.py:340 map20260802-58056 small size 0.1 km2 -> A 0.8 km2 (old 93.8)
+2026-11-15 15:05:36,995 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-60791/landscape.tif: No such file or directory'
+2026-11-15 15:05:37,096 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:37,488 worstcase_calibrate.py:340 map20260802-60791 small size 0.1 km2 -> A 0.5 km2 (old 114.3)
+2026-11-15 15:05:37,499 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-61855/landscape.tif: No such file or directory'
+2026-11-15 15:05:37,605 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:37,998 worstcase_calibrate.py:340 map20260802-61855 small size 0.1 km2 -> A 0.8 km2 (old 45.7)
+2026-11-15 15:05:38,133 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0044100.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:38,526 worstcase_calibrate.py:340 map20260802-62590 small size 0.0 km2 -> A 0.4 km2 (old 91.5)
+2026-11-15 15:05:38,537 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-62944/landscape.tif: No such file or directory'
+2026-11-15 15:05:38,635 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:39,019 worstcase_calibrate.py:340 map20260802-62944 small size 0.1 km2 -> A 0.7 km2 (old 70.9)
+2026-11-15 15:05:39,030 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63215/landscape.tif: No such file or directory'
+2026-11-15 15:05:39,136 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:39,541 worstcase_calibrate.py:340 map20260802-63215 small size 0.2 km2 -> A 1.0 km2 (old 68.6)
+2026-11-15 15:05:39,552 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63363/landscape.tif: No such file or directory'
+2026-11-15 15:05:39,654 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:40,037 worstcase_calibrate.py:340 map20260802-63363 small size 0.1 km2 -> A 0.4 km2 (old 45.7)
+2026-11-15 15:05:40,053 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63369/landscape.tif: No such file or directory'
+2026-11-15 15:05:40,323 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:41,100 worstcase_calibrate.py:340 map20260802-63369 small size 7.1 km2 -> A 12.7 km2 (old 22.9)
+2026-11-15 15:05:41,113 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63372/landscape.tif: No such file or directory'
+2026-11-15 15:05:41,281 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:42,017 worstcase_calibrate.py:340 map20260802-63372 small size 9.8 km2 -> A 15.7 km2 (old 22.9)
+2026-11-15 15:05:42,306 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:42,935 worstcase_calibrate.py:340 map20260802-63374 small size 2.9 km2 -> A 6.8 km2 (old 45.7)
+2026-11-15 15:05:42,944 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63568/landscape.tif: No such file or directory'
+2026-11-15 15:05:43,009 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:43,386 worstcase_calibrate.py:340 map20260802-63568 small size 2.0 km2 -> A 5.2 km2 (old 25.2)
+2026-11-15 15:05:43,397 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63588/landscape.tif: No such file or directory'
+2026-11-15 15:05:43,509 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:43,940 worstcase_calibrate.py:340 map20260802-63588 small size 0.4 km2 -> A 1.8 km2 (old 45.7)
+2026-11-15 15:05:44,214 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:44,865 worstcase_calibrate.py:340 map20260802-63683 small size 3.5 km2 -> A 7.7 km2 (old 22.9)
+2026-11-15 15:05:44,875 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63715/landscape.tif: No such file or directory'
+2026-11-15 15:05:44,992 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:45,448 worstcase_calibrate.py:340 map20260802-63715 small size 1.3 km2 -> A 3.8 km2 (old 25.2)
+2026-11-15 15:05:45,458 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63960/landscape.tif: No such file or directory'
+2026-11-15 15:05:45,580 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:46,007 worstcase_calibrate.py:340 map20260802-63960 small size 1.4 km2 -> A 4.1 km2 (old 45.7)
+2026-11-15 15:05:46,155 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:46,572 worstcase_calibrate.py:340 map20260802-63962 small size 0.8 km2 -> A 2.8 km2 (old 22.9)
+2026-11-15 15:05:46,717 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:47,151 worstcase_calibrate.py:340 map20260802-63969 small size 1.5 km2 -> A 4.3 km2 (old 45.7)
+2026-11-15 15:05:47,270 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:47,654 worstcase_calibrate.py:340 map20260802-64600 small size 0.1 km2 -> A 0.7 km2 (old 68.6)
+2026-11-15 15:05:47,796 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:48,197 worstcase_calibrate.py:340 map20260802-65258 small size 0.4 km2 -> A 1.6 km2 (old 22.9)
+2026-11-15 15:05:48,344 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:48,809 worstcase_calibrate.py:340 map20260802-65401 small size 0.8 km2 -> A 2.8 km2 (old 22.9)
+2026-11-15 15:05:48,913 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:49,406 worstcase_calibrate.py:340 map20260802-65486 medium size 16.2 km2 -> A 27.0 km2 (old 22.9)
+2026-11-15 15:05:49,550 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:49,995 worstcase_calibrate.py:340 map20260802-65489 small size 1.6 km2 -> A 4.5 km2 (old 22.9)
+2026-11-15 15:05:50,129 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:50,528 worstcase_calibrate.py:340 map20260802-65680 small size 0.2 km2 -> A 1.0 km2 (old 22.9)
+2026-11-15 15:05:50,659 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:51,039 worstcase_calibrate.py:340 map20260802-65718 small size 0.0 km2 -> A 0.4 km2 (old 22.9)
+2026-11-15 15:05:51,163 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:51,603 worstcase_calibrate.py:340 map20260802-65726 small size 1.8 km2 -> A 4.9 km2 (old 93.8)
+2026-11-15 15:05:51,802 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:52,291 worstcase_calibrate.py:340 map20260802-65727 small size 0.1 km2 -> A 0.7 km2 (old 22.9)
+2026-11-15 15:05:52,429 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:52,869 worstcase_calibrate.py:340 map20260802-65995 small size 0.5 km2 -> A 2.1 km2 (old 68.6)
+2026-11-15 15:05:53,002 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:53,404 worstcase_calibrate.py:340 map20260802-66204 small size 0.4 km2 -> A 1.6 km2 (old 22.9)
+2026-11-15 15:05:53,536 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:53,933 worstcase_calibrate.py:340 map20260802-66244 small size 0.2 km2 -> A 0.9 km2 (old 45.7)
+2026-11-15 15:05:54,393 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:55,213 worstcase_calibrate.py:340 map20260802-66510 large size 140.4 km2 -> A 177.0 km2 (old 45.7)
+2026-11-15 15:05:55,362 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:55,780 worstcase_calibrate.py:340 map20260802-66555 small size 0.4 km2 -> A 1.7 km2 (old 45.7)
+2026-11-15 15:05:55,921 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:56,321 worstcase_calibrate.py:340 map20260802-66737 small size 0.3 km2 -> A 1.3 km2 (old 22.9)
+2026-11-15 15:05:56,443 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:56,868 worstcase_calibrate.py:340 map20260802-66834 small size 0.2 km2 -> A 1.1 km2 (old 91.5)
+2026-11-15 15:05:57,011 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:57,416 worstcase_calibrate.py:340 map20260802-67083 small size 0.4 km2 -> A 1.7 km2 (old 45.7)
+2026-11-15 15:05:57,462 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:57,854 worstcase_calibrate.py:340 map20260802-67149 small size 1.5 km2 -> A 4.3 km2 (old 45.7)
+2026-11-15 15:05:57,983 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:58,367 worstcase_calibrate.py:340 map20260802-67447 small size 0.1 km2 -> A 0.7 km2 (old 68.6)
+2026-11-15 15:05:58,518 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:58,973 worstcase_calibrate.py:340 map20260802-67569 small size 0.4 km2 -> A 1.8 km2 (old 45.7)
+2026-11-15 15:05:59,103 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:05:59,496 worstcase_calibrate.py:340 map20260802-67572 small size 0.3 km2 -> A 1.4 km2 (old 45.7)
+2026-11-15 15:05:59,600 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:00,007 worstcase_calibrate.py:340 map20260802-67610 small size 0.4 km2 -> A 1.8 km2 (old 49.7)
+2026-11-15 15:06:00,145 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:00,543 worstcase_calibrate.py:340 map20260802-67614 small size 0.3 km2 -> A 1.4 km2 (old 45.7)
+2026-11-15 15:06:00,679 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:01,097 worstcase_calibrate.py:340 map20260802-67616 small size 0.8 km2 -> A 2.7 km2 (old 70.9)
+2026-11-15 15:06:01,219 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:01,638 worstcase_calibrate.py:340 map20260802-67758 small size 0.9 km2 -> A 3.0 km2 (old 48.0)
+2026-11-15 15:06:01,780 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:02,183 worstcase_calibrate.py:340 map20260802-67765 small size 0.4 km2 -> A 1.8 km2 (old 45.7)
+2026-11-15 15:06:02,310 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:02,732 worstcase_calibrate.py:340 map20260802-67766 small size 0.8 km2 -> A 2.8 km2 (old 45.7)
+2026-11-15 15:06:02,858 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:03,298 worstcase_calibrate.py:340 map20260802-67815 small size 1.3 km2 -> A 4.0 km2 (old 45.7)
+2026-11-15 15:06:03,439 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:03,861 worstcase_calibrate.py:340 map20260802-67816 small size 1.0 km2 -> A 3.2 km2 (old 22.9)
+2026-11-15 15:06:03,984 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:06:04,386 worstcase_calibrate.py:340 map20260802-67885 small size 0.1 km2 -> A 0.4 km2 (old 25.2)
+2026-11-15 15:06:04,391 worstcase_calibrate.py:347 exported 73
+2026-11-15 15:07:35,797 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:37,468 worstcase_calibrate.py:353 map20260802-66433 large size 368.3 km2 -> A 346.2 km2 (old 19.4)
+2026-11-15 15:07:37,600 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:38,407 worstcase_calibrate.py:353 map20260802-65395 large size 936.9 km2 -> A 663.0 km2 (old 21.2)
+2026-11-15 15:07:38,557 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:39,055 worstcase_calibrate.py:353 map20260802-65682 medium size 34.6 km2 -> A 45.9 km2 (old 2.3)
+2026-11-15 15:07:39,203 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:39,629 worstcase_calibrate.py:353 map20260802-65080 medium size 12.6 km2 -> A 22.6 km2 (old 2.9)
+2026-11-15 15:07:39,770 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:40,228 worstcase_calibrate.py:353 map20260802-20036 medium size 15.7 km2 -> A 26.4 km2 (old 3.1)
+2026-11-15 15:07:40,370 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:40,882 worstcase_calibrate.py:353 map20260802-66055 large size 160.4 km2 -> A 194.1 km2 (old 1.7)
+2026-11-15 15:07:41,005 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:41,436 worstcase_calibrate.py:353 map20260802-64816 small size 2.8 km2 -> A 6.6 km2 (old 5.4)
+2026-11-15 15:07:41,478 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:41,864 worstcase_calibrate.py:353 map20260802-340 small size 6.5 km2 -> A 11.9 km2 (old 1.2)
+2026-11-15 15:07:41,920 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:42,451 worstcase_calibrate.py:353 map20260802-19 medium size 16.2 km2 -> A 27.1 km2 (old 5.2)
+2026-11-15 15:07:42,606 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:43,219 worstcase_calibrate.py:353 map20260802-62041 large size 135.5 km2 -> A 172.6 km2 (old 2.1)
+2026-11-15 15:07:43,352 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:43,756 worstcase_calibrate.py:353 map20260802-53363 small size 3.6 km2 -> A 7.8 km2 (old 1.0)
+2026-11-15 15:07:43,891 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:44,305 worstcase_calibrate.py:353 map20260802-53095 small size 4.2 km2 -> A 8.7 km2 (old 1.1)
+2026-11-15 15:07:44,317 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-331/landscape.tif: No such file or directory'
+2026-11-15 15:07:44,426 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:44,821 worstcase_calibrate.py:353 map20260802-331 medium size 12.1 km2 -> A 22.1 km2 (old 3.4)
+2026-11-15 15:07:44,887 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:45,379 worstcase_calibrate.py:353 map20260802-800 small size 9.3 km2 -> A 15.2 km2 (old 1.8)
+2026-11-15 15:07:45,391 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-2143/landscape.tif: No such file or directory'
+2026-11-15 15:07:45,506 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:45,896 worstcase_calibrate.py:353 map20260802-2143 small size 6.9 km2 -> A 12.4 km2 (old 0.4)
+2026-11-15 15:07:45,969 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:46,435 worstcase_calibrate.py:353 map20260802-5450 small size 8.8 km2 -> A 14.6 km2 (old 3.1)
+2026-11-15 15:07:46,446 worstcase_calibrate.py:89 map20260802-11887 issue perimeter: [Errno 2] No such file or directory: '/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-11887/fire-observed.json'
+2026-11-15 15:07:46,544 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:46,943 worstcase_calibrate.py:353 map20260802-11887 small size 0.2 km2 -> A 1.2 km2 (old 1.2)
+2026-11-15 15:07:46,954 worstcase_calibrate.py:89 map20260802-18872 issue perimeter: [Errno 2] No such file or directory: '/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-18872/fire-observed.json'
+2026-11-15 15:07:47,061 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0044100.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:47,448 worstcase_calibrate.py:353 map20260802-18872 small size 0.1 km2 -> A 0.6 km2 (old 0.6)
+2026-11-15 15:07:47,460 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-31094/landscape.tif: No such file or directory'
+2026-11-15 15:07:47,575 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:47,971 worstcase_calibrate.py:353 map20260802-31094 small size 6.8 km2 -> A 12.2 km2 (old 0.5)
+2026-11-15 15:07:47,983 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-48632/landscape.tif: No such file or directory'
+2026-11-15 15:07:48,087 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:48,491 worstcase_calibrate.py:353 map20260802-48632 small size 5.9 km2 -> A 11.0 km2 (old 0.7)
+2026-11-15 15:07:48,558 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:49,038 worstcase_calibrate.py:353 map20260802-49109 small size 4.5 km2 -> A 9.2 km2 (old 0.8)
+2026-11-15 15:07:49,050 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-51849/landscape.tif: No such file or directory'
+2026-11-15 15:07:49,152 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:49,542 worstcase_calibrate.py:353 map20260802-51849 small size 0.9 km2 -> A 2.9 km2 (old 1.1)
+2026-11-15 15:07:49,663 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:50,066 worstcase_calibrate.py:353 map20260802-52611 small size 3.2 km2 -> A 7.2 km2 (old 1.1)
+2026-11-15 15:07:50,197 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:50,610 worstcase_calibrate.py:353 map20260802-53763 small size 5.8 km2 -> A 10.9 km2 (old 1.2)
+2026-11-15 15:07:50,622 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-57204/landscape.tif: No such file or directory'
+2026-11-15 15:07:50,739 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:51,128 worstcase_calibrate.py:353 map20260802-57204 small size 9.2 km2 -> A 15.1 km2 (old 0.7)
+2026-11-15 15:07:51,140 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-57585/landscape.tif: No such file or directory'
+2026-11-15 15:07:51,249 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:51,636 worstcase_calibrate.py:353 map20260802-57585 small size 2.3 km2 -> A 5.8 km2 (old 0.6)
+2026-11-15 15:07:51,648 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-58056/landscape.tif: No such file or directory'
+2026-11-15 15:07:51,742 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:52,129 worstcase_calibrate.py:353 map20260802-58056 small size 2.1 km2 -> A 5.3 km2 (old 0.8)
+2026-11-15 15:07:52,141 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-60791/landscape.tif: No such file or directory'
+2026-11-15 15:07:52,246 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:52,637 worstcase_calibrate.py:353 map20260802-60791 small size 1.8 km2 -> A 4.8 km2 (old 0.5)
+2026-11-15 15:07:52,649 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-61855/landscape.tif: No such file or directory'
+2026-11-15 15:07:52,767 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:53,167 worstcase_calibrate.py:353 map20260802-61855 medium size 14.8 km2 -> A 25.4 km2 (old 0.8)
+2026-11-15 15:07:53,309 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0044100.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:53,710 worstcase_calibrate.py:353 map20260802-62590 medium size 19.4 km2 -> A 30.6 km2 (old 0.4)
+2026-11-15 15:07:53,722 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-62944/landscape.tif: No such file or directory'
+2026-11-15 15:07:53,817 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:54,205 worstcase_calibrate.py:353 map20260802-62944 small size 0.5 km2 -> A 1.9 km2 (old 0.7)
+2026-11-15 15:07:54,217 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63215/landscape.tif: No such file or directory'
+2026-11-15 15:07:54,339 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:54,769 worstcase_calibrate.py:353 map20260802-63215 small size 1.0 km2 -> A 3.3 km2 (old 1.0)
+2026-11-15 15:07:54,781 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63363/landscape.tif: No such file or directory'
+2026-11-15 15:07:54,890 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:55,276 worstcase_calibrate.py:353 map20260802-63363 small size 3.5 km2 -> A 7.7 km2 (old 0.4)
+2026-11-15 15:07:55,295 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63369/landscape.tif: No such file or directory'
+2026-11-15 15:07:55,543 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:56,388 worstcase_calibrate.py:353 map20260802-63369 large size 360.6 km2 -> A 341.1 km2 (old 12.7)
+2026-11-15 15:07:56,402 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63372/landscape.tif: No such file or directory'
+2026-11-15 15:07:56,548 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:57,369 worstcase_calibrate.py:353 map20260802-63372 large size 273.6 km2 -> A 281.5 km2 (old 15.7)
+2026-11-15 15:07:57,671 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:58,733 worstcase_calibrate.py:353 map20260802-63374 large size 1178.6 km2 -> A 777.8 km2 (old 6.8)
+2026-11-15 15:07:58,743 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63568/landscape.tif: No such file or directory'
+2026-11-15 15:07:58,811 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:59,232 worstcase_calibrate.py:353 map20260802-63568 large size 449.8 km2 -> A 397.9 km2 (old 5.2)
+2026-11-15 15:07:59,244 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63588/landscape.tif: No such file or directory'
+2026-11-15 15:07:59,353 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:07:59,775 worstcase_calibrate.py:353 map20260802-63588 small size 8.7 km2 -> A 14.6 km2 (old 1.8)
+2026-11-15 15:08:00,038 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:01,120 worstcase_calibrate.py:353 map20260802-63683 large size 260.8 km2 -> A 272.3 km2 (old 7.7)
+2026-11-15 15:08:01,132 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63715/landscape.tif: No such file or directory'
+2026-11-15 15:08:01,245 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:01,728 worstcase_calibrate.py:353 map20260802-63715 large size 219.4 km2 -> A 241.4 km2 (old 3.8)
+2026-11-15 15:08:01,740 __init__.py:367 GDAL signalled an error: err_no=4, msg='/home/elinzi/Coding/ignopticon/data/training/fires/map20260802-63960/landscape.tif: No such file or directory'
+2026-11-15 15:08:01,860 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:02,327 worstcase_calibrate.py:353 map20260802-63960 medium size 21.6 km2 -> A 33.0 km2 (old 4.1)
+2026-11-15 15:08:02,472 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:02,948 worstcase_calibrate.py:353 map20260802-63962 medium size 86.6 km2 -> A 86.8 km2 (old 2.8)
+2026-11-15 15:08:03,090 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:03,537 worstcase_calibrate.py:353 map20260802-63969 medium size 18.9 km2 -> A 30.1 km2 (old 4.3)
+2026-11-15 15:08:03,661 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:04,047 worstcase_calibrate.py:353 map20260802-64600 small size 0.5 km2 -> A 1.9 km2 (old 0.7)
+2026-11-15 15:08:04,192 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:04,595 worstcase_calibrate.py:353 map20260802-65258 medium size 16.4 km2 -> A 27.3 km2 (old 1.6)
+2026-11-15 15:08:04,735 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:05,504 worstcase_calibrate.py:353 map20260802-65401 large size 316.9 km2 -> A 311.8 km2 (old 2.8)
+2026-11-15 15:08:05,607 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:06,366 worstcase_calibrate.py:353 map20260802-65486 large size 505.0 km2 -> A 431.3 km2 (old 27.0)
+2026-11-15 15:08:06,511 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:07,223 worstcase_calibrate.py:353 map20260802-65489 large size 151.9 km2 -> A 186.9 km2 (old 4.5)
+2026-11-15 15:08:07,369 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:07,771 worstcase_calibrate.py:353 map20260802-65680 small size 8.5 km2 -> A 14.3 km2 (old 1.0)
+2026-11-15 15:08:07,897 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:08,284 worstcase_calibrate.py:353 map20260802-65718 small size 0.3 km2 -> A 1.5 km2 (old 0.4)
+2026-11-15 15:08:08,410 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:09,105 worstcase_calibrate.py:353 map20260802-65726 large size 826.1 km2 -> A 607.4 km2 (old 4.9)
+2026-11-15 15:08:09,297 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:10,486 worstcase_calibrate.py:353 map20260802-65727 large size 450.8 km2 -> A 398.5 km2 (old 0.7)
+2026-11-15 15:08:10,622 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:11,073 worstcase_calibrate.py:353 map20260802-65995 small size 5.6 km2 -> A 10.6 km2 (old 2.1)
+2026-11-15 15:08:11,207 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:11,607 worstcase_calibrate.py:353 map20260802-66204 small size 4.3 km2 -> A 8.9 km2 (old 1.6)
+2026-11-15 15:08:11,738 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:12,126 worstcase_calibrate.py:353 map20260802-66244 small size 0.6 km2 -> A 2.4 km2 (old 0.9)
+2026-11-15 15:08:12,572 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:13,615 worstcase_calibrate.py:353 map20260802-66510 large size 296.7 km2 -> A 297.8 km2 (old 177.0)
+2026-11-15 15:08:13,759 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:14,477 worstcase_calibrate.py:353 map20260802-66555 large size 128.4 km2 -> A 166.3 km2 (old 1.7)
+2026-11-15 15:08:14,625 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:15,031 worstcase_calibrate.py:353 map20260802-66737 small size 6.7 km2 -> A 12.1 km2 (old 1.3)
+2026-11-15 15:08:15,158 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:15,560 worstcase_calibrate.py:353 map20260802-66834 small size 1.5 km2 -> A 4.2 km2 (old 1.1)
+2026-11-15 15:08:15,706 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:16,117 worstcase_calibrate.py:353 map20260802-67083 small size 2.9 km2 -> A 6.8 km2 (old 1.7)
+2026-11-15 15:08:16,164 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0045900.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:16,551 worstcase_calibrate.py:353 map20260802-67149 medium size 16.2 km2 -> A 27.0 km2 (old 4.3)
+2026-11-15 15:08:16,681 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:17,066 worstcase_calibrate.py:353 map20260802-67447 small size 0.4 km2 -> A 1.8 km2 (old 0.7)
+2026-11-15 15:08:17,213 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:17,686 worstcase_calibrate.py:353 map20260802-67569 medium size 47.0 km2 -> A 56.8 km2 (old 1.8)
+2026-11-15 15:08:17,826 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:18,236 worstcase_calibrate.py:353 map20260802-67572 small size 9.5 km2 -> A 15.5 km2 (old 1.4)
+2026-11-15 15:08:18,339 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:18,812 worstcase_calibrate.py:353 map20260802-67610 medium size 16.2 km2 -> A 27.0 km2 (old 1.8)
+2026-11-15 15:08:18,953 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:19,365 worstcase_calibrate.py:353 map20260802-67614 small size 4.8 km2 -> A 9.7 km2 (old 1.4)
+2026-11-15 15:08:19,515 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:20,003 worstcase_calibrate.py:353 map20260802-67616 medium size 34.5 km2 -> A 45.7 km2 (old 2.7)
+2026-11-15 15:08:20,125 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:20,683 worstcase_calibrate.py:353 map20260802-67758 medium size 19.6 km2 -> A 30.8 km2 (old 3.0)
+2026-11-15 15:08:20,824 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:21,223 worstcase_calibrate.py:353 map20260802-67765 small size 7.6 km2 -> A 13.2 km2 (old 1.8)
+2026-11-15 15:08:21,352 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:21,856 worstcase_calibrate.py:353 map20260802-67766 small size 5.7 km2 -> A 10.8 km2 (old 2.8)
+2026-11-15 15:08:21,982 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:22,536 worstcase_calibrate.py:353 map20260802-67815 medium size 25.9 km2 -> A 37.4 km2 (old 4.0)
+2026-11-15 15:08:22,676 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:23,141 worstcase_calibrate.py:353 map20260802-67816 medium size 18.7 km2 -> A 29.9 km2 (old 3.2)
+2026-11-15 15:08:23,268 __init__.py:377 CPLE_IllegalArg in time_of_arrival_0000001_0043200.tif: BLOCKXSIZE can only be used with TILED=YES
+2026-11-15 15:08:23,660 worstcase_calibrate.py:353 map20260802-67885 small size 0.1 km2 -> A 0.6 km2 (old 0.4)
+2026-11-15 15:08:23,667 worstcase_calibrate.py:360 exported 73

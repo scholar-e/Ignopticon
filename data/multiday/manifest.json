@@ -1,0 +1,1820 @@
+{
+ "frozen_by": "scripts/multiday.py manifest, before any multi-day or ensemble run",
+ "frozen": "2026-11-15T21:27Z",
+ "rule": "FEDS fires known at issue (latest geometry in snapshots <= issue), matched to WFIGS incidents (containment_aug2.py), kept if uncontained at issue and incident-matched",
+ "members": "scripts/perimeter_batch.py worstcase",
+ "hours": 12,
+ "issues": {
+  "2026-08-03T12:00": {
+   "fires_known_at_issue": 113,
+   "containment_counts": {
+    "unmatched": 55,
+    "uncontained": 54,
+    "contained": 4
+   },
+   "fires": [
+    {
+     "feds_id": "5450",
+     "fire": "map20260803-5450",
+     "incident": "Portage Lakefront",
+     "area_km2": 8.78,
+     "place": "Porter Co., IN",
+     "incident_acres": 1.7
+    },
+    {
+     "feds_id": "20036",
+     "fire": "map20260803-20036",
+     "incident": "Johnson Canyon",
+     "area_km2": 15.81,
+     "place": "Box Elder Co., UT",
+     "incident_acres": 6889.75
+    },
+    {
+     "feds_id": "61398",
+     "fire": "map20260803-61398",
+     "incident": "Luna",
+     "area_km2": 7.67,
+     "place": "Whatcom Co., WA",
+     "incident_acres": 8553
+    },
+    {
+     "feds_id": "61854",
+     "fire": "map20260803-61854",
+     "incident": "Olive Butte",
+     "area_km2": 18.41,
+     "place": "Grant Co., OR",
+     "incident_acres": 3092
+    },
+    {
+     "feds_id": "61855",
+     "fire": "map20260803-61855",
+     "incident": "Upper Smith",
+     "area_km2": 14.85,
+     "place": "Boundary Co., ID",
+     "incident_acres": 4848
+    },
+    {
+     "feds_id": "62041",
+     "fire": "map20260803-62041",
+     "incident": "Thumb",
+     "area_km2": 141.71,
+     "place": "St. Louis Co., MN",
+     "incident_acres": 25015
+    },
+    {
+     "feds_id": "63369",
+     "fire": "map20260803-63369",
+     "incident": "LITTLE GIANT",
+     "area_km2": 378.34,
+     "place": "Chelan Co., WA",
+     "incident_acres": 172912
+    },
+    {
+     "feds_id": "63372",
+     "fire": "map20260803-63372",
+     "incident": "Bald Mountain",
+     "area_km2": 273.08,
+     "place": "Harney Co., OR",
+     "incident_acres": 76443
+    },
+    {
+     "feds_id": "63374",
+     "fire": "map20260803-63374",
+     "incident": "0445 CROSSWHITE",
+     "area_km2": 1200.31,
+     "place": "Crook Co., OR",
+     "incident_acres": 342923
+    },
+    {
+     "feds_id": "63568",
+     "fire": "map20260803-63568",
+     "incident": "Kaiser Canyon",
+     "area_km2": 449.87,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 138293
+    },
+    {
+     "feds_id": "63588",
+     "fire": "map20260803-63588",
+     "incident": "Paradise",
+     "area_km2": 8.86,
+     "place": "Columbia Co., WA",
+     "incident_acres": 9656
+    },
+    {
+     "feds_id": "63683",
+     "fire": "map20260803-63683",
+     "incident": "Modrite",
+     "area_km2": 267.6,
+     "place": "Ferry Co., WA",
+     "incident_acres": 57594
+    },
+    {
+     "feds_id": "63715",
+     "fire": "map20260803-63715",
+     "incident": "Hagen",
+     "area_km2": 220.63,
+     "place": "Umatilla Co., OR",
+     "incident_acres": 61380
+    },
+    {
+     "feds_id": "63960",
+     "fire": "map20260803-63960",
+     "incident": "Skillet",
+     "area_km2": 21.34,
+     "place": "Flathead Co., MT",
+     "incident_acres": 3414
+    },
+    {
+     "feds_id": "63962",
+     "fire": "map20260803-63962",
+     "incident": "PTARMIGAN",
+     "area_km2": 88.31,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 25566
+    },
+    {
+     "feds_id": "63969",
+     "fire": "map20260803-63969",
+     "incident": "Burnt Creek",
+     "area_km2": 19.34,
+     "place": "Wallowa Co., OR",
+     "incident_acres": 4169
+    },
+    {
+     "feds_id": "64659",
+     "fire": "map20260803-64659",
+     "incident": "Border 2",
+     "area_km2": 65.65,
+     "place": "",
+     "incident_acres": 9108
+    },
+    {
+     "feds_id": "65080",
+     "fire": "map20260803-65080",
+     "incident": "Cascade",
+     "area_km2": 17.4,
+     "place": "Idaho Co., ID",
+     "incident_acres": 7475
+    },
+    {
+     "feds_id": "65258",
+     "fire": "map20260803-65258",
+     "incident": "Castle",
+     "area_km2": 16.94,
+     "place": "Douglas Co., OR",
+     "incident_acres": 3615
+    },
+    {
+     "feds_id": "65395",
+     "fire": "map20260803-65395",
+     "incident": "BIG GRASS",
+     "area_km2": 952.4,
+     "place": "Malheur Co., OR",
+     "incident_acres": 578637
+    },
+    {
+     "feds_id": "65397",
+     "fire": "map20260803-65397",
+     "incident": "Jackass Butte",
+     "area_km2": 143.11,
+     "place": "Harney Co., OR",
+     "incident_acres": 24724
+    },
+    {
+     "feds_id": "65401",
+     "fire": "map20260803-65401",
+     "incident": "0587 SHINGLE",
+     "area_km2": 317.09,
+     "place": "Wheeler Co., OR",
+     "incident_acres": 29844
+    },
+    {
+     "feds_id": "65486",
+     "fire": "map20260803-65486",
+     "incident": "Tartar",
+     "area_km2": 574.91,
+     "place": "Washington Co., ID",
+     "incident_acres": 158027
+    },
+    {
+     "feds_id": "65487",
+     "fire": "map20260803-65487",
+     "incident": "Bench",
+     "area_km2": 234.24,
+     "place": "Jefferson Co., OR",
+     "incident_acres": 67071
+    },
+    {
+     "feds_id": "65489",
+     "fire": "map20260803-65489",
+     "incident": "GRASSHOPPER",
+     "area_km2": 158.37,
+     "place": "Wasco Co., OR",
+     "incident_acres": 93972
+    },
+    {
+     "feds_id": "65680",
+     "fire": "map20260803-65680",
+     "incident": "Elder 1",
+     "area_km2": 8.49,
+     "place": "Missoula Co., MT",
+     "incident_acres": 1235
+    },
+    {
+     "feds_id": "65682",
+     "fire": "map20260803-65682",
+     "incident": "Silvertip",
+     "area_km2": 34.8,
+     "place": "Flathead Co., MT",
+     "incident_acres": 7280
+    },
+    {
+     "feds_id": "65718",
+     "fire": "map20260803-65718",
+     "incident": "HIGH LAVA",
+     "area_km2": 0.66,
+     "place": "Skamania Co., WA",
+     "incident_acres": 2899
+    },
+    {
+     "feds_id": "65726",
+     "fire": "map20260803-65726",
+     "incident": "Coleman Creek",
+     "area_km2": 827.94,
+     "place": "Malheur Co., OR",
+     "incident_acres": 308863
+    },
+    {
+     "feds_id": "65727",
+     "fire": "map20260803-65727",
+     "incident": "Second Flat",
+     "area_km2": 450.01,
+     "place": "Harney Co., OR",
+     "incident_acres": 105854
+    },
+    {
+     "feds_id": "65900",
+     "fire": "map20260803-65900",
+     "incident": "Lumin",
+     "area_km2": 26.18,
+     "place": "Sheridan Co., WY",
+     "incident_acres": 7285
+    },
+    {
+     "feds_id": "65995",
+     "fire": "map20260803-65995",
+     "incident": "Doublesprings",
+     "area_km2": 6.52,
+     "place": "Custer Co., ID",
+     "incident_acres": 1779
+    },
+    {
+     "feds_id": "66055",
+     "fire": "map20260803-66055",
+     "incident": "New Pass",
+     "area_km2": 167.14,
+     "place": "Churchill Co., NV",
+     "incident_acres": 37899
+    },
+    {
+     "feds_id": "66204",
+     "fire": "map20260803-66204",
+     "incident": "Moose",
+     "area_km2": 4.41,
+     "place": "Granite Co., MT",
+     "incident_acres": 6005
+    },
+    {
+     "feds_id": "66244",
+     "fire": "map20260803-66244",
+     "incident": "Little Weitas",
+     "area_km2": 0.73,
+     "place": "Idaho Co., ID",
+     "incident_acres": 872
+    },
+    {
+     "feds_id": "66433",
+     "fire": "map20260803-66433",
+     "incident": "SINLAHEKIN",
+     "area_km2": 411.44,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 166007
+    },
+    {
+     "feds_id": "66510",
+     "fire": "map20260803-66510",
+     "incident": "Widemouth 2",
+     "area_km2": 372.74,
+     "place": "Millard Co., UT",
+     "incident_acres": 129742
+    },
+    {
+     "feds_id": "66555",
+     "fire": "map20260803-66555",
+     "incident": "MOUSE MEADOW",
+     "area_km2": 142.37,
+     "place": "Nye Co., NV",
+     "incident_acres": 52000
+    },
+    {
+     "feds_id": "66737",
+     "fire": "map20260803-66737",
+     "incident": "Rio Blanco",
+     "area_km2": 7.28,
+     "place": "Archuleta Co., CO",
+     "incident_acres": 1388
+    },
+    {
+     "feds_id": "67083",
+     "fire": "map20260803-67083",
+     "incident": "Moose Mountain",
+     "area_km2": 3.06,
+     "place": "Clearwater Co., ID",
+     "incident_acres": 5832
+    },
+    {
+     "feds_id": "67569",
+     "fire": "map20260803-67569",
+     "incident": "Ward",
+     "area_km2": 56.97,
+     "place": "White Pine Co., NV",
+     "incident_acres": 8683
+    },
+    {
+     "feds_id": "67572",
+     "fire": "map20260803-67572",
+     "incident": "Bobcat Lakes",
+     "area_km2": 13.05,
+     "place": "Beaverhead Co., MT",
+     "incident_acres": 10896
+    },
+    {
+     "feds_id": "67610",
+     "fire": "map20260803-67610",
+     "incident": "Big Rock",
+     "area_km2": 16.27,
+     "place": "Jefferson Co., ID",
+     "incident_acres": 2142.12
+    },
+    {
+     "feds_id": "67614",
+     "fire": "map20260803-67614",
+     "incident": "Black Canyon",
+     "area_km2": 7.49,
+     "place": "Emery Co., UT",
+     "incident_acres": 3264
+    },
+    {
+     "feds_id": "67758",
+     "fire": "map20260803-67758",
+     "incident": "OLD TRAILS",
+     "area_km2": 19.48,
+     "place": "Spokane Co., WA",
+     "incident_acres": 3176
+    },
+    {
+     "feds_id": "67765",
+     "fire": "map20260803-67765",
+     "incident": "Sand Creek",
+     "area_km2": 8.22,
+     "place": "Beaverhead Co., MT",
+     "incident_acres": 35520
+    },
+    {
+     "feds_id": "67766",
+     "fire": "map20260803-67766",
+     "incident": "FAIRVIEW",
+     "area_km2": 5.84,
+     "place": "Spokane Co., WA",
+     "incident_acres": 992
+    },
+    {
+     "feds_id": "67815",
+     "fire": "map20260803-67815",
+     "incident": "AUTUMN LANE",
+     "area_km2": 37.68,
+     "place": "Spokane Co., WA",
+     "incident_acres": 5764
+    },
+    {
+     "feds_id": "67816",
+     "fire": "map20260803-67816",
+     "incident": "MITRE ROCK",
+     "area_km2": 24.72,
+     "place": "Stevens Co., WA",
+     "incident_acres": 4518
+    },
+    {
+     "feds_id": "67885",
+     "fire": "map20260803-67885",
+     "incident": "Black Bear",
+     "area_km2": 0.14,
+     "place": "Ravalli Co., MT",
+     "incident_acres": 2126
+    },
+    {
+     "feds_id": "68001",
+     "fire": "map20260803-68001",
+     "incident": "Antelope Creek",
+     "area_km2": 13.22,
+     "place": "Elko Co., NV",
+     "incident_acres": 6282
+    },
+    {
+     "feds_id": "68021",
+     "fire": "map20260803-68021",
+     "incident": "Middle Coulee",
+     "area_km2": 4.23,
+     "place": "Chouteau Co., MT",
+     "incident_acres": 1200
+    },
+    {
+     "feds_id": "68052",
+     "fire": "map20260803-68052",
+     "incident": "Poppy Rd",
+     "area_km2": 0.2,
+     "place": "Jackson Co., MS",
+     "incident_acres": 60
+    },
+    {
+     "feds_id": "68082",
+     "fire": "map20260803-68082",
+     "incident": "Elk",
+     "area_km2": 0.67,
+     "place": "Hinsdale Co., CO",
+     "incident_acres": 7257
+    }
+   ]
+  },
+  "2026-08-04T12:00": {
+   "fires_known_at_issue": 117,
+   "containment_counts": {
+    "unmatched": 57,
+    "uncontained": 54,
+    "contained": 6
+   },
+   "fires": [
+    {
+     "feds_id": "5450",
+     "fire": "map20260804-5450",
+     "incident": "Portage Lakefront",
+     "area_km2": 8.78,
+     "place": "Porter Co., IN",
+     "incident_acres": 1.7
+    },
+    {
+     "feds_id": "20036",
+     "fire": "map20260804-20036",
+     "incident": "Johnson Canyon",
+     "area_km2": 15.81,
+     "place": "Box Elder Co., UT",
+     "incident_acres": 6889.75
+    },
+    {
+     "feds_id": "61398",
+     "fire": "map20260804-61398",
+     "incident": "Luna",
+     "area_km2": 8.3,
+     "place": "Whatcom Co., WA",
+     "incident_acres": 8553
+    },
+    {
+     "feds_id": "61854",
+     "fire": "map20260804-61854",
+     "incident": "Olive Butte",
+     "area_km2": 18.41,
+     "place": "Grant Co., OR",
+     "incident_acres": 3092
+    },
+    {
+     "feds_id": "61855",
+     "fire": "map20260804-61855",
+     "incident": "Upper Smith",
+     "area_km2": 16.96,
+     "place": "Boundary Co., ID",
+     "incident_acres": 4848
+    },
+    {
+     "feds_id": "62041",
+     "fire": "map20260804-62041",
+     "incident": "Thumb",
+     "area_km2": 141.71,
+     "place": "St. Louis Co., MN",
+     "incident_acres": 25015
+    },
+    {
+     "feds_id": "63369",
+     "fire": "map20260804-63369",
+     "incident": "LITTLE GIANT",
+     "area_km2": 390.19,
+     "place": "Chelan Co., WA",
+     "incident_acres": 172912
+    },
+    {
+     "feds_id": "63372",
+     "fire": "map20260804-63372",
+     "incident": "Bald Mountain",
+     "area_km2": 273.08,
+     "place": "Harney Co., OR",
+     "incident_acres": 76443
+    },
+    {
+     "feds_id": "63374",
+     "fire": "map20260804-63374",
+     "incident": "0445 CROSSWHITE",
+     "area_km2": 1274.44,
+     "place": "Crook Co., OR",
+     "incident_acres": 342923
+    },
+    {
+     "feds_id": "63568",
+     "fire": "map20260804-63568",
+     "incident": "Kaiser Canyon",
+     "area_km2": 451.11,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 138293
+    },
+    {
+     "feds_id": "63588",
+     "fire": "map20260804-63588",
+     "incident": "Paradise",
+     "area_km2": 10.18,
+     "place": "Columbia Co., WA",
+     "incident_acres": 9656
+    },
+    {
+     "feds_id": "63683",
+     "fire": "map20260804-63683",
+     "incident": "Modrite",
+     "area_km2": 277.06,
+     "place": "Ferry Co., WA",
+     "incident_acres": 57594
+    },
+    {
+     "feds_id": "63715",
+     "fire": "map20260804-63715",
+     "incident": "Hagen",
+     "area_km2": 221.2,
+     "place": "Umatilla Co., OR",
+     "incident_acres": 61380
+    },
+    {
+     "feds_id": "63960",
+     "fire": "map20260804-63960",
+     "incident": "Skillet",
+     "area_km2": 21.68,
+     "place": "Flathead Co., MT",
+     "incident_acres": 3414
+    },
+    {
+     "feds_id": "63962",
+     "fire": "map20260804-63962",
+     "incident": "PTARMIGAN",
+     "area_km2": 95.31,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 25566
+    },
+    {
+     "feds_id": "63969",
+     "fire": "map20260804-63969",
+     "incident": "Burnt Creek",
+     "area_km2": 19.34,
+     "place": "Wallowa Co., OR",
+     "incident_acres": 4169
+    },
+    {
+     "feds_id": "64659",
+     "fire": "map20260804-64659",
+     "incident": "Border 2",
+     "area_km2": 73.63,
+     "place": "",
+     "incident_acres": 9108
+    },
+    {
+     "feds_id": "65080",
+     "fire": "map20260804-65080",
+     "incident": "Cascade",
+     "area_km2": 19.81,
+     "place": "Idaho Co., ID",
+     "incident_acres": 7475
+    },
+    {
+     "feds_id": "65258",
+     "fire": "map20260804-65258",
+     "incident": "Castle",
+     "area_km2": 18.29,
+     "place": "Douglas Co., OR",
+     "incident_acres": 3615
+    },
+    {
+     "feds_id": "65395",
+     "fire": "map20260804-65395",
+     "incident": "BIG GRASS",
+     "area_km2": 999.89,
+     "place": "Malheur Co., OR",
+     "incident_acres": 578637
+    },
+    {
+     "feds_id": "65397",
+     "fire": "map20260804-65397",
+     "incident": "Jackass Butte",
+     "area_km2": 143.11,
+     "place": "Harney Co., OR",
+     "incident_acres": 24724
+    },
+    {
+     "feds_id": "65401",
+     "fire": "map20260804-65401",
+     "incident": "0587 SHINGLE",
+     "area_km2": 317.18,
+     "place": "Wheeler Co., OR",
+     "incident_acres": 29844
+    },
+    {
+     "feds_id": "65486",
+     "fire": "map20260804-65486",
+     "incident": "Tartar",
+     "area_km2": 652.02,
+     "place": "Baker Co., OR",
+     "incident_acres": 158027
+    },
+    {
+     "feds_id": "65487",
+     "fire": "map20260804-65487",
+     "incident": "Bench",
+     "area_km2": 234.24,
+     "place": "Jefferson Co., OR",
+     "incident_acres": 67071
+    },
+    {
+     "feds_id": "65489",
+     "fire": "map20260804-65489",
+     "incident": "GRASSHOPPER",
+     "area_km2": 198.71,
+     "place": "Wasco Co., OR",
+     "incident_acres": 93972
+    },
+    {
+     "feds_id": "65680",
+     "fire": "map20260804-65680",
+     "incident": "Elder 1",
+     "area_km2": 8.49,
+     "place": "Missoula Co., MT",
+     "incident_acres": 1235
+    },
+    {
+     "feds_id": "65682",
+     "fire": "map20260804-65682",
+     "incident": "Silvertip",
+     "area_km2": 34.8,
+     "place": "Flathead Co., MT",
+     "incident_acres": 7280
+    },
+    {
+     "feds_id": "65718",
+     "fire": "map20260804-65718",
+     "incident": "HIGH LAVA",
+     "area_km2": 1.35,
+     "place": "Skamania Co., WA",
+     "incident_acres": 2899
+    },
+    {
+     "feds_id": "65726",
+     "fire": "map20260804-65726",
+     "incident": "Coleman Creek",
+     "area_km2": 827.94,
+     "place": "Malheur Co., OR",
+     "incident_acres": 308863
+    },
+    {
+     "feds_id": "65727",
+     "fire": "map20260804-65727",
+     "incident": "Second Flat",
+     "area_km2": 450.01,
+     "place": "Harney Co., OR",
+     "incident_acres": 105854
+    },
+    {
+     "feds_id": "65900",
+     "fire": "map20260804-65900",
+     "incident": "Lumin",
+     "area_km2": 26.18,
+     "place": "Sheridan Co., WY",
+     "incident_acres": 7285
+    },
+    {
+     "feds_id": "65995",
+     "fire": "map20260804-65995",
+     "incident": "Doublesprings",
+     "area_km2": 6.87,
+     "place": "Custer Co., ID",
+     "incident_acres": 1779
+    },
+    {
+     "feds_id": "66055",
+     "fire": "map20260804-66055",
+     "incident": "New Pass",
+     "area_km2": 171.08,
+     "place": "Churchill Co., NV",
+     "incident_acres": 37899
+    },
+    {
+     "feds_id": "66204",
+     "fire": "map20260804-66204",
+     "incident": "Moose",
+     "area_km2": 4.74,
+     "place": "Granite Co., MT",
+     "incident_acres": 6005
+    },
+    {
+     "feds_id": "66244",
+     "fire": "map20260804-66244",
+     "incident": "Little Weitas",
+     "area_km2": 0.73,
+     "place": "Idaho Co., ID",
+     "incident_acres": 872
+    },
+    {
+     "feds_id": "66433",
+     "fire": "map20260804-66433",
+     "incident": "SINLAHEKIN",
+     "area_km2": 459.36,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 166007
+    },
+    {
+     "feds_id": "66510",
+     "fire": "map20260804-66510",
+     "incident": "Widemouth 2",
+     "area_km2": 450.44,
+     "place": "Millard Co., UT",
+     "incident_acres": 129742
+    },
+    {
+     "feds_id": "66555",
+     "fire": "map20260804-66555",
+     "incident": "MOUSE MEADOW",
+     "area_km2": 145.94,
+     "place": "Nye Co., NV",
+     "incident_acres": 52000
+    },
+    {
+     "feds_id": "66737",
+     "fire": "map20260804-66737",
+     "incident": "Rio Blanco",
+     "area_km2": 7.76,
+     "place": "Archuleta Co., CO",
+     "incident_acres": 1388
+    },
+    {
+     "feds_id": "67083",
+     "fire": "map20260804-67083",
+     "incident": "Moose Mountain",
+     "area_km2": 3.48,
+     "place": "Clearwater Co., ID",
+     "incident_acres": 5832
+    },
+    {
+     "feds_id": "67569",
+     "fire": "map20260804-67569",
+     "incident": "Ward",
+     "area_km2": 59.17,
+     "place": "White Pine Co., NV",
+     "incident_acres": 8683
+    },
+    {
+     "feds_id": "67572",
+     "fire": "map20260804-67572",
+     "incident": "Bobcat Lakes",
+     "area_km2": 13.57,
+     "place": "Beaverhead Co., MT",
+     "incident_acres": 10896
+    },
+    {
+     "feds_id": "67610",
+     "fire": "map20260804-67610",
+     "incident": "Big Rock",
+     "area_km2": 16.27,
+     "place": "Jefferson Co., ID",
+     "incident_acres": 2142.12
+    },
+    {
+     "feds_id": "67614",
+     "fire": "map20260804-67614",
+     "incident": "Black Canyon",
+     "area_km2": 10.07,
+     "place": "Emery Co., UT",
+     "incident_acres": 3264
+    },
+    {
+     "feds_id": "67758",
+     "fire": "map20260804-67758",
+     "incident": "OLD TRAILS",
+     "area_km2": 19.48,
+     "place": "Spokane Co., WA",
+     "incident_acres": 3176
+    },
+    {
+     "feds_id": "67765",
+     "fire": "map20260804-67765",
+     "incident": "Sand Creek",
+     "area_km2": 9.46,
+     "place": "Beaverhead Co., MT",
+     "incident_acres": 35520
+    },
+    {
+     "feds_id": "67766",
+     "fire": "map20260804-67766",
+     "incident": "FAIRVIEW",
+     "area_km2": 5.84,
+     "place": "Spokane Co., WA",
+     "incident_acres": 992
+    },
+    {
+     "feds_id": "67815",
+     "fire": "map20260804-67815",
+     "incident": "AUTUMN LANE",
+     "area_km2": 40.68,
+     "place": "Spokane Co., WA",
+     "incident_acres": 5764
+    },
+    {
+     "feds_id": "67816",
+     "fire": "map20260804-67816",
+     "incident": "MITRE ROCK",
+     "area_km2": 25.0,
+     "place": "Stevens Co., WA",
+     "incident_acres": 4518
+    },
+    {
+     "feds_id": "67885",
+     "fire": "map20260804-67885",
+     "incident": "Black Bear",
+     "area_km2": 0.14,
+     "place": "Ravalli Co., MT",
+     "incident_acres": 2126
+    },
+    {
+     "feds_id": "68001",
+     "fire": "map20260804-68001",
+     "incident": "Antelope Creek",
+     "area_km2": 13.22,
+     "place": "Elko Co., NV",
+     "incident_acres": 6282
+    },
+    {
+     "feds_id": "68052",
+     "fire": "map20260804-68052",
+     "incident": "Poppy Rd",
+     "area_km2": 2.56,
+     "place": "Jackson Co., MS",
+     "incident_acres": 60
+    },
+    {
+     "feds_id": "68082",
+     "fire": "map20260804-68082",
+     "incident": "Elk",
+     "area_km2": 3.8,
+     "place": "Hinsdale Co., CO",
+     "incident_acres": 7257
+    },
+    {
+     "feds_id": "68370",
+     "fire": "map20260804-68370",
+     "incident": "GANN",
+     "area_km2": 30.1,
+     "place": "Calaveras Co., CA",
+     "incident_acres": 10339
+    }
+   ]
+  },
+  "2026-08-05T12:00": {
+   "fires_known_at_issue": 124,
+   "containment_counts": {
+    "unmatched": 58,
+    "uncontained": 59,
+    "contained": 7
+   },
+   "fires": [
+    {
+     "feds_id": "5450",
+     "fire": "map20260805-5450",
+     "incident": "Portage Lakefront",
+     "area_km2": 8.78,
+     "place": "Porter Co., IN",
+     "incident_acres": 1.7
+    },
+    {
+     "feds_id": "61398",
+     "fire": "map20260805-61398",
+     "incident": "Luna",
+     "area_km2": 8.51,
+     "place": "Whatcom Co., WA",
+     "incident_acres": 8553
+    },
+    {
+     "feds_id": "61854",
+     "fire": "map20260805-61854",
+     "incident": "Olive Butte",
+     "area_km2": 18.41,
+     "place": "Grant Co., OR",
+     "incident_acres": 3092
+    },
+    {
+     "feds_id": "61855",
+     "fire": "map20260805-61855",
+     "incident": "Upper Smith",
+     "area_km2": 17.88,
+     "place": "Boundary Co., ID",
+     "incident_acres": 4848
+    },
+    {
+     "feds_id": "62041",
+     "fire": "map20260805-62041",
+     "incident": "Thumb",
+     "area_km2": 141.71,
+     "place": "St. Louis Co., MN",
+     "incident_acres": 25015
+    },
+    {
+     "feds_id": "62595",
+     "fire": "map20260805-62595",
+     "incident": "VISTA",
+     "area_km2": 0.43,
+     "place": "Orange Co., CA",
+     "incident_acres": null
+    },
+    {
+     "feds_id": "63369",
+     "fire": "map20260805-63369",
+     "incident": "LITTLE GIANT",
+     "area_km2": 399.48,
+     "place": "Chelan Co., WA",
+     "incident_acres": 172912
+    },
+    {
+     "feds_id": "63372",
+     "fire": "map20260805-63372",
+     "incident": "Bald Mountain",
+     "area_km2": 273.08,
+     "place": "Harney Co., OR",
+     "incident_acres": 76443
+    },
+    {
+     "feds_id": "63374",
+     "fire": "map20260805-63374",
+     "incident": "0445 CROSSWHITE",
+     "area_km2": 1281.45,
+     "place": "Crook Co., OR",
+     "incident_acres": 342923
+    },
+    {
+     "feds_id": "63568",
+     "fire": "map20260805-63568",
+     "incident": "Kaiser Canyon",
+     "area_km2": 451.48,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 138293
+    },
+    {
+     "feds_id": "63588",
+     "fire": "map20260805-63588",
+     "incident": "Paradise",
+     "area_km2": 11.78,
+     "place": "Columbia Co., WA",
+     "incident_acres": 9656
+    },
+    {
+     "feds_id": "63683",
+     "fire": "map20260805-63683",
+     "incident": "Modrite",
+     "area_km2": 281.88,
+     "place": "Ferry Co., WA",
+     "incident_acres": 57594
+    },
+    {
+     "feds_id": "63715",
+     "fire": "map20260805-63715",
+     "incident": "Hagen",
+     "area_km2": 222.19,
+     "place": "Umatilla Co., OR",
+     "incident_acres": 61380
+    },
+    {
+     "feds_id": "63960",
+     "fire": "map20260805-63960",
+     "incident": "Skillet",
+     "area_km2": 21.98,
+     "place": "Flathead Co., MT",
+     "incident_acres": 3414
+    },
+    {
+     "feds_id": "63962",
+     "fire": "map20260805-63962",
+     "incident": "PTARMIGAN",
+     "area_km2": 96.38,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 25566
+    },
+    {
+     "feds_id": "63969",
+     "fire": "map20260805-63969",
+     "incident": "Burnt Creek",
+     "area_km2": 19.34,
+     "place": "Wallowa Co., OR",
+     "incident_acres": 4169
+    },
+    {
+     "feds_id": "64659",
+     "fire": "map20260805-64659",
+     "incident": "Border 2",
+     "area_km2": 77.45,
+     "place": "",
+     "incident_acres": 9108
+    },
+    {
+     "feds_id": "65080",
+     "fire": "map20260805-65080",
+     "incident": "Cascade",
+     "area_km2": 23.64,
+     "place": "Idaho Co., ID",
+     "incident_acres": 7475
+    },
+    {
+     "feds_id": "65258",
+     "fire": "map20260805-65258",
+     "incident": "Castle",
+     "area_km2": 19.56,
+     "place": "Douglas Co., OR",
+     "incident_acres": 3615
+    },
+    {
+     "feds_id": "65395",
+     "fire": "map20260805-65395",
+     "incident": "BIG GRASS",
+     "area_km2": 1039.98,
+     "place": "Owyhee Co., ID",
+     "incident_acres": 578637
+    },
+    {
+     "feds_id": "65397",
+     "fire": "map20260805-65397",
+     "incident": "Jackass Butte",
+     "area_km2": 143.11,
+     "place": "Harney Co., OR",
+     "incident_acres": 24724
+    },
+    {
+     "feds_id": "65401",
+     "fire": "map20260805-65401",
+     "incident": "0587 SHINGLE",
+     "area_km2": 318.76,
+     "place": "Wheeler Co., OR",
+     "incident_acres": 29844
+    },
+    {
+     "feds_id": "65486",
+     "fire": "map20260805-65486",
+     "incident": "Tartar",
+     "area_km2": 661.53,
+     "place": "Baker Co., OR",
+     "incident_acres": 158027
+    },
+    {
+     "feds_id": "65487",
+     "fire": "map20260805-65487",
+     "incident": "Bench",
+     "area_km2": 234.24,
+     "place": "Jefferson Co., OR",
+     "incident_acres": 67071
+    },
+    {
+     "feds_id": "65489",
+     "fire": "map20260805-65489",
+     "incident": "GRASSHOPPER",
+     "area_km2": 217.14,
+     "place": "Wasco Co., OR",
+     "incident_acres": 93972
+    },
+    {
+     "feds_id": "65680",
+     "fire": "map20260805-65680",
+     "incident": "Elder 1",
+     "area_km2": 8.49,
+     "place": "Missoula Co., MT",
+     "incident_acres": 1235
+    },
+    {
+     "feds_id": "65682",
+     "fire": "map20260805-65682",
+     "incident": "Silvertip",
+     "area_km2": 34.8,
+     "place": "Flathead Co., MT",
+     "incident_acres": 7280
+    },
+    {
+     "feds_id": "65718",
+     "fire": "map20260805-65718",
+     "incident": "HIGH LAVA",
+     "area_km2": 2.59,
+     "place": "Skamania Co., WA",
+     "incident_acres": 2899
+    },
+    {
+     "feds_id": "65726",
+     "fire": "map20260805-65726",
+     "incident": "Coleman Creek",
+     "area_km2": 827.94,
+     "place": "Malheur Co., OR",
+     "incident_acres": 308863
+    },
+    {
+     "feds_id": "65727",
+     "fire": "map20260805-65727",
+     "incident": "Second Flat",
+     "area_km2": 450.01,
+     "place": "Harney Co., OR",
+     "incident_acres": 105854
+    },
+    {
+     "feds_id": "65900",
+     "fire": "map20260805-65900",
+     "incident": "Lumin",
+     "area_km2": 26.18,
+     "place": "Sheridan Co., WY",
+     "incident_acres": 7285
+    },
+    {
+     "feds_id": "65995",
+     "fire": "map20260805-65995",
+     "incident": "Doublesprings",
+     "area_km2": 6.91,
+     "place": "Custer Co., ID",
+     "incident_acres": 1779
+    },
+    {
+     "feds_id": "66055",
+     "fire": "map20260805-66055",
+     "incident": "New Pass",
+     "area_km2": 172.46,
+     "place": "Churchill Co., NV",
+     "incident_acres": 37899
+    },
+    {
+     "feds_id": "66204",
+     "fire": "map20260805-66204",
+     "incident": "Moose",
+     "area_km2": 7.73,
+     "place": "Granite Co., MT",
+     "incident_acres": 6005
+    },
+    {
+     "feds_id": "66244",
+     "fire": "map20260805-66244",
+     "incident": "Little Weitas",
+     "area_km2": 0.87,
+     "place": "Idaho Co., ID",
+     "incident_acres": 872
+    },
+    {
+     "feds_id": "66433",
+     "fire": "map20260805-66433",
+     "incident": "SINLAHEKIN",
+     "area_km2": 474.78,
+     "place": "Okanogan Co., WA",
+     "incident_acres": 166007
+    },
+    {
+     "feds_id": "66510",
+     "fire": "map20260805-66510",
+     "incident": "Widemouth 2",
+     "area_km2": 486.08,
+     "place": "Millard Co., UT",
+     "incident_acres": 129742
+    },
+    {
+     "feds_id": "66555",
+     "fire": "map20260805-66555",
+     "incident": "MOUSE MEADOW",
+     "area_km2": 146.03,
+     "place": "Nye Co., NV",
+     "incident_acres": 52000
+    },
+    {
+     "feds_id": "66737",
+     "fire": "map20260805-66737",
+     "incident": "Rio Blanco",
+     "area_km2": 8.08,
+     "place": "Archuleta Co., CO",
+     "incident_acres": 1388
+    },
+    {
+     "feds_id": "67083",
+     "fire": "map20260805-67083",
+     "incident": "Moose Mountain",
+     "area_km2": 5.43,
+     "place": "Clearwater Co., ID",
+     "incident_acres": 5832
+    },
+    {
+     "feds_id": "67569",
+     "fire": "map20260805-67569",
+     "incident": "Ward",
+     "area_km2": 59.44,
+     "place": "White Pine Co., NV",
+     "incident_acres": 8683
+    },
+    {
+     "feds_id": "67572",
+     "fire": "map20260805-67572",
+     "incident": "Bobcat Lakes",
+     "area_km2": 20.14,
+     "place": "Beaverhead Co., MT",
+     "incident_acres": 10896
+    },
+    {
+     "feds_id": "67610",
+     "fire": "map20260805-67610",
+     "incident": "Big Rock",
+     "area_km2": 16.27,
+     "place": "Jefferson Co., ID",
+     "incident_acres": 2142.12
+    },
+    {
+     "feds_id": "67614",
+     "fire": "map20260805-67614",
+     "incident": "Black Canyon",
+     "area_km2": 12.39,
+     "place": "Emery Co., UT",
+     "incident_acres": 3264
+    },
+    {
+     "feds_id": "67758",
+     "fire": "map20260805-67758",
+     "incident": "OLD TRAILS",
+     "area_km2": 19.48,
+     "place": "Spokane Co., WA",
+     "incident_acres": 3176
+    },
+    {
+     "feds_id": "67765",
+     "fire": "map20260805-67765",
+     "incident": "Sand Creek",
+     "area_km2": 12.37,
+     "place": "Beaverhead Co., MT",
+     "incident_acres": 35520
+    },
+    {
+     "feds_id": "67766",
+     "fire": "map20260805-67766",
+     "incident": "FAIRVIEW",
+     "area_km2": 6.4,
+     "place": "Spokane Co., WA",
+     "incident_acres": 992
+    },
+    {
+     "feds_id": "67815",
+     "fire": "map20260805-67815",
+     "incident": "AUTUMN LANE",
+     "area_km2": 40.68,
+     "place": "Spokane Co., WA",
+     "incident_acres": 5764
+    },
+    {
+     "feds_id": "67816",
+     "fire": "map20260805-67816",
+     "incident": "MITRE ROCK",
+     "area_km2": 25.0,
+     "place": "Stevens Co., WA",
+     "incident_acres": 4518
+    },
+    {
+     "feds_id": "67885",
+     "fire": "map20260805-67885",
+     "incident": "Black Bear",
+     "area_km2": 0.35,
+     "place": "Ravalli Co., MT",
+     "incident_acres": 2126
+    },
+    {
+     "feds_id": "68001",
+     "fire": "map20260805-68001",
+     "incident": "Antelope Creek",
+     "area_km2": 13.22,
+     "place": "Elko Co., NV",
+     "incident_acres": 6282
+    },
+    {
+     "feds_id": "68052",
+     "fire": "map20260805-68052",
+     "incident": "Poppy Rd",
+     "area_km2": 2.56,
+     "place": "Jackson Co., MS",
+     "incident_acres": 60
+    },
+    {
+     "feds_id": "68082",
+     "fire": "map20260805-68082",
+     "incident": "Elk",
+     "area_km2": 9.69,
+     "place": "Hinsdale Co., CO",
+     "incident_acres": 7257
+    },
+    {
+     "feds_id": "68370",
+     "fire": "map20260805-68370",
+     "incident": "GANN",
+     "area_km2": 47.44,
+     "place": "Calaveras Co., CA",
+     "incident_acres": 10339
+    },
+    {
+     "feds_id": "68539",
+     "fire": "map20260805-68539",
+     "incident": "Bare",
+     "area_km2": 2.3,
+     "place": "Sublette Co., WY",
+     "incident_acres": 370
+    },
+    {
+     "feds_id": "68716",
+     "fire": "map20260805-68716",
+     "incident": "SAND SPRINGS",
+     "area_km2": 0.29,
+     "place": "Torrance Co., NM",
+     "incident_acres": 15
+    },
+    {
+     "feds_id": "68718",
+     "fire": "map20260805-68718",
+     "incident": "Frijoles",
+     "area_km2": 0.23,
+     "place": "Santa Fe Co., NM",
+     "incident_acres": 15956
+    },
+    {
+     "feds_id": "68722",
+     "fire": "map20260805-68722",
+     "incident": "Grotto",
+     "area_km2": 1.0,
+     "place": "Idaho Co., ID",
+     "incident_acres": 3856
+    },
+    {
+     "feds_id": "68941",
+     "fire": "map20260805-68941",
+     "incident": "LAVAL",
+     "area_km2": 2.97,
+     "place": "Kern Co., CA",
+     "incident_acres": null
+    }
+   ]
+  },
+  "2026-08-02T12:00": {
+   "purpose": "worst-case ensembles only",
+   "fires": [
+    {
+     "feds_id": "19",
+     "fire": "map20260802-19",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "331",
+     "fire": "map20260802-331",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "340",
+     "fire": "map20260802-340",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "800",
+     "fire": "map20260802-800",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "2143",
+     "fire": "map20260802-2143",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "5450",
+     "fire": "map20260802-5450",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "11887",
+     "fire": "map20260802-11887",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "18872",
+     "fire": "map20260802-18872",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "20036",
+     "fire": "map20260802-20036",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "31094",
+     "fire": "map20260802-31094",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "48632",
+     "fire": "map20260802-48632",
+     "containment": "contained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "49109",
+     "fire": "map20260802-49109",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "51849",
+     "fire": "map20260802-51849",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "52611",
+     "fire": "map20260802-52611",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "53095",
+     "fire": "map20260802-53095",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "53363",
+     "fire": "map20260802-53363",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "53763",
+     "fire": "map20260802-53763",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "57204",
+     "fire": "map20260802-57204",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "57585",
+     "fire": "map20260802-57585",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "58056",
+     "fire": "map20260802-58056",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "60791",
+     "fire": "map20260802-60791",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "61855",
+     "fire": "map20260802-61855",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "62041",
+     "fire": "map20260802-62041",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "62590",
+     "fire": "map20260802-62590",
+     "containment": "contained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "62944",
+     "fire": "map20260802-62944",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63215",
+     "fire": "map20260802-63215",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63363",
+     "fire": "map20260802-63363",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63369",
+     "fire": "map20260802-63369",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63372",
+     "fire": "map20260802-63372",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63374",
+     "fire": "map20260802-63374",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63568",
+     "fire": "map20260802-63568",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63588",
+     "fire": "map20260802-63588",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63683",
+     "fire": "map20260802-63683",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63715",
+     "fire": "map20260802-63715",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63960",
+     "fire": "map20260802-63960",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63962",
+     "fire": "map20260802-63962",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "63969",
+     "fire": "map20260802-63969",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "64600",
+     "fire": "map20260802-64600",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "64816",
+     "fire": "map20260802-64816",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65080",
+     "fire": "map20260802-65080",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65258",
+     "fire": "map20260802-65258",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65395",
+     "fire": "map20260802-65395",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65401",
+     "fire": "map20260802-65401",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65486",
+     "fire": "map20260802-65486",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65489",
+     "fire": "map20260802-65489",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65680",
+     "fire": "map20260802-65680",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65682",
+     "fire": "map20260802-65682",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65718",
+     "fire": "map20260802-65718",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65726",
+     "fire": "map20260802-65726",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65727",
+     "fire": "map20260802-65727",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "65995",
+     "fire": "map20260802-65995",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "66055",
+     "fire": "map20260802-66055",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "66204",
+     "fire": "map20260802-66204",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "66244",
+     "fire": "map20260802-66244",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "66433",
+     "fire": "map20260802-66433",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "66510",
+     "fire": "map20260802-66510",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "66555",
+     "fire": "map20260802-66555",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "66737",
+     "fire": "map20260802-66737",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "66834",
+     "fire": "map20260802-66834",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67083",
+     "fire": "map20260802-67083",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67149",
+     "fire": "map20260802-67149",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67447",
+     "fire": "map20260802-67447",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67569",
+     "fire": "map20260802-67569",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67572",
+     "fire": "map20260802-67572",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67610",
+     "fire": "map20260802-67610",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67614",
+     "fire": "map20260802-67614",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67616",
+     "fire": "map20260802-67616",
+     "containment": "unmatched",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67758",
+     "fire": "map20260802-67758",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67765",
+     "fire": "map20260802-67765",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67766",
+     "fire": "map20260802-67766",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67815",
+     "fire": "map20260802-67815",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67816",
+     "fire": "map20260802-67816",
+     "containment": "uncontained",
+     "in_catalog": true
+    },
+    {
+     "feds_id": "67885",
+     "fire": "map20260802-67885",
+     "containment": "uncontained",
+     "in_catalog": true
+    }
+   ]
+  }
+ },
+ "n_tasks": 240,
+ "tasks_file": "data/multiday/tasks.txt"
+}

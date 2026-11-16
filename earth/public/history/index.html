@@ -12,7 +12,7 @@
 <script type="module" src="/history/history.js"></script>
 </head>
 <body>
-<div class="fresh"><span class="wordmark">Ignopticon</span><nav><a href="/">Fire watch</a><a href="/history/" aria-current="page">History</a></nav></div>
+<div class="fresh"><span class="wordmark">Ignopticon</span><nav><a href="/">Fire watch</a><a href="/history/" aria-current="page">History</a><a href="/technical/">Technical details</a></nav></div>
 <main>
 <header class="top">
   <h1>Burning activity, 2000-2026</h1>
@@ -37,8 +37,20 @@
 </div>
 
 <section class="card">
+  <h2>Trends 2003-2025 <small id="tr-sub"></small></h2>
+  <div class="grid2">
+    <div><svg id="tr-act" role="img" aria-label="Annual activity 2003-2025, raw and harmonized, with trend lines"></svg></div>
+    <div><svg id="tr-len" role="img" aria-label="Fire-season length 2003-2025, raw and harmonized, with trend lines"></svg></div>
+  </div>
+  <div class="legend"><span class="sw raw"></span>Raw<span class="sw harm"></span>Harmonized<span class="muted">dashed = Theil-Sen trend; dotted line = 2012 sensor change</span></div>
+  <table class="trt" id="tr-table"></table>
+  <p class="note" id="tr-note"></p>
+</section>
+
+<section class="card">
   <h2>Daily layer <small id="day-sub"></small></h2>
   <div class="days" id="days"></div>
+  <div class="legend" id="firms"></div>
   <div class="mapwrap"><div id="map"></div><p id="map-msg" class="mapmsg">Click a week in the calendar to see its busiest day.</p></div>
   <p class="note">Each square is a 0.1 degree cell (about 10 km); brighter means more 1 km fire pixels. Cells the satellites could not see are left clear.</p>
 </section>

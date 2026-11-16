@@ -40,6 +40,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 LANDFIRE = "https://lfps.usgs.gov/arcgis/rest/services/Landfire_LF2025/LF2025_{}_CONUS/ImageServer/exportImage"
+LF_ELEV = "https://lfps.usgs.gov/arcgis/rest/services/Landfire_Topo/LF2020_Elev_CONUS/ImageServer/exportImage"
 DEP3 = "https://elevation.nationalmap.gov/arcgis/rest/services/3DEPElevation/ImageServer/exportImage"
 FETCH_CELL = 30.0
 # Cells per request, each way. 3DEP times out on large requests (504), which an HTTP proxy such as Tillicum's
@@ -49,7 +50,10 @@ ATTEMPTS = int(os.environ.get("LANDSCAPE_ATTEMPTS", "10"))
 NODATA = -9999
 # (band name, URL, pixel type, resampling)
 LAYERS = [
-    ("dem", DEP3, "F32", Resampling.bilinear),
+    # LANDSCAPE_DEM=landfire uses LANDFIRE's 30 m elevation (derived from USGS 3DEP) on the LANDFIRE server, which
+    # Tillicum's compute-node proxy lets through when it refuses 3DEP's own ImageServer.
+    ("dem", LF_ELEV if os.environ.get("LANDSCAPE_DEM") == "landfire" else DEP3,
+     "S16" if os.environ.get("LANDSCAPE_DEM") == "landfire" else "F32", Resampling.bilinear),
     ("fbfm40", LANDFIRE.format("FBFM40"), "S16", Resampling.nearest),
     ("cc", LANDFIRE.format("CC"), "S16", Resampling.nearest),
     ("ch", LANDFIRE.format("CH"), "S16", Resampling.nearest),

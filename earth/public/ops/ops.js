@@ -24,8 +24,8 @@ const state = {
   filter: "", sort: ["closest", "size", "growth", "newest", "name"].includes(params.get("sort")) ? params.get("sort") : "closest",
   mode: "progression", step: 0, fc: null, compare: false,  // fc: forecast hour shown, or null (off)
   layers: {current: true, previous: true, forecast: true, worst: true, physics: false, hotspots: false, interior: false, detached: false, activity: false},
-  arm: params.get("arm") || "harm-all",
-  wind: params.get("wind") || "surface",  // wind particle height (wind.js): off, surface, or hPa  // which next-day prediction model (data/samples/predictions)
+  arm: params.get("arm") || "harm-all",  // which next-day prediction model (data/samples/predictions)
+  wind: params.get("wind") || "surface",  // wind particle height (wind.js): off, surface, or hPa
 };
 let fires = [], byId = new Map(), at = null, map = null, cur = null;
 
@@ -33,8 +33,8 @@ let fires = [], byId = new Map(), at = null, map = null, cur = null;
 let gps = null, gpsMarker = null, gpsWatch = null, gpsMessage = "Waiting for GPS";
 let connected = navigator.onLine;
 function freshness() {
-  $("#fresh").textContent = "Updated every 12 hours" + (connected ? "" : " · OFFLINE");
-  $("#fresh").classList.toggle("offline", !connected);  // phones hide this line except when offline
+  $("#fresh").textContent = "Updated every 12 h" + (connected ? "" : " · OFFLINE");
+  $("#fresh").classList.toggle("offline", !connected);
 }
 // A new version of the page waits in the service worker until told to take over. Switch at once (one reload) when it
 // is found as the page opens; one found later waits for the next open, so the page never reloads under someone.
@@ -106,7 +106,7 @@ function requestGps() {
   gpsWatch = navigator.geolocation.watchPosition(({coords}) => {
     gps = [coords.longitude, coords.latitude]; showPosition(); if (at) renderList();
     nav.gps(coords.longitude, coords.latitude, coords.accuracy);
-  }, () => { gps = null; gpsMarker?.remove(); gpsMessage = "GPS unavailable"; if (at) renderList(); },
+  }, () => { gps = null; gpsMarker?.remove(); gpsMessage = "GPS unavailable"; if (at) renderList(); nav.gpsError(); },
   {enableHighAccuracy: true, maximumAge: 10000, timeout: 15000});
 }
 const saves = new Map();
@@ -162,6 +162,19 @@ function growthText(f) {
   return {text: `${sign}${num(Math.abs(g))} ac${before > 0 ? ` (${sign}${num(Math.abs(g) / before * 100)}%)` : ""} in 12 h`, cls: g > 0 ? "up" : ""};
 }
 
+// "This week vs 2003-2025": percentile of the fire's week (and region box, as scripts/history_calendar.py) from /data/calendar.
+const WEEK_BOXES = [["california", [[-124.5, -120, 39, 42], [-124.5, -118.4, 35, 39], [-121, -114.3, 32.4, 35]]], ["pacific-nw", [[-125, -116.5, 42, 49.6]]], ["great-basin", [[-120, -111, 36.5, 42]]],
+  ["southwest", [[-120, -103, 31, 37]]], ["rockies", [[-117, -104, 37, 49.6]]], ["southeast", [[-94.6, -75, 24, 36.5], [-82, -75, 36.5, 37.5]]], ["plains", [[-104, -93, 26, 49.6]]], ["northeast", [[-93, -66, 36.5, 49.6]]]];
+const regionOf = ([lon, lat]) => (WEEK_BOXES.find(([, bs]) => bs.some(([w, e, s, n]) => lon >= w && lon < e && lat >= s && lat < n)) || ["us"])[0];
+async function weekLine(f) {
+  const day = String((at && at.snapshot) || state.t).slice(0, 10), m = /^(\d{4})-(\d\d)-(\d\d)/.exec(day);
+  if (!m || +m[1] !== 2026 || !f.centroid) return "";
+  const doy = Math.round((Date.UTC(2026, +m[2] - 1, +m[3]) - Date.UTC(2026, 0, 0)) / 864e5), wk = Math.min(51, Math.floor((doy - 1) / 7)), reg = regionOf(f.centroid);
+  const j = await fetch(`/data/calendar/${reg}.json`).then((r) => r.ok ? r.json() : null).catch(() => null), p = j && j.pct2026.harm[wk];
+  if (p == null) return "";
+  const sfx = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10 > 3 ? 0 : n % 10]);
+  return `<p class="muted" id="weekline">This week vs 2003-2025: ${sfx(p)} percentile (${esc(j.name)})</p>`;
+}
 const api = (path) => fetch(path).then((r) => r.json().then((j) => r.ok ? j : Promise.reject(new Error(j.error || r.statusText))));
 const query = () => state.t ? `?time=${encodeURIComponent(state.t)}` : "";
 const details = new Map();
@@ -182,7 +195,7 @@ let fedsDays = {}, firstFeds = null;  // "YYYY-MM-DD" -> its latest FEDS snapsho
 const pageDay = () => (state.t === "now" ? new Date().toISOString() : state.t || DEMO_DAY).slice(0, 10);
 function setDateButton() {
   const [y, m, d] = pageDay().split("-");
-  $("#d-pick").textContent = state.t === "now" ? "Today" : `${MONTHS[+m - 1]} ${+d}, ${y}`;
+  $("#d-pick").textContent = `${MONTHS[+m - 1]} ${+d}, ${y}`;  // the date itself; the pressed Today button says it is today
   $("#d-today").setAttribute("aria-pressed", state.t === "now");
 }
 function goDay(day) {  // a FEDS day opens at its latest snapshot; any other day at 18:00 UTC (afternoon passes), with no fire open
@@ -286,12 +299,13 @@ function renderDetail(f, d) {
   const hs = d && d.hotspots;
   $("#detail").innerHTML = `<button type="button" class="back" id="back">← All fires (Esc)</button>
 <h2 id="detail-name">${esc(label(f))}</h2><p class="muted">${esc(f.place || "")} · FEDS fire ${f.id}</p>
-${d ? containmentHtml(d.containment, zone) : ""}${sumHtml(f, d, g)}<button type="button" class="nav-open" data-nav-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z" fill="currentColor"/></svg>Navigate to this fire</button>${fcHtml}
+${d ? containmentHtml(d.containment, zone) : ""}${sumHtml(f, d, g)}<button type="button" class="nav-open" data-nav-open><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4.5 20.3l.7.7L12 18l6.8 3 .7-.7z" fill="currentColor"/></svg>Navigate to this fire</button>${exposureHtml(f, d)}${fcHtml}
 `;
   $("#sources").innerHTML = `<details><summary>Data sources</summary><ul><li>Perimeters: NASA FEDS (VIIRS 375 m), ${when(f.perimeter_time, zone)}</li>
 <li>Hotspots: VIIRS S-NPP, NOAA-20, NOAA-21: ${hs ? `${num(hs.length)} detections in the 12 h to view time` : "none downloaded for this time"}</li>
-${fc ? `<li>Forecast: ELMFIRE + fire-history growth model · ${esc(fc.source || fc.model)}</li>` : ""}${d && d.containment ? "<li>Containment: NIFC WFIGS incident records</li>" : ""}<li id="nav-src"${nav.sourceText() ? "" : " hidden"}>${esc(nav.sourceText())}</li><li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
+${fc ? `<li>Forecast: ELMFIRE + fire-history growth model · ${esc(fc.source || fc.model)}</li>` : ""}${d && d.containment ? "<li>Containment: NIFC WFIGS incident records</li>" : ""}<li id="nav-src"${nav.sourceText() ? "" : " hidden"}>${esc(nav.sourceText())}</li><li id="wind-src"${windSource ? "" : " hidden"}>${esc(windSource)}</li>${conditionSources()}${popOn ? "<li>Population: GHS-POP 2025, European Commission JRC (CC BY 4.0)</li>" : ""}<li>Map: Sentinel-2 cloudless 2024 (EOX); labels: Natural Earth; 3D terrain: AWS Terrain Tiles</li></ul></details>`;
   $("#detail").hidden = false; $("#sources").hidden = false;
+  weekLine(f).then((h) => { const p = $("#detail-name"); if (h && p && p.textContent === label(f) && !$("#weekline")) p.nextElementSibling.insertAdjacentHTML("afterend", h); }).catch(() => {});
   if (d) legendForecast(fc, d);
   $("#back").onclick = overview;
 }
@@ -522,6 +536,35 @@ function applyView() {
   vis(["obs-case", "obs-line", "obs-label"], state.compare && h >= 0);
   updateActivity();
 }
+// Population density (GHS-POP 2025, ~1 km): one pre-coloured PNG over CONUS, drawn under the fire layers. Off by default.
+let popOn = false, popMeta = null;
+async function setPopulation() {
+  const note = $("#pop-note"); if (note) note.hidden = !popOn;
+  if (!map || !map.getLayer("fires-fill")) return;
+  if (popOn && !map.getSource("population")) {
+    popMeta = popMeta || await fetch("/data/population/meta.json").then((r) => r.json()).catch(() => null);
+    if (!popMeta || map.getSource("population")) return;
+    const m = popMeta;
+    map.addSource("population", {type: "image", url: "/data/population/density.png", coordinates: [[m.west, m.north], [m.east, m.north], [m.east, m.south], [m.west, m.south]]});
+    map.addLayer({id: "population", type: "raster", source: "population", paint: {"raster-resampling": "nearest", "raster-opacity": 0.75}}, "fires-fill");
+  }
+  if (map.getLayer("population")) map.setLayoutProperty("population", "visibility", popOn ? "visible" : "none");
+}
+$("#pop-toggle").addEventListener("click", (e) => { popOn = !popOn; e.currentTarget.setAttribute("aria-pressed", popOn); setPopulation(); });
+// People inside the perimeter / forecast footprints per fire (scripts/population_layer.py exposure).
+let exposure = null;
+fetch("/data/population/exposure_20260802.json").then((r) => r.ok ? r.json() : null).then((j) => { exposure = j; if (cur && cur.fire && cur.detail) renderDetail(cur.fire, cur.detail); }).catch(() => {});
+function roundPeople(n) {
+  if (n < 1000) return Math.round(n / 10) * 10;
+  const m = 10 ** (Math.floor(Math.log10(n)) - 1);
+  return Math.round(n / m) * m;
+}
+function exposureHtml(f, d) {
+  const x = exposure && exposure.fires[f.id];
+  if (!x || !d || !d.forecast_upper || (at && at.time.slice(0, 10) !== "2026-08-02")) return "";
+  const p = (n) => "~" + roundPeople(n).toLocaleString("en-US");
+  return `<p class="people">People inside: most likely ${p(x.likely)}, worst case ${p(x.worst)} <span class="muted">(GHS-POP 2025, ~1 km)</span></p>`;
+}
 // Eric's next-day fire activity prediction (predictions.js), shown only for the dates it covers.
 let setWind = null, windSource = "";  // the wind file in use, listed under Data sources
 // Wind particles (wind.js) for the view date, at the chosen height.
@@ -584,8 +627,8 @@ function renderForecast() {
   if (!fc) return;
   const zone = zoneOf(cur.fire), stops = fcStops(fc);
   $("#fc-stops").innerHTML = [{hours: null}, ...stops].map((s, i) => {
-    const label = s.hours == null ? "Issue" : `+${s.hours} h`, color = s.hours == null ? "transparent" : BANDS[Math.min(2, i - 1)];
-    const title = s.hours == null ? "Show the fire as of the forecast issue time (no forecast)" : `${fc.bound ? "Most likely" : "Predicted"} by ${when(s.time, zone)} · +${num(s.acres)} ac`;
+    const label = s.hours == null ? "Off" : `+${s.hours} h`, color = s.hours == null ? "transparent" : BANDS[Math.min(2, i - 1)];
+    const title = s.hours == null ? "Prediction off: show the fire as of the forecast issue time" : `${fc.bound ? "Most likely" : "Predicted"} by ${when(s.time, zone)} · +${num(s.acres)} ac`;
     return `<li class="stop" style="--stop-color:${color}"><button type="button" data-fc="${s.hours ?? "off"}" aria-pressed="${state.fc === s.hours}" title="${title}">${label}</button></li>`;
   }).join("");
   const s = stops.find((x) => x.hours === state.fc), obs = s && (cur.detail.observed_after || []).find((o) => o.hours === s.hours);
@@ -676,7 +719,7 @@ const nav = createNav({$, esc, say: (m) => say(m), fit: (b) => fit(b), getMap: (
   accessPoint: () => { try { const p = JSON.parse(localStorage.getItem(routeKey() + ".point")); return Array.isArray(p) && p.length === 2 && p.every(Number.isFinite) ? p : null; } catch { return null; } },
   saveAccessPoint: (p) => { try { localStorage.setItem(routeKey() + ".point", JSON.stringify(p)); } catch {} }});
 // The navigation panel is a popup over the map, opened from the fire card's "Navigate to this fire" button.
-function navPopup(open) { $("#navpanel").hidden = !open; if (open) $("#nav-close").focus(); }
+function navPopup(open) { $("#navpanel").hidden = !open; if (open) { nav.opened(); $("#nav-close").focus(); } }
 // Android Back (and the browser Back button) does what Escape does on desktop: it closes the navigation panel, then the
 // fire history, then the selected fire, instead of leaving the app. While any of those is open, one extra history
 // entry sits on top; Back pops it, we close the topmost thing, and push it again if something is still open.
@@ -803,7 +846,7 @@ function initMap() {
   map.on("style.load", () => {
     addImages();
     listReady.then(() => {
-      setFires(); applyView(); updateWind(); nav.styleLoaded(); fireHistory.styleLoaded();
+      setFires(); applyView(); updateWind(); nav.styleLoaded(); setPopulation(); fireHistory.styleLoaded();
       if (cur && cur.detail) setDetail(cur.detail);
       if (state.view === "3d") setView("3d");
     }, () => { updateWind(); fireHistory.styleLoaded(); if (state.view === "3d") setView("3d"); });  // no fire list (e.g. before 2026)
@@ -894,6 +937,8 @@ $("#home").onclick = () => { state.filter = ""; $("#filter").value = ""; if (map
 $("#return").onclick = () => { overview(); const matches = fires.filter(matchesFire); if (matches.length) fit(matches.map(f=>f.bbox).reduce(union)); };
 $("#locate").onclick = () => { if (gps && map) map.easeTo({center:gps, zoom:12}); else requestGps(); };
 requestGps();
+// Location switched on after the page opened: ask again instead of staying on the old denial.
+navigator.permissions?.query({name: "geolocation"}).then(p => { p.onchange = () => { if (p.state === "granted") requestGps(); }; }).catch(() => {});
 // The list renders from the API without waiting for the map.
 $("#labels").setAttribute("aria-pressed", state.labels);
 for (const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-pressed", b.dataset.view === state.view);
@@ -914,8 +959,30 @@ function noOutlines(data) {
   $("#count").innerHTML = `<span class="hint">No fire outlines for ${esc(day)} yet: perimeters start in ${firstFeds ? firstFeds.slice(0, 4) : "2026"}, and outlines for earlier years are being prepared. The map shows the satellite fire detections for that day.</span>`;
   if (!data) { $("#list").innerHTML = ""; listSources && listSources(); }
   const show = () => fireHistory.showDay(day);
+  firmsArchive(day);
   if (map && map.isStyleLoaded()) show(); else (function wait() { map ? map.once("idle", show) : setTimeout(wait, 300); })();
+}
+// FIRMS archive points (/data/history/firms/SENSOR/daily/DAY.json) for the UTC day and the day before: MODIS 1 km and VIIRS
+// 375 m, coloured by FRP. Sensors or days that are missing (404) are skipped.
+async function firmsArchive(day) {
+  const prev = new Date(Date.parse(day) - 864e5).toISOString().slice(0, 10), feats = [], n = {};
+  const js = await Promise.all(["modis", "viirs-snpp", "viirs-noaa20", "viirs-noaa21"].flatMap((s) => [day, prev].map((x) =>
+    fetch(`/data/history/firms/${s}/daily/${x}.json`).then((r) => r.ok ? r.json() : null).catch(() => null))));
+  for (const j of js) {
+    if (!j || !j.rows) continue;
+    const i = (c) => j.columns.indexOf(c), fam = j.sensor === "modis" ? "MODIS" : "VIIRS";
+    n[fam] = (n[fam] || 0) + j.rows.length;
+    for (const r of j.rows) feats.push({type: "Feature", geometry: {type: "Point", coordinates: [r[i("longitude")], r[i("latitude")]]}, properties: {frp: +r[i("frp")] || 0}});
+  }
+  const note = feats.length ? `FIRMS archive (MODIS/VIIRS): ${Object.entries(n).map(([k, v]) => `${num(v)} ${k}`).join(", ")} detections, ${esc(prev)} to ${esc(day)} UTC. Colour = FRP: yellow under 10, orange 10-50, red 50-200, magenta over 200 MW.` : `No FIRMS archive data for ${esc(day)}.`;
+  $("#count").insertAdjacentHTML("beforeend", `<span class="hint"><br>${note}</span>`);
+  if (!feats.length) return;
+  while (!(map && map.getLayer("fires-fill"))) await new Promise((r) => setTimeout(r, 300));   // wait for the map's own layers
+  const data = {type: "FeatureCollection", features: feats};
+  if (map.getSource("firms")) return map.getSource("firms").setData(data);
+  map.addSource("firms", {type: "geojson", data});
+  map.addLayer({id: "firms", type: "circle", source: "firms", paint: {"circle-color": ["step", ["get", "frp"], "#FFE08A", 10, "#FFA230", 50, "#FF4A2A", 200, "#C2185B"],
+    "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, 1.2, 9, 2.5, 15, 7], "circle-opacity": 0.8}}, map.getLayer("fires-fill") ? "fires-fill" : undefined);
 }
 // The map library is a deferred script after this module; start the map once it has run.
 if (window.maplibregl) initMap(); else $('script[src$="maplibre-gl.js"]').addEventListener("load", initMap);
-if (matchMedia("(min-width:821px)").matches) $("#keybox").open = true;

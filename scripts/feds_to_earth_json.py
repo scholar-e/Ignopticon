@@ -27,6 +27,7 @@ import json
 import logging
 import os
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -56,8 +57,21 @@ DIGITS = 4         # coordinate decimals (~10 m)
 
 def get(params, collection=SNAPSHOTS):
     url = collection + "?" + urllib.parse.urlencode(params)
-    with urllib.request.urlopen(url, timeout=300) as response:
-        return json.load(response)
+    try:
+        with urllib.request.urlopen(url, timeout=300) as response:
+            return json.load(response)
+    except urllib.error.HTTPError as e:   # some snapshots (00Z, Aug 2026) answer 500 to a big limit but not to pages of 100
+        if e.code != 500 or params.get("limit", 0) <= 100:
+            raise
+        out, offset = None, 0
+        while True:
+            page = get({**params, "limit": 100, "offset": offset}, collection)
+            out = out or page
+            if offset:
+                out["features"] += page["features"]
+            if len(page["features"]) < 100:
+                return out
+            offset += 100
 
 
 def incidents(time):

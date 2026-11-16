@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ignopticon: Technical details</title>
+<meta name="theme-color" content="#162c25">
+<link rel="stylesheet" href="/history/history.css">
+<link rel="stylesheet" href="/technical/technical.css">
+</head>
+<body>
+<div class="fresh"><span class="wordmark">Ignopticon</span><nav><a href="/">Fire watch</a><a href="/history/">History</a><a href="/technical/" aria-current="page">Technical details</a></nav></div>
+<main class="doc">
+<header class="top"><h1>Technical details</h1></header>
+<section class="card">
+  <p class="warn">Experimental research output for the NASA Space Apps 2026 MODIS/VIIRS challenge, not an official forecast. Do not use it for evacuation or tactical decisions. Numbers below come from MODELLING_LOG.md in the repository (entry numbers in brackets) and the result files it cites.</p>
+  <p class="toc"><a href="#what">What it does</a><a href="#data">Data</a><a href="#harm">Harmonization</a><a href="#forecast">Forecasting</a><a href="#verify">Verification</a><a href="#failed">What did not help</a><a href="#next">Limits and next</a></p>
+</section>
+
+<section class="card" id="what"><h2>1. What the system does</h2>
+  <p><a href="/">Fire watch</a> shows 12-hour spread forecasts for the 76 fires in NASA's FEDS perimeter snapshots of 2 August 2026, with the burning perimeter, a most-likely case and a worst case, hotspots and wind.
+  <a href="/history/">History</a> is a calendar of satellite fire activity over the lower 48 states from 2000 to 2026, with MODIS made comparable to VIIRS, plus a daily map and an overlay of NASA FIRMS hotspots.
+  A shorter overview, with the field-map features and the Space Apps summary, is on the <a href="/about.html">About page</a>. This page goes deeper on the modelling.</p>
+</section>
+
+<section class="card" id="data"><h2>2. Data</h2>
+  <div class="tscroll"><table>
+  <tr><th>Source</th><th>Used for</th></tr>
+  <tr><td><a href="https://lpdaac.usgs.gov/products/mod14a1v061/">MODIS Terra MOD14A1</a> and <a href="https://lpdaac.usgs.gov/products/myd14a1v061/">Aqua MYD14A1</a> (daily, 1 km)</td><td>Fire record 2000 on (Aqua from 2002); inputs to harmonization</td></tr>
+  <tr><td>VIIRS S-NPP VNP14A1, NOAA-20 VJ114A1 (<a href="https://ladsweb.modaps.eosdis.nasa.gov/">LAADS DAAC</a>), and <a href="https://firms.modaps.eosdis.nasa.gov/">FIRMS</a> hotspots incl. NOAA-21</td><td>Target of harmonization (S-NPP, from 2012-01-19); hotspots at fire start and in the History overlay</td></tr>
+  <tr><td><a href="https://firenrt.delta-backend.com/">NASA FEDS</a> perimeters</td><td>Fire start state and truth, every 12 h</td></tr>
+  <tr><td><a href="https://data-nifc.opendata.arcgis.com/">NIFC WFIGS</a> incidents</td><td>Names, containment dates (display and scoring only)</td></tr>
+  <tr><td><a href="https://rapidrefresh.noaa.gov/hrrr/">NOAA HRRR</a> (15-minute wind)</td><td>Fire-model weather</td></tr>
+  <tr><td><a href="https://www.climatologylab.org/gridmet.html">gridMET</a></td><td>Daily weather for the activity and growth models</td></tr>
+  <tr><td><a href="https://landfire.gov/">LANDFIRE LF2025</a></td><td>Fuels and canopy</td></tr>
+  <tr><td><a href="https://human-settlement.emergency.copernicus.eu/">GHS-POP R2023A, 2025 epoch</a></td><td>Population density layer and people-inside-forecast counts (~1 km; European Commission JRC, CC BY 4.0)</td></tr>
+  <tr><td><a href="https://www.usgs.gov/3d-elevation-program">USGS 3DEP</a> and ETOPO elevation</td><td>Terrain</td></tr>
+  </table></div>
+  <p>Formats and the layout of the files the site serves are in docs/DATASETS.md in the repository.</p>
+</section>
+
+<section class="card" id="harm"><h2>3. Harmonizing MODIS with VIIRS</h2>
+  <p>MODIS (2000 on) and VIIRS (2012 on) see fire differently, so a raw MODIS count is not comparable with a VIIRS count. We built a per-cell model of one question: on a given day, in a 0.1 degree cell (about 10 km), would VIIRS S-NPP have seen fire, given what MODIS Terra and Aqua saw? Inputs are MODIS fire pixels and power, the same for neighbouring cells and the previous and next day, days since fire, month and location. It is a boosted-tree model trained on 2012-2024 overlap years, using only days VIIRS looked at clearly, so cloud is never counted as "no fire" [10].</p>
+  <p><b>Held-out years</b> (2013, 2016, 2019, 2022; the model was trained on the other nine) [10]:</p>
+  <div class="tscroll"><table>
+  <tr><th>Method</th><th class="n">AUC</th><th class="n">Brier</th><th class="n">Log loss</th><th class="n">Expected fire cell-days (observed 183,677)</th></tr>
+  <tr><td>MODIS fire used as-is</td><td class="n">0.739</td><td class="n">0.001255</td><td class="n">0.01733</td><td class="n">235,121</td></tr>
+  <tr><td>Per-month logistic rescaling</td><td class="n">0.783</td><td class="n">0.000809</td><td class="n">0.00543</td><td class="n">180,007</td></tr>
+  <tr><td>Boosted-tree harmonization</td><td class="n">0.961</td><td class="n">0.000709</td><td class="n">0.00393</td><td class="n">179,844</td></tr>
+  </table></div>
+  <ul>
+  <li>The probabilities are calibrated: predicted 0.145 matched an observed rate of 0.142, and 0.963 matched 0.960. A MODIS fire cell-day is a VIIRS fire cell-day only 37% of the time.</li>
+  <li><b>No step at 2012.</b> Harmonized divided by raw MODIS is 0.75 to 0.80 in every year 2003-2013. Nationally the annual total is close to a constant rescaling (about x0.78); the gain is in where and when fire occurred. Raw MODIS overstates VIIRS fire cell-days by about 27%, partly because one large hot MODIS pixel paints several grid cells.</li>
+  <li><b>"Not observed" is not "no fire".</b> Cloud, smoke or a missing pass leave the ground unseen. The History calendar hatches such weeks (clear view of under 35% of the region's land) rather than showing zero.</li>
+  <li><b>Small fires are only a smeared likelihood.</b> For VIIRS-only fires with no MODIS fire in the cell (22,861 cell-days in 2013), the expected count is right (22,625), but only 1.8% of it lands on the actual cells. Totals over regions and months are trustworthy; single-cell maps of these are not.</li>
+  <li><b>Strict refit for experiments.</b> The comparison experiments (below) used a version fitted on 2012-2020 only and applied to 2003-2011, so nothing saw 2021-2024 [12]. The History page uses the all-years fit through 2024.</li>
+  </ul>
+</section>
+
+<section class="card" id="forecast"><h2>4. Forecasting</h2>
+  <ul>
+  <li><b>Spread model.</b> <a href="https://github.com/lautenberger/elmfire">ELMFIRE</a>: Rothermel surface spread, a level-set front, on a 37.5 m grid with LANDFIRE fuels and 3DEP terrain, run for 12 hours from the FEDS perimeter known at 12:00 UTC, with VIIRS hotspots marking the edges still burning [13, 14].</li>
+  <li><b>Weather.</b> HRRR 15-minute wind (10 m wind scaled by 0.87 to 20 ft). Dead fuel moisture is an equilibrium estimate from 2 m temperature and humidity (Simard 1968), with the 10-h and 100-h classes set 1 and 2 points above the 1-h class; live moisture is a constant [2, 23]. These are crude and untuned.</li>
+  <li><b>Calibration.</b> Raw ELMFIRE over-predicts area: on the 12 held-out fires the median forecast area was 2.7 times the observed area [24].</li>
+  <li><b>Most likely case.</b> A growth model decides how much. LightGBM trained on the harmonized 2003-2011 and VIIRS 2012-2019 record predicts next-day new fire cells per event, converted to km2 (45.7 km2 per cell, fitted on 8 fires), and ELMFIRE's arrival-time map is cut at the isochrone that gives that area [24].</li>
+  <li><b>Worst case.</b> Cells ordered by ELMFIRE's earliest arrival over an 11-run ensemble (wind direction, speed and fuel moisture varied), then by distance from the perimeter where the 12 h runs do not reach, sized by fire size (separate calibration for small, medium and large fires) to capture about 80% of observed next-day growth, and graded on that capture: on 7 held-out uncontained fires it captured 90.5%, at the cost of much more false-alarm area [31, 34, 35].</li>
+  <li><b>Unsuppressed potential.</b> Firefighting is not modelled. Containment from WFIGS is shown as a label and used to split scores, never as an input [27].</li>
+  </ul>
+</section>
+
+<section class="card" id="verify"><h2>5. Verification</h2>
+  <p>Headline subset: wildfires that were not contained at issue time and match a WFIGS incident, since forecasting unsuppressed spread for fires already contained is not meaningful. Truth is the FEDS perimeter 12 hours later; the issue time is 2 Aug 2026 12:00 UTC. Growth IoU is the overlap between the predicted and the observed <i>new</i> area; "no growth" scores 0 by construction.</p>
+  <div class="tscroll"><table>
+  <tr><th>Most likely, held-out, 7 uncontained fires (6 with growth) [27]</th><th class="n">Growth IoU</th><th class="n">Growth recall</th><th class="n">Whole IoU</th><th class="n">Median area ratio</th></tr>
+  <tr><td>No growth</td><td class="n">0</td><td class="n">0</td><td class="n">0.933</td><td class="n">0</td></tr>
+  <tr><td>Raw ELMFIRE</td><td class="n">0.104</td><td class="n">0.52</td><td class="n">0.744</td><td class="n">3.7</td></tr>
+  <tr><td>Most likely (area-constrained)</td><td class="n">0.113</td><td class="n">0.20</td><td class="n">0.897</td><td class="n">0.64</td></tr>
+  </table></div>
+  <p>On all 12 held-out fires the worst case recovered about three quarters of raw ELMFIRE's growth recall at about half the false-alarm area (11.4 vs 20.5 km2 per fire) [25]. These fires were frozen before any model was run on them.</p>
+  <p><b>Where does it grow?</b> With "how much" removed (every method is given the true growth area), ELMFIRE's arrival order was compared with a plain distance-to-fire buffer on 26 uncontained, incident-matched fires [29]:</p>
+  <div class="tscroll"><table>
+  <tr><th>n = 26 fires</th><th class="n">AUC</th><th class="n">Recall at observed area</th><th class="n">Growth IoU</th></tr>
+  <tr><td>ELMFIRE arrival time</td><td class="n">0.863</td><td class="n">0.277</td><td class="n">0.170</td></tr>
+  <tr><td>Distance buffer</td><td class="n">0.880</td><td class="n">0.241</td><td class="n">0.148</td></tr>
+  <tr><td>Stretched downwind</td><td class="n">0.825</td><td class="n">0.220</td><td class="n">0.133</td></tr>
+  </table></div>
+  <p>ELMFIRE minus buffer on 2 Aug: AUC -0.017 (95% CI -0.045 to +0.006), recall +0.037 (-0.018 to +0.085), within the noise. On three later issue days, held out (no choice was made on them), the edge became clear: recall at observed area 0.273 / 0.197 / 0.172 (Aug 3, n=31), 0.331 / 0.252 / 0.224 (Aug 4, n=29), 0.361 / 0.282 / 0.252 (Aug 5, n=37) for ELMFIRE / buffer / downwind, with ELMFIRE above both baselines on every day (95% CIs above zero) [33].</p>
+  <p><b>Against an operational system.</b> PyreCast (Pyregence's operational ELMFIRE), from its public archive, on the same fires, truth and valid time, issues 12, 13 and 14 Aug 2026 (33 uncontained fire-days, frozen before any run): growth located at equal area 0.328 ours, 0.262 PyreCast median, 0.267 buffer; ours better on 25 of 33 fire-days, per-fire mean difference +0.086 (95% CI +0.042 to +0.131), pooled +0.066 (-0.001 to +0.143). PyreCast's runs start up to 15 h earlier from their own footprint, ours from the FEDS perimeter at issue [37, 38].</p>
+  <p><b>Worst case, graded on capture.</b> A worst case is judged by how much of the growth that actually happened falls inside it, at what area. The worst case captured 90.5% of observed growth on the 7 held-out uncontained fires (pooled), against 37% for raw ELMFIRE, at about 25 times the observed growth area [35]. Capture against area marked, 97 held-out fire-days (Aug 3-5), pooled [34]:</p>
+  <div class="tscroll"><table>
+  <tr><th>Area marked (x observed growth)</th><th class="n">Distance buffer</th><th class="n">Downwind</th><th class="n">ELMFIRE</th><th class="n">ELMFIRE 11-run union</th></tr>
+  <tr><td>1x</td><td class="n">0.24</td><td class="n">0.24</td><td class="n">0.31</td><td class="n">0.32</td></tr>
+  <tr><td>2x</td><td class="n">0.40</td><td class="n">0.39</td><td class="n">0.45</td><td class="n">0.46</td></tr>
+  <tr><td>3x</td><td class="n">0.51</td><td class="n">0.49</td><td class="n">0.54</td><td class="n">0.56</td></tr>
+  <tr><td>5x</td><td class="n">0.67</td><td class="n">0.65</td><td class="n">0.68</td><td class="n">0.68</td></tr>
+  <tr><td>10x</td><td class="n">0.87</td><td class="n">0.84</td><td class="n">0.87</td><td class="n">0.87</td></tr>
+  </table></div>
+  <p>ELMFIRE's shape adds capture up to about three times the observed area (union minus buffer +0.08, +0.06, +0.04, CIs above zero); by five times and beyond, a plain buffer captures as much. So at 80% capture the ordering matters little; the worst case uses ELMFIRE's ensemble order anyway, so its outline follows terrain and wind where the runs reach, and it captured slightly more on held-out fires than a pure distance envelope (90.5% vs 88.9%) [35].</p>
+  <p class="warn"><b>Caveats.</b> Small samples, one issue date, FEDS edges are uncertain by about 375 m (comparable to the 12 h advance of many fires), many fires are small, and the held-out results are descriptive. In-sample results (the area conversion, development fires) are marked as such in the log.</p>
+</section>
+
+<section class="card" id="failed"><h2>6. What we tested that did not help</h2>
+  <p>These are findings, not failures to report. Each was tested on development fires first and then on the 12 frozen held-out fires.</p>
+  <ul>
+  <li><b>A global spread multiplier.</b> A fitted factor (such as x0.02) improved one case study, but needs wetter fuels and weaker wind to be physically justified, and it was chosen on few fires [3, 7, 8].</li>
+  <li><b>Weather and fuel corrections.</b> Halving the wind and wetting dead fuels by 6 points matched the multiplier in sensitivity tests, but it was not confirmed against stations [7]. A seasonal live-moisture proxy and a wind-factor option helped the development fires (growth IoU 0.066 to 0.093, in-sample) and did not transfer: 0.058 to 0.052 on the held-out fires, 6 worse of 8 [23].</li>
+  <li><b>Self-calibration from the fire's recent progression.</b> One fire, direction signal present but not usable; not adopted [17].</li>
+  <li><b>Learned edge activation and front weighting.</b> Held-out growth IoU 0.058 (control) vs 0.063 (binary) and 0.055 (weighted); five of 12 fires had no edge data, and the differences are within noise [21, 22].</li>
+  <li><b>Burn-scar fuel correction from the harmonized record.</b> No effect: 0.1 degree history cells are too coarse, and excluding those touching the fire leaves scars out of a 12 h reach [26].</li>
+  <li><b>Harmonized history for the growth model.</b> No better than raw MODIS history or VIIRS only (test MAE 0.556, 0.560, 0.571 cells; none beats predicting zero growth) [24]. Not for the tail either: the worst-case pinball loss favoured harmonized by -0.008 against raw, CI -0.026 to +0.003 [25]. Nor for uncontained fire-days only: Spearman 0.404 harmonized, 0.400 raw, differences within noise [28].</li>
+  <li><b>Harmonized history for next-day activity (U-Net).</b> Test AP 0.138 harmonized, 0.139 raw, 0.140 VIIRS only (2021-2024, three seeds) [12]. The harmonized record is still the right thing for the History view, where it removes the sensor step.</li>
+  </ul>
+</section>
+
+<section class="card" id="next"><h2>7. Limitations and what is next</h2>
+  <ul>
+  <li>US only. Spread is unsuppressed; the models are not calibrated probabilities.</li>
+  <li>The held-out evaluation is one issue date and about a dozen fires. The growth model predicts about 0.4 new 10 km cells for almost every fire, so its "most likely" case sits near no growth.</li>
+  <li>The harmonization uses the next day's MODIS as a feature, so the History record is retrospective, not real time.</li>
+  <li>Next: a perimeter-based fine burn-scar map, more issue dates and fires, station-checked fuel moisture and wind, a calibrated worst case.</li>
+  </ul>
+  <p>Code and notes: <a href="https://github.com/scholar-e/Ignopticon">github.com/scholar-e/Ignopticon</a>. Full log: MODELLING_LOG.md. Overview: <a href="/about.html">About</a>.</p>
+  <p>Built by team <b>Babylonian Belugas</b> for NASA Space Apps 2026.</p>
+</section>
+</main>
+</body>
+</html>

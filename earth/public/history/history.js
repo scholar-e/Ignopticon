@@ -158,7 +158,7 @@ const merc = (lat) => Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
 async function drawDay(date) {
   const msg = $("#map-msg"); msg.hidden = false; msg.textContent = "Loading " + date + "...";
   const img = new Image(); img.src = `/data/history/harmonized/${date}.png`;
-  try { await img.decode(); } catch { msg.textContent = `No layer for ${date}.`; return; }
+  try { await img.decode(); } catch { msg.textContent = `No layer for ${date}.`; drawFirms(date); return; }
   const src = document.createElement("canvas"); src.width = img.width; src.height = img.height;
   const sg = src.getContext("2d", {willReadFrequently: true}); sg.drawImage(img, 0, 0);
   const sd = sg.getImageData(0, 0, img.width, img.height).data;
@@ -184,6 +184,54 @@ async function drawDay(date) {
     else { map.obj.addSource("day", {type: "image", url, coordinates: coords}); map.obj.addLayer({id: "day", type: "raster", source: "day", paint: {"raster-opacity": 1, "raster-resampling": "nearest", "raster-fade-duration": 0}}); }
   };
   initMap(); if (map.ready) apply(); else map.pending = apply;
+  drawFirms(date);
+}
+
+// ---- FIRMS hotspot points for the day (/data/history/firms/SENSOR/daily/DATE.json), one source per sensor family ----
+// Colour by FRP (same classes as the fire watch page); radius is half the pixel footprint at high zoom (0.375 km VIIRS, 1 km MODIS).
+const FRP_STEP = ["step", ["get", "frp"], "#FFE08A", 10, "#FFA230", 50, "#FF4A2A", 200, "#C2185B"];
+const FAMILY = {modis: {sensors: ["modis"], km: 1, name: "MODIS"}, viirs: {sensors: ["viirs-snpp", "viirs-noaa20", "viirs-noaa21"], km: 0.375, name: "VIIRS"}};
+const firmsShow = {modis: true, viirs: true};
+const radius = (km) => ["interpolate", ["exponential", 2], ["zoom"], 3, 1.5, 9, 2.5, 16, Math.max(2.5, km * 500 * 65536 / 119900)];
+async function drawFirms(date) {
+  state.firmsDate = date; initMap();
+  const box = $("#firms"), counts = {};
+  const geo = {};
+  for (const [fam, F] of Object.entries(FAMILY)) {
+    const feats = []; counts[fam] = [];
+    for (const s of F.sensors) {
+      const j = await fetch(`/data/history/firms/${s}/daily/${date}.json`).then((r) => r.ok ? r.json() : null).catch(() => null);
+      if (state.firmsDate !== date) return;
+      if (!j || !j.rows) continue;
+      const i = (n) => j.columns.indexOf(n);
+      for (const r of j.rows) feats.push({type: "Feature", geometry: {type: "Point", coordinates: [r[i("longitude")], r[i("latitude")]]}, properties: {frp: +r[i("frp")] || 0}});
+      counts[fam].push(`${s}: ${j.rows.length.toLocaleString("en-US")}`);
+    }
+    geo[fam] = {type: "FeatureCollection", features: feats};
+  }
+  const any = counts.modis.length + counts.viirs.length > 0;
+  box.replaceChildren();
+  for (const [fam, F] of Object.entries(FAMILY)) {
+    const lab = document.createElement("label"), cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = firmsShow[fam];
+    cb.addEventListener("change", () => { firmsShow[fam] = cb.checked; if (map.ready) map.obj.setLayoutProperty("firms-" + fam, "visibility", cb.checked ? "visible" : "none"); });
+    lab.append(cb, ` FIRMS ${F.name} hotspots (${geo[fam].features.length.toLocaleString("en-US")}${counts[fam].length > 1 ? "; " + counts[fam].join(", ") : ""}) `);
+    box.append(lab);
+  }
+  const note = document.createElement("span"); note.className = "muted";
+  note.textContent = any ? "colour = FRP: yellow <10, orange 10-50, red 50-200, magenta >200 MW; zoom in to see pixel footprints" : "no FIRMS data for this day";
+  box.append(note);
+  const apply = () => {
+    for (const fam of Object.keys(FAMILY)) {
+      const s = map.obj.getSource("firms-" + fam);
+      if (s) s.setData(geo[fam]);
+      else {
+        map.obj.addSource("firms-" + fam, {type: "geojson", data: geo[fam]});
+        map.obj.addLayer({id: "firms-" + fam, type: "circle", source: "firms-" + fam, layout: {visibility: firmsShow[fam] ? "visible" : "none"},
+          paint: {"circle-color": FRP_STEP, "circle-radius": radius(FAMILY[fam].km), "circle-opacity": 0.75, "circle-stroke-color": "#101418", "circle-stroke-width": 0.5}});
+      }
+    }
+  };
+  if (map.ready) apply(); else { const p = map.pending; map.pending = () => { if (p) p(); apply(); }; }
 }
 function initMap() {
   if (map.obj || !window.maplibregl) return;
@@ -194,6 +242,41 @@ function initMap() {
   map.obj.on("load", () => { map.ready = true; if (map.pending) { map.pending(); map.pending = null; } });
 }
 
+// ---- Trends 2003-2025 (scripts/fire_trends.py -> /data/trends/REGION.json) ----
+const tcache = {};
+function trendChart(svg, T, key, unit) {
+  const W = 520, Hh = 220, m = {l: 52, r: 10, t: 10, b: 24}, yrs = T.years, M = T.metrics[key];
+  svg.setAttribute("viewBox", `0 0 ${W} ${Hh}`); svg.replaceChildren();
+  const all = [...M.raw.values, ...M.harm.values], lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * 0.08 || 1;
+  const a = Math.max(0, lo - pad), b = hi + pad;
+  const X = (y) => m.l + (y - yrs[0]) / (yrs[yrs.length - 1] - yrs[0]) * (W - m.l - m.r), Y = (v) => Hh - m.b - (v - a) / (b - a) * (Hh - m.t - m.b);
+  for (let i = 0; i <= 4; i++) { const v = a + (b - a) * i / 4; svg.append(el("line", {x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "#2c3d36"}), el("text", {x: m.l - 6, y: Y(v) + 4, "text-anchor": "end"}, fmt(v))); }
+  for (let y = 2005; y <= 2025; y += 5) svg.append(el("text", {x: X(y), y: Hh - 6, "text-anchor": "middle"}, y));
+  svg.append(el("line", {x1: X(2011.5), x2: X(2011.5), y1: m.t, y2: Hh - m.b, stroke: "#8a968f", "stroke-dasharray": "2 3"}), el("text", {x: m.l + 4, y: m.t + 10}, unit));
+  for (const [mode, color] of [["raw", "#FFB020"], ["harm", "#5AC8FA"]]) {
+    const s = M[mode];
+    line(svg, yrs.map((y, i) => [X(y), Y(s.values[i])]), color);
+    line(svg, [yrs[0], yrs[yrs.length - 1]].map((y) => [X(y), Y(s.intercept + s.slope * y)]), color, null, "5 4");
+  }
+}
+async function drawTrends() {
+  const r = state.region;
+  if (!tcache[r]) tcache[r] = await (await fetch(`/data/trends/${r}.json`)).json();
+  const T = tcache[r]; if (state.region !== r) return;
+  $("#tr-sub").textContent = T.name;
+  trendChart($("#tr-act"), T, "activity", "annual cell-days");
+  trendChart($("#tr-len"), T, "length", "season length, days (10% to 90% of activity)");
+  const M = T.metrics, f1 = (v) => (v >= 0 ? "+" : "") + v.toFixed(1), pv = (p) => p < 0.001 ? "<0.001" : p.toFixed(3);
+  const row = (lab, k, big) => ["raw", "harm"].map((mo) => { const s = M[k][mo]; const slope = big ? (s.slope >= 0 ? "+" : "") + fmt(s.slope) : f1(s.slope); return `<td>${slope}/yr (p ${pv(s.p)})</td>`; });
+  const mean = (k, mo, y0, y1) => { const v = M[k][mo].values.filter((_, i) => T.years[i] >= y0 && T.years[i] <= y1); return v.reduce((x, y) => x + y, 0) / v.length; };
+  const rows = [["Annual activity (cell-days)", "activity", true, fmt], ["Season start (day of year)", "start", false, (v) => v.toFixed(0)], ["Season end (day of year)", "end", false, (v) => v.toFixed(0)], ["Season length (days)", "length", false, (v) => v.toFixed(0)]];
+  $("#tr-table").innerHTML = `<tr><th></th><th>Raw trend</th><th>Harmonized trend</th><th>Harmonized mean 2003-11 / 2012-25</th></tr>` +
+    rows.map(([lab, k, big, ff]) => `<tr><td>${lab}</td>${row(lab, k, big).join("")}<td>${ff(mean(k, "harm", 2003, 2011))} / ${ff(mean(k, "harm", 2012, 2025))}</td></tr>`).join("");
+  const a = M.activity.raw, h = M.activity.harm, sig = (s) => s.step_p < 0.05 ? "significant" : "not significant";
+  $("#tr-note").textContent = `2012 step in annual activity (2012-2025 mean minus 2003-2011 mean): raw ${a.step_2012 >= 0 ? "+" : ""}${fmt(a.step_2012)} (permutation p ${pv(a.step_p)}, ${sig(a)}), harmonized ${h.step_2012 >= 0 ? "+" : ""}${fmt(h.step_2012)} (p ${pv(h.step_p)}, ${sig(h)}). ` +
+    "Trend: Theil-Sen slope, Mann-Kendall p. Season = 10% to 90% of the year's cumulative activity. Regions are boxes, so edges are approximate.";
+}
+
 // ---- Wiring ----
 async function render() {
   state.data = await load(state.region);
@@ -201,7 +284,7 @@ async function render() {
   $("#mode-note").textContent = state.mode === "harm"
     ? "Harmonized: before 2012 this is the expected number of cells VIIRS would have flagged, so the 2012 step is gone. 2000-2002 are blank (no Aqua to train on)."
     : "Raw: MODIS Terra and Aqua cells before 2012, VIIRS S-NPP after. The jump in 2012 is the sensor change. White outline: week of Aug 2, 2026.";
-  drawHeat(); drawAnnual(); drawThisYear();
+  drawHeat(); drawAnnual(); drawThisYear(); drawTrends().catch(() => {});
 }
 async function main() {
   const regions = await (await fetch("/data/calendar/regions.json")).json();
@@ -217,6 +300,10 @@ async function main() {
   if (q.get("region")) { state.region = q.get("region"); $("#region").value = state.region; }
   if (q.get("mode")) { state.mode = q.get("mode"); document.querySelectorAll(".seg button").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.mode === state.mode))); }
   await render();
-  selectWeek(DEMO.year, DEMO.week);
+  const dq = /^(\d{4})-(\d\d)-(\d\d)$/.exec(q.get("date") || "");
+  if (dq) {   // ?date=YYYY-MM-DD opens that day
+    const y = +dq[1], doy = Math.round((Date.UTC(y, +dq[2] - 1, +dq[3]) - Date.UTC(y, 0, 0)) / 864e5);
+    selectWeek(y, Math.min(51, Math.floor((doy - 1) / 7))); showDay(y, doy);
+  } else selectWeek(DEMO.year, DEMO.week);
 }
 main();

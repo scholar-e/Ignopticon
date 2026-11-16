@@ -53,7 +53,10 @@ ACRE_M2 = 4046.8564224
 CHAIN_M = 20.1168
 SLIVER_CELLS = 2        # start-area polygons and holes smaller than this are dropped (never bands: they'd lose acres)
 SIMPLIFY_CELLS = 0.5    # coverage_simplify tolerance in cell widths; more erodes the thin 0-6 h rims past 5%
-ARROW_MIN_M = 375       # one VIIRS pixel: smaller advances are within the observation's own error
+SMOOTH_M = float(os.environ.get("FORECAST_SMOOTH_M", "0"))   # display smoothing radius (m); 0 = raw cells
+SMOOTH_UP = int(os.environ.get("FORECAST_SMOOTH_UP", "3"))     # upsampling for smooth edges (lowered for big grids)
+SMOOTH_MIN_HA = float(os.environ.get("FORECAST_SMOOTH_MIN_HA", "5"))  # specks smaller than this are dropped
+ARROW_MIN_M = 375      # one VIIRS pixel: smaller advances are within the observation's own error
 ARROW_MIN_ACRES = 50    # growth regions smaller than this get no arrow
 ARROW_MAX = 6            # per class
 ARROW_SPACING_KM = 3     # within a class, heads closer than this to a bigger region's arrow are skipped
@@ -71,6 +74,43 @@ def polygons(mask, transform, min_area):
         if p.area >= min_area:
             out.append(shapely.Polygon(p.exterior, [h for h in p.interiors if shapely.Polygon(h).area >= min_area]))
     return out
+
+
+def smooth(toa, valid, start, transform, limits):
+    """Display smoothing (FORECAST_SMOOTH_M > 0): each cumulative footprint (start, <= 3 h, <= 6 h, ...) is upsampled
+    SMOOTH_UP times, Gaussian-blurred with sigma SMOOTH_M metres and thresholded at the level that keeps its area, then
+    holes are filled, specks under SMOOTH_MIN_HA dropped and the footprints nested again. Turns a cut of scattered cells
+    (ensemble union, blended score) into an even outline of the same acreage. Display only: scores use the rasters."""
+    up = SMOOTH_UP
+    while up > 1 and toa.size * up * up > 6e7:
+        up -= 1
+    res = abs(transform.a) / up
+    fine = lambda a: np.repeat(np.repeat(a, up, 0), up, 1)
+    min_cells = SMOOTH_MIN_HA * 1e4 / res ** 2
+    out = np.full((toa.shape[0] * up, toa.shape[1] * up), np.inf)
+    prev = None
+    for lim in [0.0] + list(limits):
+        cum = fine(start | (valid & (toa <= lim))) if lim > 0 else fine(start)
+        n = int(cum.sum())
+        if n == 0:
+            continue
+        g = ndimage.gaussian_filter(cum.astype(np.float32), SMOOTH_M / res)
+        thr = np.partition(g.ravel(), -n)[-n]  # top n blurred values: same area
+        m = ndimage.binary_fill_holes(g >= max(thr, 1e-3))
+        lab, k = ndimage.label(m)
+        if k > 1:
+            sizes = np.bincount(lab.ravel())
+            keep = sizes >= min_cells
+            keep[0] = False
+            keep[np.argmax(np.where(np.arange(len(sizes)) > 0, sizes, 0))] = True
+            m = keep[lab]
+        if prev is not None:
+            m |= prev
+        out[m & ~np.isfinite(out)] = lim
+        prev = m
+    valid2 = np.isfinite(out)
+    t2 = rasterio.Affine(transform.a / up, transform.b, transform.c, transform.d, transform.e / up, transform.f)
+    return np.where(valid2, out, -1.0), valid2, out == 0, t2
 
 
 def num(h):
@@ -105,8 +145,11 @@ def main(run_dir, state_tif, issue, fire_id, name, model, out_dir, hours="6,12,2
             from elmfire_perimeters import known_start
             start, provenance = known_start(metadata, toa.shape, transform, crs)
     start = start.astype(bool) | (valid & (toa <= 0))
+    if SMOOTH_M > 0:
+        toa, valid, start, transform = smooth(toa, valid, start, transform, [h * 3600 for h in hours])
+        cell = abs(transform.a * transform.e)
 
-    taken = valid & (toa <= hours[-1] * 3600) | start
+    taken =valid & (toa <= hours[-1] * 3600) | start
     regions, n = ndimage.label(taken & ~start, structure=np.ones((3, 3)))
     sizes = np.bincount(regions.ravel())[1:] * cell / ACRE_M2
     where = np.zeros(n + 1, int)  # per region, index into WHERE; all "front" without a perimeter

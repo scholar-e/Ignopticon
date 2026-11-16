@@ -23,6 +23,7 @@ I/(2N-I). Paired bootstrap (10000 resamples of fires) of ELMFIRE minus baseline.
 """
 import json
 import logging
+import os
 import math
 import sys
 from pathlib import Path
@@ -36,8 +37,11 @@ from selfcal_adj import load_toa, raster_of
 import datetime as dt
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / 'data/where_skill'
-ISSUE = '2026-08-02T12:00'
+ISSUE = os.environ.get('WHERE_ISSUE', '2026-08-02T12:00')  # other issues: the multi-day verification (data/multiday)
+DAY = ISSUE[:10].replace('-', '')
+MULTI = ISSUE != '2026-08-02T12:00'
+OUT = ROOT / ('data/where_skill/' + DAY if MULTI else 'data/where_skill')
+(OUT / 'figures').mkdir(parents=True, exist_ok=True)
 DEV = ['2021-038', '2021-031', '2020-008', 'map20260802-66510']
 METHODS = ['elmfire', 'buffer', 'downwind']
 log = logging.getLogger('where_skill')
@@ -45,6 +49,9 @@ log = logging.getLogger('where_skill')
 
 def run_dir(fire):
     """(outputs dir, source label) of the adj1 / control ELMFIRE run, or None."""
+    if MULTI:
+        p = ROOT / f'data/perimeter_batch/{fire}/runs/physics3/adj1/outputs'
+        return (p, 'multiday adj1') if (p / 'run.json').exists() else None
     c = [(ROOT / f'data/edge_causal/front_weighted/dev/{fire}/control/outputs', 'dev control')] if fire in DEV[:3] else [
         (ROOT / f'data/demo_pull/runs/{fire}/runs/physics3/adj1/outputs', 'demo_pull adj1'),
         (ROOT / f'data/perimeter_batch/aug2_local/{fire}/adj1/outputs', 'aug2_local adj1')]
@@ -63,7 +70,7 @@ def fire_inputs(fire):
     if fire in FIRES and fire in DEV:
         f = FIRES[fire]
         return f['issue'], ROOT / f['observed'], ROOT / f['fc'][0]
-    wx = ROOT / f'data/training/fires/{fire}/wx-subh/20260802T12'
+    wx = ROOT / f'data/training/fires/{fire}/wx-subh/{DAY}T{ISSUE[11:13]}'
     if not (wx / 'ws.tif').exists():  # same HRRR 2026-08-02T12 sub-hourly forecast, rebuilt for the held-out batch
         wx = ROOT / f'data/edge_causal/front_weighted/heldout/{fire}/wx'
     return ISSUE, ROOT / f'data/training/fires/{fire}/fire-observed.json', wx
@@ -171,15 +178,15 @@ def evaluate(fire, outputs):
 
 
 def eligible(fire, cont):
-    if fire in DEV:
+    if fire in DEV and not MULTI:
         return True, 'dev'
     st = cont.get(fire.split('-')[-1], {}).get('status')
     return st == 'uncontained', st
 
 
 def cmd_manifest():
-    cont = json.loads((ROOT / 'data/containment/aug2_containment.json').read_text())['fires']
-    fires = sorted(p.name for p in (ROOT / 'data/training/fires').glob('map20260802-*')) + DEV[:3]
+    cont = json.loads((ROOT / ('data/multiday/containment_%s.json' % DAY if MULTI else 'data/containment/aug2_containment.json')).read_text())['fires']
+    fires = sorted(p.name for p in (ROOT / 'data/training/fires').glob(f'map{DAY}-*')) + ([] if MULTI else DEV[:3])
     man = dict(frozen_by='scripts/where_skill.py manifest, before any ranking or skill was computed',
                issue=ISSUE, horizon_h=12, primary=[], dev=[], excluded={})
     for f in sorted(set(fires)):

@@ -69,7 +69,7 @@ class Heap {
 export function createNav(ctx) {
   const {$, esc, say} = ctx;
   let pkg = null, pkgFor = null, hz = null, view = null;
-  let start = null, startAcc = null, startManual = false, dest = null, destSuggested = false;
+  let start = null, startAcc = null, startManual = false, dest = null, destSuggested = false, gpsFailed = false;
   let mode = "both", allow4x4 = true, picking = null, routes = [], chosen = null;
   let navigating = null, offSince = 0, repeaters = [], dispatch = null, refreshTimer = null, longCache = new Map();
 
@@ -380,15 +380,16 @@ export function createNav(ctx) {
     }
     const t0 = performance.now(), results = [];
     for (const lambda of LAMBDAS) { const r = trace(search(start, dest, lambda, long), start, dest, long); if (r) results.push(r); }
-    if (!results.length) { routes = []; chosen = null; render(); return note("No route found within the routing area. Try Drive + walk, allow 4×4 roads, or move the destination."); }
+    if (!results.length) { routes = []; chosen = null; render(); return note("No route found within the routing area. Try Drive + walk, allow rough roads, or move the destination."); }
     const fastest = results[0], cap = fastest.time * 1.5;
     const best = results.filter((r) => r.time <= cap).reduce((p, q) => q.keyCost < p.keyCost - 1e-6 ? q : p, fastest);
     // Best coverage is always listed; when it can't beat the fastest by a minute it is the fastest route itself.
     const same = fastest.keyCost - best.keyCost < 60;
-    routes = [{...fastest, id: "fast", label: "Fastest"}, {...(same ? fastest : best), id: "cover", label: "Best coverage", same}];
+    routes = [{...(same ? fastest : best), id: "cover", label: "Best coverage", same}, {...fastest, id: "fast", label: "Fastest"}];
     const dr = evaluateDispatch(); if (dr) routes.push(dr);
     chosen = chosen && routes.find((r) => r.id === chosen.id) || routes[0];
     note(same && !quiet ? "No route within 1.5× the fastest time has at least 1 min less without coverage, so Best coverage is the same route." : "");
+    if (!quiet) showCoverage(true);  // dead zones show with the routes, not only once navigation starts
     performance.mark("nav-routed"); console.log(`routes in ${Math.round(performance.now() - t0)} ms`);
     render();
     if (!quiet) { const f = ctx.getFire(), b = bboxOf(chosen.coords.concat([start, dest])); ctx.fit(f ? [Math.min(b[0], f.bbox[0]), Math.min(b[1], f.bbox[1]), Math.max(b[2], f.bbox[2]), Math.max(b[3], f.bbox[3])] : b); }
@@ -605,7 +606,7 @@ export function createNav(ctx) {
   function render() {
     const p = $("#navpanel"); if (!p) return;
     const fromIn = $("#nav-from-in"), toIn = $("#nav-to-in");
-    if (document.activeElement !== fromIn) fromIn.value = picking === "start" ? "Tap the map…" : !start ? (startManual ? "" : "Current location (waiting for GPS)") :
+    if (document.activeElement !== fromIn) fromIn.value = picking === "start" ? "Tap the map…" : !start ? (startManual ? "" : gpsFailed ? "Current location (GPS unavailable)" : "Current location (waiting for GPS)") :
       startManual ? `${start[1].toFixed(5)}, ${start[0].toFixed(5)}` : `Current location (±${Math.round(startAcc || 0)} m)`;
     if (document.activeElement !== toIn) toIn.value = picking === "dest" ? "Tap the map…" : !dest || destSuggested ? "Recommended spot (just outside the fire)" : `${dest[1].toFixed(5)}, ${dest[0].toFixed(5)}`;
     for (const b of document.querySelectorAll("[data-navmode]")) b.setAttribute("aria-pressed", b.dataset.navmode === mode);
@@ -754,10 +755,13 @@ ${warn.length ? `<span class="rt-warn">${warn.join(" · ")}</span>` : ""}</butto
     },
     gps(lon, lat, acc) {
       if (startManual && !navigating) return;
-      if (acc > 100 && !navigating) { if (!start) note("Your location is approximate (±" + Math.round(acc) + " m): set the start on the map for accurate routes."); return; }
-      start = [lon, lat]; startAcc = acc; startManual = false; render(); updateNav();
+      // Use an approximate fix (laptops, indoors) rather than waiting forever; just warn about it.
+      if (acc > 100 && !start && !navigating) note("Your location is approximate (±" + Math.round(acc) + " m): set the start on the map for accurate routes.");
+      start = [lon, lat]; startAcc = acc; startManual = false; gpsFailed = false; render(); updateNav();
     },
+    gpsError() { gpsFailed = true; render(); },
     styleLoaded,
+    opened() { showCoverage(true); },  // dead zones show while choosing a start and destination
     sourceText: () => sourceText,
   };
 }

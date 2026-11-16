@@ -1,0 +1,13 @@
+/* Technical details page: reuses /history/history.css tokens; only adds table and prose styles. */
+.doc{max-width:860px}
+.doc .card p,.doc .card li{max-width:80ch;font-size:.92rem;margin:0 0 8px}
+.doc .card ul,.doc .card ol{padding-left:20px;margin:0 0 8px}
+.doc a{color:#8fc8ff}
+.doc table{width:100%;border-collapse:collapse;font-size:.85rem;margin:6px 0 10px}
+.doc th,.doc td{text-align:left;padding:5px 8px 5px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.doc td.n,.doc th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.doc .warn{border-left:3px solid #FFB020;background:var(--raise);padding:8px 12px;border-radius:0 6px 6px 0}
+.doc .toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem}
+.doc .todo{color:#FFB020}
+.doc code{font:.85em ui-monospace,Menlo,monospace;background:var(--raise);padding:1px 4px;border-radius:3px}
+.tscroll{overflow-x:auto}

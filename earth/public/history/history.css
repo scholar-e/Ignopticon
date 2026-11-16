@@ -34,3 +34,5 @@ svg{width:100%;height:auto;display:block}svg text{fill:var(--muted);font:11px sy
 .mapmsg{position:absolute;left:10px;top:10px;margin:0;background:#15231fe6;padding:4px 8px;border-radius:6px;font-size:.85rem;z-index:2}
 .text p{margin:0 0 8px;max-width:80ch;font-size:.92rem}
 @media(max-width:560px){.grid2{grid-template-columns:minmax(0,1fr)}}
+
+.trt{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px}.trt th,.trt td{padding:3px 6px;text-align:right;border-bottom:1px solid var(--line)}.trt th:first-child,.trt td:first-child{text-align:left}.trt th{color:var(--muted);font-weight:600}
