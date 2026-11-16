@@ -47,3 +47,11 @@ Score (once, after collect; ~1-3 min):
 uv run --script scripts/h2h_score.py 2026-08-13T12:00      # writes data/h2h/results_20260813.{md,json}
 ```
 After scoring add a dated MODELLING_LOG.md entry (not done: no results yet).
+
+## Local test (pipeline only, not results)
+- map20260813-66244 (2 km2): failed in the task, "no associated VIIRS hot cells in 6 h before issue" (same rule as multiday; such fires will fail on Hyak too).
+- map20260813-69004, map20260813-65080: complete locally, 405 s / 429 s with 8 workers (whole task from nothing, incl. ~6.5 min build), adj1 only.
+  Local outputs are in data/perimeter_batch/map20260813-{69004,65080}/ and data/training/fires/ (the Hyak collect overwrites them).
+- h2h_score.py ran end to end on 69004 (scored) and 65080 (excluded: "no truth at T+12h", no FEDS perimeter at 14-0000 in its fire-observed.json).
+  Fires failing either way are reported as excluded in results (failure of our run is counted against us in the manifest count, not hidden).
+- Expected Hyak cost: ~7 min per task, 28 tasks -> ~3.3 GPU-h; wall ~15 min with %16 (landscape download dominates).
