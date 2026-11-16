@@ -917,3 +917,15 @@ Problem: the entry-25 upper case captured only 27% (pooled, uncontained held-out
 - Reading: on held-out days ELMFIRE locates the next 12 h of growth better than a distance buffer or a downwind rule, about one third more captured growth at the same area. This is stronger than Aug 2 (entry 29: 0.277 / 0.241 / 0.220, CI on ELM-buffer spanning 0) and replicates across three independent issue days.
 - Worst-case ensemble (`scripts/multiday.py recall`, uncut arrival maps): mean recall control vs union of 11 members (wind dir +-20 deg, speed x0.75/1.25, dead moisture +-2): Aug 2 0.531 -> 0.604 (n=31), Aug 3 0.529 -> 0.593, Aug 4 0.568 -> 0.627, Aug 5 0.564 -> 0.634. The union is larger than the control, so this is not an equal-area gain.
 - Caveats: fire-days are not independent (the same fire appears on up to 3 days), so the pooled CI is optimistic; per-day CIs are the honest unit. Mostly slow days (advance < 2 km, ~5 mph). FEDS +12 h edges ~375 m. The 10 network failures are random, not outcome-related.
+
+### 34. 2026-11-15 — Worst case graded on capture: capture vs area marked, held-out Aug 3-5 (`scripts/capture_curve.py`)
+- What: the worst case is now graded on capture (share of the observed +12 h growth inside the marked area) rather than growth IoU, which penalises a deliberately generous envelope. To ask whether ELMFIRE's shape helps a capture-graded envelope, capture was computed at marked areas of K x the observed growth (oracle-sized, so only the ranking differs) on the 97 uncontained fire-days of entry 33, for the where_skill rules plus the 11-member union (earliest arrival over members, then distance). `data/capture_curve/results.md`.
+- Pooled capture, buffer / downwind / ELMFIRE control / ELMFIRE union; union minus buffer (95% fire-day bootstrap CI); fire-days union > buffer / < buffer:
+  - 1x: 0.242 / 0.240 / 0.309 / 0.323; +0.081 [+0.046, +0.116]; 63 / 31
+  - 2x: 0.397 / 0.387 / 0.447 / 0.457; +0.059 [+0.023, +0.093]; 62 / 31
+  - 3x: 0.512 / 0.494 / 0.543 / 0.555; +0.043 [+0.013, +0.073]; 58 / 34
+  - 5x: 0.670 / 0.645 / 0.684 / 0.683; +0.013 [-0.010, +0.037]; 44 / 41
+  - 10x: 0.867 / 0.840 / 0.874 / 0.873; +0.006 [-0.004, +0.019]; 25 / 34
+- Reading: ELMFIRE's shape adds capture up to about 3x the observed area; from about 5x a distance buffer captures as much. The 80% worst case (entry 31: 0.889 pooled on 7 held-out, ~22x the observed growth area) sits in the regime where shape does not matter, consistent with its calibration choosing w = 0 (pure distance). The union adds ~0.01 over the control at equal area: the ensemble's gain in entry 33 came mostly from marking more area.
+- Site: Technical page verification now grades the worst case on capture (table above), the most-likely table drops the stale old worst-case row.
+- Caveats: oracle-sized areas (the real worst case sizes from fire size, not the observed growth); fire-days not independent; buffer candidates limited to 2x the observed max advance (where_skill domain), which favours the buffer; mostly slow days.

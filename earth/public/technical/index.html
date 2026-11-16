@@ -64,7 +64,7 @@
   <li><b>Weather.</b> HRRR 15-minute wind (10 m wind scaled by 0.87 to 20 ft). Dead fuel moisture is an equilibrium estimate from 2 m temperature and humidity (Simard 1968), with the 10-h and 100-h classes set 1 and 2 points above the 1-h class; live moisture is a constant [2, 23]. These are crude and untuned.</li>
   <li><b>Calibration.</b> Raw ELMFIRE over-predicts area: on the 12 held-out fires the median forecast area was 2.7 times the observed area [24].</li>
   <li><b>Most likely case.</b> A growth model decides how much. LightGBM trained on the harmonized 2003-2011 and VIIRS 2012-2019 record predicts next-day new fire cells per event, converted to km2 (45.7 km2 per cell, fitted on 8 fires), and ELMFIRE's arrival-time map is cut at the isochrone that gives that area [24].</li>
-  <li><b>Worst case.</b> An envelope grown outward from the active perimeter, sized by fire size (separate calibration for small, medium and large fires) to capture about 80% of observed next-day growth; on 7 held-out uncontained fires it captured 89%, at the cost of much more false-alarm area [31].</li>
+  <li><b>Worst case.</b> An envelope grown outward from the active perimeter, sized by fire size (separate calibration for small, medium and large fires) to capture about 80% of observed next-day growth, and graded on that capture: on 7 held-out uncontained fires it captured 89%, at the cost of much more false-alarm area [31, 34].</li>
   <li><b>Unsuppressed potential.</b> Firefighting is not modelled. Containment from WFIGS is shown as a label and used to split scores, never as an input [27].</li>
   </ul>
 </section>
@@ -72,11 +72,10 @@
 <section class="card" id="verify"><h2>5. Verification</h2>
   <p>Headline subset: wildfires that were not contained at issue time and match a WFIGS incident, since forecasting unsuppressed spread for fires already contained is not meaningful. Truth is the FEDS perimeter 12 hours later; the issue time is 2 Aug 2026 12:00 UTC. Growth IoU is the overlap between the predicted and the observed <i>new</i> area; "no growth" scores 0 by construction.</p>
   <div class="tscroll"><table>
-  <tr><th>Held-out, 7 uncontained fires (6 with growth) [27]</th><th class="n">Growth IoU</th><th class="n">Growth recall</th><th class="n">Whole IoU</th><th class="n">Median area ratio</th></tr>
+  <tr><th>Most likely, held-out, 7 uncontained fires (6 with growth) [27]</th><th class="n">Growth IoU</th><th class="n">Growth recall</th><th class="n">Whole IoU</th><th class="n">Median area ratio</th></tr>
   <tr><td>No growth</td><td class="n">0</td><td class="n">0</td><td class="n">0.933</td><td class="n">0</td></tr>
   <tr><td>Raw ELMFIRE</td><td class="n">0.104</td><td class="n">0.52</td><td class="n">0.744</td><td class="n">3.7</td></tr>
   <tr><td>Most likely (area-constrained)</td><td class="n">0.113</td><td class="n">0.20</td><td class="n">0.897</td><td class="n">0.64</td></tr>
-  <tr><td>Worst case</td><td class="n">0.109</td><td class="n">0.48</td><td class="n">0.761</td><td class="n">2.7</td></tr>
   </table></div>
   <p>On all 12 held-out fires the worst case recovered about three quarters of raw ELMFIRE's growth recall at about half the false-alarm area (11.4 vs 20.5 km2 per fire) [25]. These fires were frozen before any model was run on them.</p>
   <p><b>Where does it grow?</b> With "how much" removed (every method is given the true growth area), ELMFIRE's arrival order was compared with a plain distance-to-fire buffer on 26 uncontained, incident-matched fires [29]:</p>
@@ -86,7 +85,17 @@
   <tr><td>Distance buffer</td><td class="n">0.880</td><td class="n">0.241</td><td class="n">0.148</td></tr>
   <tr><td>Stretched downwind</td><td class="n">0.825</td><td class="n">0.220</td><td class="n">0.133</td></tr>
   </table></div>
-  <p>ELMFIRE minus buffer: AUC -0.017 (95% CI -0.045 to +0.006), recall +0.037 (-0.018 to +0.085). So the physics shows no demonstrated skill in choosing <i>where</i> beyond proximity to the existing fire. On four development fires (in-sample-ish) it was worse than the buffer.</p>
+  <p>ELMFIRE minus buffer on 2 Aug: AUC -0.017 (95% CI -0.045 to +0.006), recall +0.037 (-0.018 to +0.085), within the noise. On three later issue days, held out (no choice was made on them), the edge became clear: recall at observed area 0.273 / 0.197 / 0.172 (Aug 3, n=31), 0.331 / 0.252 / 0.224 (Aug 4, n=29), 0.361 / 0.282 / 0.252 (Aug 5, n=37) for ELMFIRE / buffer / downwind, with ELMFIRE above both baselines on every day (95% CIs above zero) [33].</p>
+  <p><b>Worst case, graded on capture.</b> A worst case is judged by how much of the growth that actually happened falls inside it, at what area. The size-calibrated worst case captured 89% of observed growth on the 7 held-out uncontained fires (pooled), against 37% for raw ELMFIRE, at about 22 times the observed growth area [31]. Capture against area marked, 97 held-out fire-days (Aug 3-5), pooled [34]:</p>
+  <div class="tscroll"><table>
+  <tr><th>Area marked (x observed growth)</th><th class="n">Distance buffer</th><th class="n">Downwind</th><th class="n">ELMFIRE</th><th class="n">ELMFIRE 11-run union</th></tr>
+  <tr><td>1x</td><td class="n">0.24</td><td class="n">0.24</td><td class="n">0.31</td><td class="n">0.32</td></tr>
+  <tr><td>2x</td><td class="n">0.40</td><td class="n">0.39</td><td class="n">0.45</td><td class="n">0.46</td></tr>
+  <tr><td>3x</td><td class="n">0.51</td><td class="n">0.49</td><td class="n">0.54</td><td class="n">0.56</td></tr>
+  <tr><td>5x</td><td class="n">0.67</td><td class="n">0.65</td><td class="n">0.68</td><td class="n">0.68</td></tr>
+  <tr><td>10x</td><td class="n">0.87</td><td class="n">0.84</td><td class="n">0.87</td><td class="n">0.87</td></tr>
+  </table></div>
+  <p>ELMFIRE's shape adds capture up to about three times the observed area (union minus buffer +0.08, +0.06, +0.04, CIs above zero); by five times and beyond, a plain buffer captures as much. So an 80% worst case is in effect a distance envelope, which is why the calibration chose no ELMFIRE weight; the physics earns its place in the most likely case and in tighter envelopes.</p>
   <p class="warn"><b>Caveats.</b> Small samples, one issue date, FEDS edges are uncertain by about 375 m (comparable to the 12 h advance of many fires), many fires are small, and the held-out results are descriptive. In-sample results (the area conversion, development fires) are marked as such in the log.</p>
 </section>
 
