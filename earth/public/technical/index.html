@@ -64,7 +64,7 @@
   <li><b>Weather.</b> HRRR 15-minute wind (10 m wind scaled by 0.87 to 20 ft). Dead fuel moisture is an equilibrium estimate from 2 m temperature and humidity (Simard 1968), with the 10-h and 100-h classes set 1 and 2 points above the 1-h class; live moisture is a constant [2, 23]. These are crude and untuned.</li>
   <li><b>Calibration.</b> Raw ELMFIRE over-predicts area: on the 12 held-out fires the median forecast area was 2.7 times the observed area [24].</li>
   <li><b>Most likely case.</b> A growth model decides how much. LightGBM trained on the harmonized 2003-2011 and VIIRS 2012-2019 record predicts next-day new fire cells per event, converted to km2 (45.7 km2 per cell, fitted on 8 fires), and ELMFIRE's arrival-time map is cut at the isochrone that gives that area [24].</li>
-  <li><b>Worst case.</b> An envelope grown outward from the active perimeter, sized by fire size (separate calibration for small, medium and large fires) to capture about 80% of observed next-day growth, and graded on that capture: on 7 held-out uncontained fires it captured 89%, at the cost of much more false-alarm area [31, 34].</li>
+  <li><b>Worst case.</b> Cells ordered by ELMFIRE's earliest arrival over an 11-run ensemble (wind direction, speed and fuel moisture varied), then by distance from the perimeter where the 12 h runs do not reach, sized by fire size (separate calibration for small, medium and large fires) to capture about 80% of observed next-day growth, and graded on that capture: on 7 held-out uncontained fires it captured 90.5%, at the cost of much more false-alarm area [31, 34, 35].</li>
   <li><b>Unsuppressed potential.</b> Firefighting is not modelled. Containment from WFIGS is shown as a label and used to split scores, never as an input [27].</li>
   </ul>
 </section>
@@ -86,7 +86,7 @@
   <tr><td>Stretched downwind</td><td class="n">0.825</td><td class="n">0.220</td><td class="n">0.133</td></tr>
   </table></div>
   <p>ELMFIRE minus buffer on 2 Aug: AUC -0.017 (95% CI -0.045 to +0.006), recall +0.037 (-0.018 to +0.085), within the noise. On three later issue days, held out (no choice was made on them), the edge became clear: recall at observed area 0.273 / 0.197 / 0.172 (Aug 3, n=31), 0.331 / 0.252 / 0.224 (Aug 4, n=29), 0.361 / 0.282 / 0.252 (Aug 5, n=37) for ELMFIRE / buffer / downwind, with ELMFIRE above both baselines on every day (95% CIs above zero) [33].</p>
-  <p><b>Worst case, graded on capture.</b> A worst case is judged by how much of the growth that actually happened falls inside it, at what area. The size-calibrated worst case captured 89% of observed growth on the 7 held-out uncontained fires (pooled), against 37% for raw ELMFIRE, at about 22 times the observed growth area [31]. Capture against area marked, 97 held-out fire-days (Aug 3-5), pooled [34]:</p>
+  <p><b>Worst case, graded on capture.</b> A worst case is judged by how much of the growth that actually happened falls inside it, at what area. The worst case captured 90.5% of observed growth on the 7 held-out uncontained fires (pooled), against 37% for raw ELMFIRE, at about 25 times the observed growth area [35]. Capture against area marked, 97 held-out fire-days (Aug 3-5), pooled [34]:</p>
   <div class="tscroll"><table>
   <tr><th>Area marked (x observed growth)</th><th class="n">Distance buffer</th><th class="n">Downwind</th><th class="n">ELMFIRE</th><th class="n">ELMFIRE 11-run union</th></tr>
   <tr><td>1x</td><td class="n">0.24</td><td class="n">0.24</td><td class="n">0.31</td><td class="n">0.32</td></tr>
@@ -95,7 +95,7 @@
   <tr><td>5x</td><td class="n">0.67</td><td class="n">0.65</td><td class="n">0.68</td><td class="n">0.68</td></tr>
   <tr><td>10x</td><td class="n">0.87</td><td class="n">0.84</td><td class="n">0.87</td><td class="n">0.87</td></tr>
   </table></div>
-  <p>ELMFIRE's shape adds capture up to about three times the observed area (union minus buffer +0.08, +0.06, +0.04, CIs above zero); by five times and beyond, a plain buffer captures as much. So an 80% worst case is in effect a distance envelope, which is why the calibration chose no ELMFIRE weight; the physics earns its place in the most likely case and in tighter envelopes.</p>
+  <p>ELMFIRE's shape adds capture up to about three times the observed area (union minus buffer +0.08, +0.06, +0.04, CIs above zero); by five times and beyond, a plain buffer captures as much. So at 80% capture the ordering matters little; the worst case uses ELMFIRE's ensemble order anyway, so its outline follows terrain and wind where the runs reach, and it captured slightly more on held-out fires than a pure distance envelope (90.5% vs 88.9%) [35].</p>
   <p class="warn"><b>Caveats.</b> Small samples, one issue date, FEDS edges are uncertain by about 375 m (comparable to the 12 h advance of many fires), many fires are small, and the held-out results are descriptive. In-sample results (the area conversion, development fires) are marked as such in the log.</p>
 </section>
 
