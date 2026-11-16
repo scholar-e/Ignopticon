@@ -15,26 +15,26 @@
  "n_fires_manifest": 28,
  "n_scored": 8,
  "excluded": {
-  "map20260813-61855": "no our run",
-  "map20260813-63368": "no burnable growth",
-  "map20260813-63369": "no burnable growth",
-  "map20260813-63960": "no our run",
-  "map20260813-63962": "no our run",
-  "map20260813-65080": "no truth at T+12h",
-  "map20260813-65395": "no truth at T+12h",
-  "map20260813-65682": "no our run",
-  "map20260813-65995": "no truth at T+12h",
-  "map20260813-66204": "no truth at T+12h",
-  "map20260813-66244": "no our run",
-  "map20260813-66433": "no our run",
-  "map20260813-66510": "no truth at T+12h",
-  "map20260813-67083": "no truth at T+12h",
-  "map20260813-67572": "no truth at T+12h",
-  "map20260813-67765": "no truth at T+12h",
-  "map20260813-68722": "no truth at T+12h",
-  "map20260813-69872": "no truth at T+12h",
-  "map20260813-69899": "no truth at T+12h",
-  "map20260813-70286": "no our run"
+  "08-13 map20260813-61855": "no our run",
+  "08-13 map20260813-63368": "no burnable growth",
+  "08-13 map20260813-63369": "no burnable growth",
+  "08-13 map20260813-63960": "no our run",
+  "08-13 map20260813-63962": "no our run",
+  "08-13 map20260813-65080": "no truth at T+12h",
+  "08-13 map20260813-65395": "no truth at T+12h",
+  "08-13 map20260813-65682": "no our run",
+  "08-13 map20260813-65995": "no truth at T+12h",
+  "08-13 map20260813-66204": "no truth at T+12h",
+  "08-13 map20260813-66244": "no our run",
+  "08-13 map20260813-66433": "no our run",
+  "08-13 map20260813-66510": "no truth at T+12h",
+  "08-13 map20260813-67083": "no truth at T+12h",
+  "08-13 map20260813-67572": "no truth at T+12h",
+  "08-13 map20260813-67765": "no truth at T+12h",
+  "08-13 map20260813-68722": "no truth at T+12h",
+  "08-13 map20260813-69872": "no truth at T+12h",
+  "08-13 map20260813-69899": "no truth at T+12h",
+  "08-13 map20260813-70286": "no our run"
  },
  "fires": [
   {
@@ -135,19 +135,23 @@
      "recall": 0.24381926683716965
     }
    },
-   "pyre_domain_obs_share": 0.83461210571185
+   "pyre_domain_obs_share": 0.83461210571185,
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-61855",
-   "status": "no our run"
+   "status": "no our run",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-63368",
-   "status": "no burnable growth"
+   "status": "no burnable growth",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-63369",
-   "status": "no burnable growth"
+   "status": "no burnable growth",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-63588",
@@ -247,15 +251,18 @@
      "recall": 0.0
     }
    },
-   "pyre_domain_obs_share": 1.0
+   "pyre_domain_obs_share": 1.0,
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-63960",
-   "status": "no our run"
+   "status": "no our run",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-63962",
-   "status": "no our run"
+   "status": "no our run",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-64659",
@@ -355,15 +362,18 @@
      "recall": 0.2731006160164271
     }
    },
-   "pyre_domain_obs_share": 0.9397672826830937
+   "pyre_domain_obs_share": 0.9397672826830937,
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-65080",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-65395",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-65489",
@@ -463,43 +473,53 @@
      "recall": 0.006351183063511831
     }
    },
-   "pyre_domain_obs_share": 0.9813200498132005
+   "pyre_domain_obs_share": 0.9813200498132005,
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-65682",
-   "status": "no our run"
+   "status": "no our run",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-65995",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-66204",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-66244",
-   "status": "no our run"
+   "status": "no our run",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-66433",
-   "status": "no our run"
+   "status": "no our run",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-66510",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-67083",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-67572",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-67765",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-68718",
@@ -599,11 +619,13 @@
      "recall": 0.045454545454545456
     }
    },
-   "pyre_domain_obs_share": 0.9090909090909091
+   "pyre_domain_obs_share": 0.9090909090909091,
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-68722",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-69004",
@@ -703,7 +725,8 @@
      "recall": 0.10144927536231885
     }
    },
-   "pyre_domain_obs_share": 0.6521739130434783
+   "pyre_domain_obs_share": 0.6521739130434783,
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-69592",
@@ -803,15 +826,18 @@
      "recall": 0.3940269749518304
     }
    },
-   "pyre_domain_obs_share": 0.9672447013487476
+   "pyre_domain_obs_share": 0.9672447013487476,
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-69872",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-69899",
-   "status": "no truth at T+12h"
+   "status": "no truth at T+12h",
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-70044",
@@ -911,11 +937,13 @@
      "recall": 0.10583941605839416
     }
    },
-   "pyre_domain_obs_share": 0.666058394160584
+   "pyre_domain_obs_share": 0.666058394160584,
+   "issue": "2026-08-13T12:00"
   },
   {
    "fire": "map20260813-70286",
-   "status": "no our run"
+   "status": "no our run",
+   "issue": "2026-08-13T12:00"
   }
  ],
  "pooled": {

@@ -55,3 +55,14 @@ After scoring add a dated MODELLING_LOG.md entry (not done: no results yet).
 - h2h_score.py ran end to end on 69004 (scored) and 65080 (excluded: "no truth at T+12h", no FEDS perimeter at 14-0000 in its fire-observed.json).
   Fires failing either way are reported as excluded in results (failure of our run is counted against us in the manifest count, not hidden).
 - Expected Hyak cost: ~7 min per task, 28 tasks -> ~3.3 GPU-h; wall ~15 min with %16 (landscape download dominates).
+
+## Issues 2026-08-12T12 and 2026-08-14T12 (same frozen pipeline, no method change)
+Manifests (frozen by h2h_manifest.py before any run): 08-12: 168 FEDS known, 75 uncontained+matched, 25 PyreCast fires with a run in window, **21 matched**.
+08-14: 174 known, 74 uncontained+matched, 35 PyreCast fires, **28 matched**. Combined `tasks_1214.txt` (49 lines: 0-20 Aug 12, 21-48 Aug 14), `catalog_1214.csv`,
+`hyak/h2h1214.slurm`. gridMET 20260811 and 20260813 made. FEDS 12-0000/13-0000 snapshots were failing (HTTP 500 for limit=10000 on those 00Z snapshots);
+fixed in scripts/feds_to_earth_json.py by paging 100 at a time; now present with 14-1200, 15-0000, 15-1200. (Aug 13 manifest was frozen before 12-0000/13-0000 existed; not regenerated.)
+FileNotFoundError on 63962/61855 (Aug 13): failed after 11 s, before HRRR finished, no inputs missing (catalog rows fine). Most likely both landed on different nodes
+at the same moment and the HRRR prefetch's flock (not enforced across nodes on GPFS) let two downloaders race on the temp file. Not an input/catalog bug: just resubmit
+(`--array=` their line numbers; the cache is warm now). Same risk for 1214: resubmit failures after the first wave.
+Scoring: `uv run --script scripts/h2h_score.py 2026-08-12T12:00 2026-08-13T12:00 2026-08-14T12:00` -> results_DAY.* each + results_pooled_20260812_20260813_20260814.{md,json}
+(fire-days pooled, bootstrap over fire-days).

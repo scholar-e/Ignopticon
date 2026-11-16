@@ -15,12 +15,13 @@ Ranking at equal area (the fair one): candidates = burnable & ~start & (dist to 
 either model by T+12 h); score = arrival time (earlier first, unreached last by distance); metric = recall of the top-N cells,
 N = observed growth cells in the candidates; same for 'buffer' (distance to start). Pooled = sum hits / sum N; macro = mean of fires.
 Paired bootstrap over fires (10000) of ours minus PyreCast p50.
-Usage: h2h_score.py 2026-08-13T12:00     writes data/h2h/results_DAY.json and .md
+Usage: h2h_score.py ISSUE [ISSUE ...]   e.g. 2026-08-12T12:00 2026-08-13T12:00 2026-08-14T12:00
+       writes data/h2h/results_DAY.{json,md} per issue and, for several, results_pooled_DAYS.{json,md}: fire-days pooled, bootstrap over fire-days.
 """
 import json, logging, os, sys, datetime as dt
 from pathlib import Path
 import numpy as np
-os.environ['WHERE_ISSUE'] = sys.argv[1]
+os.environ['WHERE_ISSUE'] = sys.argv[1]   # first issue; main() switches per issue
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import where_skill as W
 import rasterio
@@ -109,14 +110,28 @@ def boot(a, b, B=10000, seed=1):
             'macro_diff': float((pa - pb).mean()), 'macro_ci': q(mac), 'p_ours_better_pooled': float((pool > 0).mean())}
 
 
-def main(issue):
-    d = issue[:10].replace('-', '')
-    man = json.load(open(H / f'manifest_{d}.json'))
-    T = dt.datetime.fromisoformat(issue)
-    rows = [score_fire(f, T) for f in man['fires']]
+def main(issues):
+    """one issue: results_DAY.{md,json}; several: each one's file plus the pooled fire-days results_pooled_DAY1_DAY2.{md,json}."""
+    allrows, counts = [], {}
+    for issue in issues:
+        d = issue[:10].replace('-', '')
+        W.ISSUE, W.DAY, W.MULTI = issue, d, issue != '2026-08-02T12:00'   # where_skill reads these module globals
+        man = json.load(open(H / f'manifest_{d}.json'))
+        T = dt.datetime.fromisoformat(issue)
+        rows = [score_fire(f, T) for f in man['fires']]
+        for r in rows:
+            r['issue'] = issue
+        counts[issue] = man['counts']
+        report(issue, man['counts'], rows, f'results_{d}')
+        allrows += rows
+    if len(issues) > 1:
+        report(' + '.join(issues), counts, allrows, 'results_pooled_' + '_'.join(i[:10].replace('-', '') for i in issues))
+
+
+def report(issue, mcounts, rows, stem):
     ok = [r for r in rows if r['status'] == 'ok']
-    res = {'issue': issue, 'manifest_counts': man['counts'], 'n_fires_manifest': len(rows), 'n_scored': len(ok),
-           'excluded': {r['fire']: r['status'] for r in rows if r['status'] != 'ok'}, 'fires': rows}
+    res = {'issue': issue, 'manifest_counts': mcounts, 'n_fires_manifest': len(rows), 'n_scored': len(ok),
+           'excluded': {r.get('issue', '')[5:10] + ' ' + r['fire']: r['status'] for r in rows if r['status'] != 'ok'}, 'fires': rows}
     arr = lambda k: np.array([[r['rank'][k]['hits'], r['rank'][k]['n']] for r in ok], float)
     pool = {}
     for k in ['ours', 'buffer'] + ['pyre' + p for p in PCTS]:
@@ -131,7 +146,7 @@ def main(issue):
     if len(ok) > 2:
         res['bootstrap_rank_recall'] = {f'ours_minus_{b}': boot(arr('ours'), arr(b)) for b in ['pyre50', 'buffer']}
         res['bootstrap_rank_recall']['pyre50_minus_buffer'] = boot(arr('pyre50'), arr('buffer'))
-    (H / f'results_{d}.json').write_text(json.dumps(res, indent=1) + '\n')
+    (H / f'{stem}.json').write_text(json.dumps(res, indent=1) + '\n')
     L = [f'# Head-to-head {issue} (ours adj1 control vs PyreCast), +12 h, FEDS truth', '',
          f'Manifest {len(rows)} fires, scored {len(ok)}; excluded: {res["excluded"]}', '',
          '## Ranking at equal area (recall of top-N, N = observed growth cells)', '', '| method | pooled | macro |', '|---|---|---|']
@@ -152,10 +167,10 @@ def main(issue):
         g = lambda k: r['rank'][k]['recall']; t = r['threshold']
         L.append(f'| {r["fire"]} | {r["slug"]} | {r["lag_h"]} | {r["n_obs"]} | {g("ours"):.2f} | {g("pyre50"):.2f} | {g("buffer"):.2f} | '
                  f'{t["ours"]["recall"]:.2f}/{t["ours"]["area_ratio"]:.2f} | {t["pyre50"]["recall"]:.2f}/{t["pyre50"]["area_ratio"]:.2f} |')
-    (H / f'results_{d}.md').write_text('\n'.join(L) + '\n')
+    (H / f'{stem}.md').write_text('\n'.join(L) + '\n')
     log.info('\n'.join(L[:20]))
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(filename)s:%(lineno)d %(message)s', handlers=[logging.StreamHandler(sys.stdout)])
-    main(sys.argv[1])
+    main(sys.argv[1:])
