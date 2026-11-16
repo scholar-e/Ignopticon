@@ -38,7 +38,9 @@ import growth_bounds as gb
 from selfcal_adj import load_toa, raster_of
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / 'data/worstcase2'
+OUT = ROOT / os.environ.get('WORSTCASE_OUT', 'data/worstcase2')
+# WORSTCASE_W fixes the blend weight (1.0 = ELMFIRE ensemble arrival order, entry 35) instead of choosing the least false alarm
+FORCE_W = os.environ.get('WORSTCASE_W')
 OUT.mkdir(parents=True, exist_ok=True)
 TARGET = 0.80
 WS = [0.0, 0.25, 0.5, 0.75, 1.0]
@@ -229,6 +231,8 @@ def cmd_calibrate():
         t = table(sel)
         reach = [v for v in t.values() if v['reached']]
         best = min(reach, key=lambda v: (v['fa_km2'], v['m'])) if reach else max(t.values(), key=lambda v: v['recall'])
+        if FORCE_W is not None:
+            best = t[float(FORCE_W)]
         md += [f'## classes {[CLASS_NAMES[c] for c in g]} (n={int(sel.sum())} fires, observed growth {sum(recs[i]["obs"] for i in np.flatnonzero(sel)):.1f} km2)', '',
                '| w | m | pooled recall | false alarm km2 | target reached |', '|---|---|---|---|---|']
         md += [f"| {w} | {v['m']:.3g} | {v['recall']:.3f} | {v['fa_km2']:.1f} | {v['reached']} |" for w, v in t.items()]
@@ -330,7 +334,7 @@ def cmd_export():
             o.write(flat.reshape(P['toa'].shape).astype(prof['dtype']), 1)
         shutil.copy(Path(P['used'][0]) / 'run.json', run / 'run.json')
         model = (f"ELMFIRE physics, area-constrained: UPPER case (worst case): sized to capture ~{int(cal['target']*100)}% of growth for fires of this size "
-                 f"({c} class), footprint = blend of ELMFIRE arrival and distance from the perimeter (w={p['w']})")
+                 f"({c} class), footprint = " + ("ELMFIRE arrival order over the ensemble members" if p['w'] == 1.0 else f"blend of ELMFIRE arrival and distance from the perimeter (w={p['w']})"))
         tmp = ROOT / gb.B / 'tmp' / fire / 'upper_v2'
         shutil.rmtree(tmp, ignore_errors=True)
         snap = gb.snapshot_place(f['fire_id'])
