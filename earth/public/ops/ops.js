@@ -34,6 +34,7 @@ let gps = null, gpsMarker = null, gpsWatch = null, gpsMessage = "Waiting for GPS
 let connected = navigator.onLine;
 function freshness() {
   $("#fresh").textContent = "Updated every 12 hours" + (connected ? "" : " · OFFLINE");
+  $("#fresh").classList.toggle("offline", !connected);  // phones hide this line except when offline
 }
 // A new version of the page waits in the service worker until told to take over. Switch at once (one reload) when it
 // is found as the page opens; one found later waits for the next open, so the page never reloads under someone.
@@ -209,7 +210,7 @@ function writeUrl() {
   if (!state.labels) p.set("labels", "off");
   if (state.sort !== "closest") p.set("sort", state.sort);
   if (state.wind !== "surface") p.set("wind", state.wind);
-  history.replaceState(null, "", "?" + p);
+  history.replaceState(history.state, "", "?" + p);  // keep the Back-button marker (see androidBack)
 }
 
 // List order. Closest needs a GPS position; without one every distance is Infinity, so it falls back to A-Z.
@@ -676,6 +677,22 @@ const nav = createNav({$, esc, say: (m) => say(m), fit: (b) => fit(b), getMap: (
   saveAccessPoint: (p) => { try { localStorage.setItem(routeKey() + ".point", JSON.stringify(p)); } catch {} }});
 // The navigation panel is a popup over the map, opened from the fire card's "Navigate to this fire" button.
 function navPopup(open) { $("#navpanel").hidden = !open; if (open) $("#nav-close").focus(); }
+// Android Back (and the browser Back button) does what Escape does on desktop: it closes the navigation panel, then the
+// fire history, then the selected fire, instead of leaving the app. While any of those is open, one extra history
+// entry sits on top; Back pops it, we close the topmost thing, and push it again if something is still open.
+const backLayers = () => !$("#navpanel").hidden || !$("#hist").hidden || state.fire != null;
+function armBack() { if (!history.state?.opsBack) history.pushState({opsBack: true}, "", location.href); }
+window.addEventListener("popstate", () => {
+  if (!$("#navpanel").hidden) navPopup(false);
+  else if (!$("#hist").hidden) $("#hist-close").click();
+  else if (state.fire != null) overview();
+  if (backLayers()) armBack();
+});
+{
+  const watch = new MutationObserver(() => { if (backLayers()) armBack(); });
+  watch.observe(document.body, {attributes: true, attributeFilter: ["class"]});  // .selected: a fire is open
+  for (const el of [$("#navpanel"), $("#hist")]) watch.observe(el, {attributes: true, attributeFilter: ["hidden"]});
+}
 $("#detail").addEventListener("click", (e) => { if (e.target.closest("[data-nav-open]")) navPopup(true); });
 $("#nav-close").onclick = () => navPopup(false);
 $("#nav-start").addEventListener("click", () => navPopup(false));
@@ -794,6 +811,14 @@ function initMap() {
   map.once("idle", () => performance.mark("ops-map-idle"));
   // The compact credit opens on load; start it closed (just the i button).
   map.once("load", () => $(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"));
+  // On narrow (phone) maps MapLibre reopens the compact credit on every resize, and the phone layout resizes the map
+  // whenever a fire opens or closes; keep it closed unless the user tapped the (i) button.
+  let creditOpened = false;
+  document.addEventListener("click", (e) => { if (e.target.closest(".maplibregl-ctrl-attrib-button")) creditOpened = !creditOpened; });
+  for (const ev of ["resize", "styledata", "idle"]) map.on(ev, () => {
+    const el = $(".maplibregl-ctrl-attrib");
+    if (el && !creditOpened) el.classList.remove("maplibregl-compact-show");
+  });
   const pick = (e) => {
     if (state.fire && nav.click(e.lngLat.wrap())) return;
     const hit = map.queryRenderedFeatures(e.point, {layers: ["sel-fill", "fires-fill", "points"]}).find((x) => x.layer.id !== "points" || map.getZoom() < x.properties.zh);
@@ -808,6 +833,8 @@ $("#list").addEventListener("click", (e) => { const b = e.target.closest("button
 const prefetch = (e) => { const b = e.target.closest("button.fire"); if (b) detail(+b.dataset.id).catch(() => {}); };
 $("#list").addEventListener("mouseover", prefetch);
 $("#list").addEventListener("focusin", prefetch);
+// Touch has no hover: start the detail fetch when a finger lands on a fire, before the tap completes.
+$("#list").addEventListener("touchstart", prefetch, {passive: true});
 $("#list").addEventListener("keydown", (e) => {
   const buttons = [...document.querySelectorAll("#list button.fire")], i = buttons.indexOf(document.activeElement);
   const to = {ArrowDown: i + 1, ArrowUp: i - 1}[e.key];
